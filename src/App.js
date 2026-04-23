@@ -276,11 +276,6 @@ export default function PraderaIslands() {
           </div>
         </div>
 
-        {/* Scroll cue */}
-        <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", color: "rgba(255,255,255,0.6)", fontSize: 11, letterSpacing: 4, textTransform: "uppercase", fontFamily: "'Kanit', sans-serif", fontWeight: 600 }}>
-          <div style={{ width: 1, height: 50, background: "rgba(255,255,255,0.4)", margin: "0 auto 10px", animation: "float 2.5s ease-in-out infinite" }} />
-          Scroll
-        </div>
       </section>
 
       {/* BRAND STORY */}
