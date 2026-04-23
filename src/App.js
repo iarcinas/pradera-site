@@ -49,10 +49,17 @@ const characters = [
   { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange },
 ];
 
+const encodeForm = (data) =>
+  Object.keys(data)
+    .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
+    .join("&");
+
 export default function PraderaIslands() {
   const [activeSection, setActiveSection] = useState("home");
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [formState, setFormState] = useState("idle"); // idle | sending | sent | error
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -64,6 +71,23 @@ export default function PraderaIslands() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setActiveSection(id);
     setNavOpen(false);
+  };
+
+  const handleFormChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    setFormState("sending");
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: encodeForm({ "form-name": "contact", ...form }),
+    })
+      .then(() => {
+        setFormState("sent");
+        setForm({ name: "", email: "", message: "" });
+      })
+      .catch(() => setFormState("error"));
   };
 
   const navItems = ["attractions", "dining", "characters", "visit"];
@@ -154,7 +178,8 @@ export default function PraderaIslands() {
 
       {/* HERO */}
       <section id="home" style={{
-        minHeight: "100vh",
+        height: "100vh",
+        minHeight: 640,
         background: GRADIENTS.hero,
         position: "relative",
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -193,27 +218,27 @@ export default function PraderaIslands() {
         </div>
 
         {/* Hero content */}
-        <div style={{ textAlign: "center", position: "relative", zIndex: 2, padding: "120px 6% 80px", maxWidth: 1100, animation: "fadeUp 1s ease" }}>
-          <img src="/brand/emblem-full.png" alt="" style={{ width: 140, height: 140, margin: "0 auto 24px", filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.25))" }} className="float-anim" />
+        <div style={{ textAlign: "center", position: "relative", zIndex: 2, padding: "84px 6% 56px", maxWidth: 1100, animation: "fadeUp 1s ease" }}>
+          <img src="/brand/emblem-full.png" alt="" style={{ width: 96, height: 96, margin: "0 auto 14px", filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.25))" }} className="float-anim" />
 
-          <div className="eyebrow" style={{ color: "rgba(255,255,255,0.85)", marginBottom: 20 }}>
+          <div className="eyebrow" style={{ color: "rgba(255,255,255,0.85)", marginBottom: 14 }}>
             ✦ Bayúng Danum ✦ The New Waters
           </div>
 
           <h1 className="display" style={{
-            fontSize: "clamp(56px, 11vw, 140px)",
+            fontSize: "clamp(44px, 9vw, 104px)",
             fontWeight: 900,
             lineHeight: 0.9,
             color: "#fff",
             textTransform: "uppercase",
-            letterSpacing: -3,
+            letterSpacing: -2,
             textShadow: "0 8px 50px rgba(0,0,0,0.25)",
-            marginBottom: 16,
+            marginBottom: 10,
           }}>
             <span style={{ color: COLORS.orange, display: "block" }}>Pradera</span>
             <span style={{ color: COLORS.orange }}>Islands</span>
           </h1>
-          <svg viewBox="0 0 900 140" preserveAspectRatio="xMidYMid meet" style={{ width: "clamp(320px, 80vw, 900px)", height: "auto", display: "block", margin: "0 auto 36px" }} aria-label="Waterpark">
+          <svg viewBox="0 0 900 140" preserveAspectRatio="xMidYMid meet" style={{ width: "clamp(280px, 68vw, 760px)", height: "auto", display: "block", margin: "0 auto 20px" }} aria-label="Waterpark">
             <defs>
               <mask id="wp-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="900" height="140">
                 <rect width="900" height="140" fill="black" />
@@ -240,7 +265,7 @@ export default function PraderaIslands() {
           </svg>
 
           <p className="body" style={{
-            fontSize: 18, color: "rgba(255,255,255,0.88)", maxWidth: 620, margin: "0 auto 44px",
+            fontSize: "clamp(14px, 1.6vw, 17px)", lineHeight: 1.6, color: "rgba(255,255,255,0.88)", maxWidth: 580, margin: "0 auto 26px",
           }}>
             Inspired by <strong style={{ color: COLORS.orange, fontWeight: 600 }}>Bayúng Danum</strong> — the arrival of new waters. A vibrant playground of movement, community, and shared joy in the heart of Pampanga.
           </p>
@@ -551,25 +576,45 @@ export default function PraderaIslands() {
               borderRadius: 28, padding: 44,
             }}>
               <h3 className="display" style={{ fontSize: 24, fontWeight: 800, textTransform: "uppercase", marginBottom: 28, letterSpacing: -0.3 }}>Send a Message</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {[["Your Name", "text"], ["Email Address", "email"], ["Message", "textarea"]].map(([placeholder, type]) => {
-                  const inputStyle = {
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 14,
-                    padding: "16px 20px",
-                    color: "#fff",
-                    fontSize: 15,
-                    fontFamily: "'Montserrat', sans-serif",
-                    outline: "none",
-                    transition: "border-color 0.2s",
-                  };
-                  return type === "textarea" ?
-                    <textarea key={placeholder} placeholder={placeholder} rows={4} style={{ ...inputStyle, resize: "none" }} /> :
-                    <input key={placeholder} type={type} placeholder={placeholder} style={inputStyle} />;
-                })}
-                <button className="btn-primary" style={{ marginTop: 8 }}>Send Message</button>
-              </div>
+              {formState === "sent" ? (
+                <div style={{ padding: "32px 24px", textAlign: "center", background: `${COLORS.azure}18`, border: `1px solid ${COLORS.azure}40`, borderRadius: 14 }}>
+                  <div className="display" style={{ fontSize: 20, fontWeight: 800, color: COLORS.azure, marginBottom: 8 }}>Message sent!</div>
+                  <p className="body" style={{ fontSize: 14, color: "rgba(255,255,255,0.7)" }}>Thank you — we'll get back to you soon.</p>
+                  <button className="btn-ghost" style={{ marginTop: 20, padding: "10px 24px", fontSize: 12 }} onClick={() => setFormState("idle")}>Send another</button>
+                </div>
+              ) : (
+                <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <input type="hidden" name="form-name" value="contact" />
+                  <p hidden><label>Don't fill this out: <input name="bot-field" onChange={() => {}} /></label></p>
+                  {[
+                    { name: "name", placeholder: "Your Name", type: "text" },
+                    { name: "email", placeholder: "Email Address", type: "email" },
+                    { name: "message", placeholder: "Message", type: "textarea" },
+                  ].map((f) => {
+                    const inputStyle = {
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 14,
+                      padding: "16px 20px",
+                      color: "#fff",
+                      fontSize: 15,
+                      fontFamily: "'Montserrat', sans-serif",
+                      outline: "none",
+                      transition: "border-color 0.2s",
+                      width: "100%",
+                    };
+                    return f.type === "textarea" ? (
+                      <textarea key={f.name} name={f.name} placeholder={f.placeholder} rows={4} required value={form[f.name]} onChange={handleFormChange} style={{ ...inputStyle, resize: "none" }} />
+                    ) : (
+                      <input key={f.name} name={f.name} type={f.type} placeholder={f.placeholder} required value={form[f.name]} onChange={handleFormChange} style={inputStyle} />
+                    );
+                  })}
+                  <button type="submit" className="btn-primary" disabled={formState === "sending"} style={{ marginTop: 8, opacity: formState === "sending" ? 0.6 : 1, cursor: formState === "sending" ? "wait" : "pointer" }}>
+                    {formState === "sending" ? "Sending…" : "Send Message"}
+                  </button>
+                  {formState === "error" && <div className="body" style={{ fontSize: 13, color: COLORS.sunset, marginTop: 4 }}>Something went wrong. Please try again or email us directly.</div>}
+                </form>
+              )}
             </div>
           </div>
         </div>
@@ -591,12 +636,70 @@ export default function PraderaIslands() {
           </div>
         </div>
         <div className="body" style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>© 2026 Pradera Islands Waterpark. All rights reserved.</div>
-        <div style={{ display: "flex", gap: 24 }}>
-          {["Facebook", "Instagram", "TikTok"].map(s => (
-            <span key={s} className="nav-link" style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}
-              onMouseEnter={e => e.target.style.color = COLORS.orange}
-              onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.4)"}>{s}</span>
-          ))}
+        <div style={{ display: "flex", gap: 14 }}>
+          {[
+            {
+              name: "Facebook",
+              url: "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/",
+              accent: "#1877F2",
+              path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />,
+            },
+            {
+              name: "Instagram",
+              url: null,
+              accent: "#E1306C",
+              path: (
+                <>
+                  <path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 01-.9 1.38c-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63A5.92 5.92 0 002 2.01 5.92 5.92 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.92 5.92 0 001.38 2.14 5.92 5.92 0 002.14 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a6.17 6.17 0 003.52-3.52c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.92 5.92 0 00-1.38-2.14A5.92 5.92 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" />
+                  <path d="M12 5.84A6.16 6.16 0 1018.16 12 6.17 6.17 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4z" />
+                  <circle cx="18.41" cy="5.59" r="1.44" />
+                </>
+              ),
+            },
+            {
+              name: "TikTok",
+              url: null,
+              accent: "#25F4EE",
+              path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" />,
+            },
+          ].map(({ name, url, accent, path }) => {
+            const iconStyle = {
+              width: 44, height: 44, borderRadius: "50%",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: url ? "#fff" : "rgba(255,255,255,0.3)",
+              textDecoration: "none",
+              cursor: url ? "pointer" : "not-allowed",
+              transition: "transform 0.25s cubic-bezier(.2,.8,.2,1), background 0.25s, border-color 0.25s, box-shadow 0.25s",
+              backdropFilter: "blur(6px)",
+            };
+            const svg = (
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">{path}</svg>
+            );
+            return url ? (
+              <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={name}
+                style={iconStyle}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = "translateY(-3px) scale(1.08)";
+                  e.currentTarget.style.background = accent;
+                  e.currentTarget.style.borderColor = accent;
+                  e.currentTarget.style.boxShadow = `0 12px 28px ${accent}55`;
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = "translateY(0) scale(1)";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}>
+                {svg}
+              </a>
+            ) : (
+              <span key={name} title={`${name} — coming soon`} aria-label={`${name} coming soon`} style={iconStyle}>
+                {svg}
+              </span>
+            );
+          })}
         </div>
       </footer>
     </div>
