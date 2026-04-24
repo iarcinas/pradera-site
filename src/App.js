@@ -43,10 +43,10 @@ const fnb = [
 ];
 
 const characters = [
-  { name: "Lakandanum", role: "Spirit of the Waters", desc: "Laidback, cool, intuitive. The calm presence of Hiraya Lake — guiding rivers and currents with quiet control.", color: COLORS.lakandanum },
-  { name: "Jan-Jan", role: "Park Technician", desc: "Caring, reliable, and always ready to save the day. The behind-the-scenes magic that keeps Pradera running.", color: COLORS.janjan },
-  { name: "Laut", role: "Guardian of the Waters", desc: "Fast, fearless, and always in motion. She charges waves, drives energy, and turns every splash into adventure.", color: COLORS.dagat },
-  { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange },
+  { name: "Lakandanum", role: "Spirit of the Waters", desc: "Laidback, cool, intuitive. The calm presence of Hiraya Lake — guiding rivers and currents with quiet control.", color: COLORS.lakandanum, image: "/brand/characters/lakandanum.png" },
+  { name: "Jan-Jan", role: "Park Technician", desc: "Caring, reliable, and always ready to save the day. The behind-the-scenes magic that keeps Pradera running.", color: COLORS.janjan, image: "/brand/characters/janjan.png" },
+  { name: "Laut", role: "Guardian of the Waters", desc: "Fast, fearless, and always in motion. She charges waves, drives energy, and turns every splash into adventure.", color: COLORS.dagat, image: null },
+  { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange, image: null },
 ];
 
 const encodeForm = (data) =>
@@ -480,19 +480,23 @@ export default function PraderaIslands() {
               }}>
                 <div style={{
                   background: `linear-gradient(160deg, ${c.color} 0%, ${c.color}88 100%)`,
-                  padding: "56px 24px 44px",
+                  padding: c.image ? "28px 20px 20px" : "56px 24px 44px",
                   textAlign: "center",
                   position: "relative",
                   overflow: "hidden",
-                  minHeight: 200,
+                  minHeight: c.image ? 280 : 200,
                 }}>
                   <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "rgba(255,255,255,0.12)", borderRadius: "50%" }} />
                   <div style={{ position: "absolute", bottom: -40, left: -40, width: 120, height: 120, background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
-                  <svg viewBox="0 0 80 80" width="80" height="80" style={{ margin: "0 auto", position: "relative", zIndex: 1, filter: "drop-shadow(0 6px 20px rgba(0,0,0,0.2))" }} className="float-anim">
-                    <circle cx="40" cy="40" r="32" fill="rgba(255,255,255,0.2)" />
-                    <circle cx="40" cy="40" r="20" fill="#fff" opacity="0.9" />
-                    <text x="40" y="52" textAnchor="middle" fontSize="28" fontWeight="900" fill={c.color} fontFamily="Kanit, sans-serif">{c.name[0]}</text>
-                  </svg>
+                  {c.image ? (
+                    <img src={c.image} alt={c.name} style={{ width: "100%", maxWidth: 220, height: "auto", display: "block", margin: "0 auto", position: "relative", zIndex: 1, filter: "drop-shadow(0 14px 28px rgba(0,0,0,0.25))" }} className="float-anim" />
+                  ) : (
+                    <svg viewBox="0 0 80 80" width="80" height="80" style={{ margin: "0 auto", position: "relative", zIndex: 1, filter: "drop-shadow(0 6px 20px rgba(0,0,0,0.2))" }} className="float-anim">
+                      <circle cx="40" cy="40" r="32" fill="rgba(255,255,255,0.2)" />
+                      <circle cx="40" cy="40" r="20" fill="#fff" opacity="0.9" />
+                      <text x="40" y="52" textAnchor="middle" fontSize="28" fontWeight="900" fill={c.color} fontFamily="Kanit, sans-serif">{c.name[0]}</text>
+                    </svg>
+                  )}
                   <div className="eyebrow" style={{ color: "rgba(255,255,255,0.85)", marginTop: 16, fontSize: 10, position: "relative", zIndex: 1 }}>{c.role}</div>
                 </div>
                 <div style={{ padding: 28 }}>
