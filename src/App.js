@@ -90,7 +90,12 @@ export default function PraderaIslands() {
       .catch(() => setFormState("error"));
   };
 
-  const navItems = ["attractions", "dining", "characters", "visit"];
+  const navItems = [
+    { id: "attractions", label: "attractions" },
+    { id: "dining", label: "dining" },
+    { id: "characters", label: "characters" },
+    { id: "visit", label: "Contact Us" },
+  ];
 
   return (
     <div style={{ fontFamily: "'Montserrat', 'Proxima Nova', system-ui, sans-serif", background: "#fff", color: "#111", overflowX: "hidden" }}>
@@ -166,8 +171,8 @@ export default function PraderaIslands() {
         </div>
 
         <div className="nav-desktop">
-          {navItems.map(s => (
-            <span key={s} className="nav-link" onClick={() => scrollTo(s)} style={{ color: activeSection === s ? COLORS.orange : "#fff" }}>{s}</span>
+          {navItems.map(({ id, label }) => (
+            <span key={id} className="nav-link" onClick={() => scrollTo(id)} style={{ color: activeSection === id ? COLORS.orange : "#fff" }}>{label}</span>
           ))}
         </div>
 
@@ -271,7 +276,7 @@ export default function PraderaIslands() {
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn-primary" onClick={() => scrollTo("attractions")}>Explore Attractions</button>
+            <button className="btn-ghost" onClick={() => scrollTo("attractions")}>Explore Attractions</button>
             <button className="btn-ghost" onClick={() => scrollTo("visit")}>Plan Your Visit</button>
           </div>
         </div>
