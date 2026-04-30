@@ -58,7 +58,7 @@ export default function PraderaIslands() {
   const [activeSection, setActiveSection] = useState("home");
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", mobile: "", message: "" });
   const [formState, setFormState] = useState("idle"); // idle | sending | sent | error
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function PraderaIslands() {
     })
       .then(() => {
         setFormState("sent");
-        setForm({ name: "", email: "", message: "" });
+        setForm({ firstName: "", lastName: "", email: "", mobile: "", message: "" });
       })
       .catch(() => setFormState("error"));
   };
@@ -94,6 +94,9 @@ export default function PraderaIslands() {
     { id: "attractions", label: "attractions" },
     { id: "dining", label: "dining" },
     { id: "characters", label: "characters" },
+    { id: "rates", label: "Park & Cabana Rates", soon: true },
+    { id: "promos", label: "Promos", soon: true },
+    { id: "guide", label: "Travel Guide", soon: true },
     { id: "visit", label: "Contact Us" },
   ];
 
@@ -171,8 +174,13 @@ export default function PraderaIslands() {
         </div>
 
         <div className="nav-desktop">
-          {navItems.map(({ id, label }) => (
-            <span key={id} className="nav-link" onClick={() => scrollTo(id)} style={{ color: activeSection === id ? COLORS.orange : "#fff" }}>{label}</span>
+          {navItems.map(({ id, label, soon }) => (
+            <span key={id} className="nav-link"
+              onClick={() => { if (soon) { alert(`${label} — coming soon!`); setNavOpen(false); } else { scrollTo(id); } }}
+              title={soon ? "Coming soon" : ""}
+              style={{ color: activeSection === id ? COLORS.orange : "#fff", opacity: soon ? 0.75 : 1 }}>
+              {label}{soon && <sup style={{ fontSize: 8, marginLeft: 4, color: COLORS.orange }}>SOON</sup>}
+            </span>
           ))}
         </div>
 
@@ -230,18 +238,17 @@ export default function PraderaIslands() {
             ✦ Bayúng Danum ✦ The New Waters
           </div>
 
-          <h1 className="display" style={{
-            fontSize: "clamp(44px, 9vw, 104px)",
-            fontWeight: 900,
-            lineHeight: 0.9,
-            color: "#fff",
-            textTransform: "uppercase",
-            letterSpacing: -2,
-            textShadow: "0 8px 50px rgba(0,0,0,0.25)",
-            marginBottom: 10,
-          }}>
-            <span style={{ color: COLORS.orange, display: "block" }}>Pradera</span>
-            <span style={{ color: COLORS.orange }}>Islands</span>
+          <h1 style={{ margin: "0 auto 10px", lineHeight: 0 }}>
+            <img
+              src="/brand/pradera-islands-wordmark.png"
+              alt="Pradera Islands"
+              style={{
+                width: "clamp(260px, 56vw, 620px)",
+                height: "auto",
+                display: "block",
+                margin: "0 auto",
+              }}
+            />
           </h1>
           <svg viewBox="0 0 900 140" preserveAspectRatio="xMidYMid meet" style={{ width: "clamp(280px, 68vw, 760px)", height: "auto", display: "block", margin: "0 auto 20px" }} aria-label="Waterpark">
             <defs>
@@ -272,12 +279,12 @@ export default function PraderaIslands() {
           <p className="body" style={{
             fontSize: "clamp(14px, 1.6vw, 17px)", lineHeight: 1.6, color: "rgba(255,255,255,0.88)", maxWidth: 580, margin: "0 auto 26px",
           }}>
-            Inspired by <strong style={{ color: COLORS.orange, fontWeight: 600 }}>Bayúng Danum</strong> — the arrival of new waters. A vibrant playground of movement, community, and shared joy in the heart of Pampanga.
+            Create unforgettable memories<br />and enjoy a refreshing waterpark adventure.
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn-ghost" onClick={() => scrollTo("attractions")}>Explore Attractions</button>
-            <button className="btn-ghost" onClick={() => scrollTo("visit")}>Plan Your Visit</button>
+            <button className="btn-ghost" onClick={() => alert("Buy Tickets — coming soon!")}>Buy Tickets</button>
+            <button className="btn-ghost" onClick={() => alert("Park Schedule — coming soon!")}>Park Schedule</button>
           </div>
         </div>
 
@@ -299,8 +306,11 @@ export default function PraderaIslands() {
               <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 20 }}>
                 Pradera Islands celebrates <strong style={{ color: COLORS.hiraya }}>renewal, abundance, purity, and prosperity</strong> through waves, color, sound, and shared play — rooted in the rich water traditions of Pampanga's river culture.
               </p>
-              <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 40 }}>
+              <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 20 }}>
                 It is a vibrant playground of movement and community, where everyone is invited to splash, flow, and celebrate together.
+              </p>
+              <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 40 }}>
+                Rooted in Pampanga's river culture and shared water traditions, <strong style={{ color: COLORS.hiraya }}>Bayúng Danum</strong> reflects a time of collective celebration, movement, and communal joy.
               </p>
               <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
                 {[["11+", "Attractions"], ["4", "Dining Spots"], ["∞", "Memories"]].map(([n, l]) => (
@@ -326,14 +336,12 @@ export default function PraderaIslands() {
                 <div style={{ position: "absolute", bottom: -40, left: -40, width: 160, height: 160, background: `${COLORS.azure}25`, borderRadius: "50%" }} />
                 <img src="/brand/emblem-full.png" alt="" style={{ width: 88, height: 88, marginBottom: 20, filter: "drop-shadow(0 10px 24px rgba(0,0,0,0.3))" }} className="float-anim" />
                 <h3 className="display" style={{ fontSize: 30, fontWeight: 800, marginBottom: 14, textTransform: "uppercase", letterSpacing: -0.5 }}>Bayúng Danum</h3>
-                <p className="body" style={{ fontSize: 15, opacity: 0.88, marginBottom: 24 }}>
+                <p className="body" style={{ fontSize: 15, opacity: 0.88, marginBottom: 16 }}>
                   "New Water" in Kapampangan — a traditional celebration marking the arrival of new waters, symbolizing renewal, purification, and the coming of abundance and prosperity.
                 </p>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {["Renewal", "Flow", "Community", "Celebration", "Dawn"].map(tag => (
-                    <span key={tag} className="eyebrow" style={{ background: "rgba(255,255,255,0.12)", padding: "6px 14px", borderRadius: 999, fontSize: 10, color: "#fff" }}>{tag}</span>
-                  ))}
-                </div>
+                <p className="body" style={{ fontSize: 15, opacity: 0.88, marginBottom: 24 }}>
+                  Rooted in Pampanga's river culture and shared water traditions, Bayúng Danum reflects a time of collective celebration, movement, and communal joy.
+                </p>
               </div>
 
               <div style={{
@@ -344,7 +352,7 @@ export default function PraderaIslands() {
                 animation: "float 5s ease-in-out infinite",
               }}>
                 <div className="eyebrow" style={{ color: "rgba(255,255,255,0.8)", fontSize: 9 }}>Located In</div>
-                <div className="display" style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1, marginTop: 4 }}>PAMPANGA · CENTRAL LUZON</div>
+                <div className="display" style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1, marginTop: 4 }}>PRADO SIONGCO · LUBAO, PAMPANGA</div>
               </div>
             </div>
           </div>
@@ -518,6 +526,26 @@ export default function PraderaIslands() {
         overflow: "hidden",
       }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.12) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.08) 0%, transparent 50%)" }} />
+
+        {/* Character silhouettes in the background */}
+        {[
+          { src: "/brand/characters/lakandanum.png", left: "4%", bottom: -20, width: "clamp(160px, 18vw, 280px)", opacity: 0.55, delay: 0 },
+          { src: "/brand/characters/janjan.png",     left: "22%", bottom: -10, width: "clamp(140px, 15vw, 240px)", opacity: 0.5, delay: 1.2 },
+          { src: "/brand/characters/laut.png",       right: "22%", bottom: -10, width: "clamp(140px, 15vw, 240px)", opacity: 0.5, delay: 0.6 },
+          { src: "/brand/characters/dapu.png",       right: "4%", bottom: 20, width: "clamp(140px, 14vw, 220px)", opacity: 0.55, delay: 1.8 },
+        ].map((ch, i) => (
+          <img key={i} src={ch.src} alt="" aria-hidden="true" style={{
+            position: "absolute",
+            bottom: ch.bottom, left: ch.left, right: ch.right,
+            width: ch.width, height: "auto",
+            opacity: ch.opacity,
+            filter: "drop-shadow(0 12px 28px rgba(0,0,0,0.25))",
+            animation: `float 6s ease-in-out ${ch.delay}s infinite`,
+            pointerEvents: "none",
+            zIndex: 1,
+          }} />
+        ))}
+
         <div style={{ position: "relative", zIndex: 2, maxWidth: 800, margin: "0 auto" }}>
           <img src="/brand/emblem-full.png" alt="" style={{ width: 80, height: 80, margin: "0 auto 24px", filter: "drop-shadow(0 10px 24px rgba(0,0,0,0.25))" }} className="float-anim" />
           <h2 className="display" style={{ fontSize: "clamp(34px, 6vw, 64px)", fontWeight: 900, color: "#fff", textTransform: "uppercase", marginBottom: 18, letterSpacing: -1, lineHeight: 1 }}>
@@ -542,15 +570,15 @@ export default function PraderaIslands() {
           <div className="grid-2">
             <div>
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 16 }}>Find Us</div>
-              <h2 className="display" style={{ fontSize: "clamp(40px, 5vw, 60px)", fontWeight: 900, textTransform: "uppercase", marginBottom: 28, lineHeight: 0.95, color: "#fff" }}>
-                Visit<br /><span style={{ color: COLORS.azure }}>Pradera</span>
+              <h2 className="display" style={{ fontSize: "clamp(34px, 4.5vw, 54px)", fontWeight: 900, textTransform: "uppercase", marginBottom: 28, lineHeight: 0.95, color: "#fff" }}>
+                Visit<br /><span style={{ color: COLORS.azure }}>Pradera Islands</span><br />Waterpark
               </h2>
               <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.65)", marginBottom: 36 }}>
                 Located in the vibrant heartland of Pampanga, Central Luzon — Pradera Islands Waterpark is the new premier destination for water, fun, and community celebration.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {[
-                  { label: "Location", val: "Pradera Verde, Lubao, Pampanga", c: COLORS.orange, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Pradera Water Park, VGF4+X6V, Pradera Verde, Lubao, Pampanga")}` },
+                  { label: "Location", val: "Prado Siongco, Lubao, Pampanga", c: COLORS.orange, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Pradera Islands Waterpark, Prado Siongco, Lubao, Pampanga")}` },
                   { label: "Email", val: "hello@praderaislands.com", c: COLORS.azure, href: null },
                   { label: "Website", val: "praderaislands.com", c: COLORS.janjan, href: null },
                 ].map(({ label, val, c, href }) => {
@@ -571,6 +599,39 @@ export default function PraderaIslands() {
                     ? <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={rowStyle}>{body}</a>
                     : <div key={label} style={rowStyle}>{body}</div>;
                 })}
+
+                <div style={{ display: "flex", alignItems: "center", gap: 18, padding: "14px 0" }}>
+                  <div style={{ width: 6, height: 40, background: COLORS.sunset, borderRadius: 3, flexShrink: 0 }} />
+                  <div>
+                    <div className="eyebrow" style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, marginBottom: 8 }}>Follow Us</div>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      {[
+                        { name: "Facebook", url: "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/", accent: "#1877F2", path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" /> },
+                        { name: "Instagram", url: null, accent: "#E1306C", path: (<><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 01-.9 1.38c-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63A5.92 5.92 0 002 2.01 5.92 5.92 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.92 5.92 0 001.38 2.14 5.92 5.92 0 002.14 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a6.17 6.17 0 003.52-3.52c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.92 5.92 0 00-1.38-2.14A5.92 5.92 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" /><path d="M12 5.84A6.16 6.16 0 1018.16 12 6.17 6.17 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4z" /><circle cx="18.41" cy="5.59" r="1.44" /></>) },
+                        { name: "TikTok", url: null, accent: "#25F4EE", path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" /> },
+                      ].map(({ name, url, accent, path }) => {
+                        const iconStyle = {
+                          width: 40, height: 40, borderRadius: "50%",
+                          display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+                          color: url ? "#fff" : "rgba(255,255,255,0.3)",
+                          textDecoration: "none", cursor: url ? "pointer" : "not-allowed",
+                          transition: "transform 0.25s cubic-bezier(.2,.8,.2,1), background 0.25s, border-color 0.25s, box-shadow 0.25s",
+                        };
+                        const svg = <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">{path}</svg>;
+                        return url ? (
+                          <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={name} style={iconStyle}
+                            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px) scale(1.08)"; e.currentTarget.style.background = accent; e.currentTarget.style.borderColor = accent; e.currentTarget.style.boxShadow = `0 12px 28px ${accent}55`; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)"; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.boxShadow = "none"; }}>
+                            {svg}
+                          </a>
+                        ) : (
+                          <span key={name} title={`${name} — coming soon`} aria-label={`${name} coming soon`} style={iconStyle}>{svg}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -590,11 +651,7 @@ export default function PraderaIslands() {
                 <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onSubmit={handleFormSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <input type="hidden" name="form-name" value="contact" />
                   <p hidden><label>Don't fill this out: <input name="bot-field" onChange={() => {}} /></label></p>
-                  {[
-                    { name: "name", placeholder: "Your Name", type: "text" },
-                    { name: "email", placeholder: "Email Address", type: "email" },
-                    { name: "message", placeholder: "Message", type: "textarea" },
-                  ].map((f) => {
+                  {(() => {
                     const inputStyle = {
                       background: "rgba(255,255,255,0.05)",
                       border: "1px solid rgba(255,255,255,0.1)",
@@ -607,12 +664,18 @@ export default function PraderaIslands() {
                       transition: "border-color 0.2s",
                       width: "100%",
                     };
-                    return f.type === "textarea" ? (
-                      <textarea key={f.name} name={f.name} placeholder={f.placeholder} rows={4} required value={form[f.name]} onChange={handleFormChange} style={{ ...inputStyle, resize: "none" }} />
-                    ) : (
-                      <input key={f.name} name={f.name} type={f.type} placeholder={f.placeholder} required value={form[f.name]} onChange={handleFormChange} style={inputStyle} />
+                    return (
+                      <>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          <input name="firstName" type="text" placeholder="First Name" required value={form.firstName} onChange={handleFormChange} style={inputStyle} />
+                          <input name="lastName" type="text" placeholder="Last Name" required value={form.lastName} onChange={handleFormChange} style={inputStyle} />
+                        </div>
+                        <input name="email" type="email" placeholder="Email Address" required value={form.email} onChange={handleFormChange} style={inputStyle} />
+                        <input name="mobile" type="tel" placeholder="Mobile Number" required value={form.mobile} onChange={handleFormChange} style={inputStyle} />
+                        <textarea name="message" placeholder="Message" rows={4} required value={form.message} onChange={handleFormChange} style={{ ...inputStyle, resize: "none" }} />
+                      </>
                     );
-                  })}
+                  })()}
                   <button type="submit" className="btn-primary" disabled={formState === "sending"} style={{ marginTop: 8, opacity: formState === "sending" ? 0.6 : 1, cursor: formState === "sending" ? "wait" : "pointer" }}>
                     {formState === "sending" ? "Sending…" : "Send Message"}
                   </button>
@@ -639,6 +702,17 @@ export default function PraderaIslands() {
             <div className="eyebrow" style={{ color: COLORS.azure, fontSize: 9, marginTop: 2 }}>Waterpark</div>
           </div>
         </div>
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Pradera Islands Waterpark, Prado Siongco, Lubao, Pampanga")}`}
+          target="_blank" rel="noopener noreferrer"
+          style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "rgba(255,255,255,0.7)" }}
+          title="View on Google Maps"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+          </svg>
+          <span className="body" style={{ fontSize: 13 }}>Prado Siongco, Lubao, Pampanga</span>
+        </a>
         <div className="body" style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>© 2026 Pradera Islands Waterpark. All rights reserved.</div>
         <div style={{ display: "flex", gap: 14 }}>
           {[
