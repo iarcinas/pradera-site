@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const COLORS = {
   orange: "#FF8E00",
@@ -45,8 +45,8 @@ const fnb = [
 const characters = [
   { name: "Lakandanum", role: "Spirit of the Waters", desc: "Laidback, cool, intuitive. The calm presence of Hiraya Lake — guiding rivers and currents with quiet control.", color: COLORS.lakandanum, image: "/brand/characters/lakandanum.png" },
   { name: "Jan-Jan", role: "Park Technician", desc: "Caring, reliable, and always ready to save the day. The behind-the-scenes magic that keeps Pradera running.", color: COLORS.janjan, image: "/brand/characters/janjan.png" },
-  { name: "Laut", role: "Guardian of the Waters", desc: "Fast, fearless, and always in motion. She charges waves, drives energy, and turns every splash into adventure.", color: COLORS.dagat, image: null },
-  { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange, image: null },
+  { name: "Laut", role: "Guardian of the Waters", desc: "Fast, fearless, and always in motion. She charges waves, drives energy, and turns every splash into adventure.", color: COLORS.dagat, image: "/brand/characters/laut.png" },
+  { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange, image: "/brand/characters/dapu.png" },
 ];
 
 const encodeForm = (data) =>
@@ -57,6 +57,10 @@ const encodeForm = (data) =>
 export default function PraderaIslands() {
   const [activeSection, setActiveSection] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const [attractionIndex, setAttractionIndex] = useState(0);
+  const goAttraction = (dir) => {
+    setAttractionIndex((i) => (i + dir + attractions.length) % attractions.length);
+  };
   const [navOpen, setNavOpen] = useState(false);
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", mobile: "", message: "" });
   const [formState, setFormState] = useState("idle"); // idle | sending | sent | error
@@ -103,7 +107,7 @@ export default function PraderaIslands() {
   return (
     <div style={{ fontFamily: "'Montserrat', 'Proxima Nova', system-ui, sans-serif", background: "#fff", color: "#111", overflowX: "hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800;900&family=Montserrat:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800;900&family=Montserrat:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         body { -webkit-font-smoothing: antialiased; }
@@ -123,7 +127,7 @@ export default function PraderaIslands() {
         @keyframes fadeUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
         @keyframes shimmer { 0%,100%{opacity:0.35} 50%{opacity:0.9} }
 
-        h1, h2, h3, h4, .display { font-family: 'Kanit', sans-serif; font-weight: 700; letter-spacing: -0.01em; }
+        h1, h2, h3, h4, .display { font-family: 'Bricolage Grotesque', 'Kanit', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
         .eyebrow { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; }
         .body { font-family: 'Montserrat', sans-serif; font-weight: 400; line-height: 1.75; }
 
@@ -143,6 +147,14 @@ export default function PraderaIslands() {
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .carousel-3d-wrap { position: relative; perspective: 1600px; padding: 0; }
+        .carousel-3d-stage { position: relative; height: clamp(380px, 44vw, 500px); transform-style: preserve-3d; display: flex; align-items: center; justify-content: center; }
+        .carousel-3d-card { position: absolute; top: 50%; left: 50%; width: clamp(300px, 38vw, 460px); height: auto; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease, box-shadow 0.6s ease; box-shadow: 0 30px 60px rgba(0,35,123,0.18); will-change: transform, opacity; }
+        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 20; width: 52px; height: 52px; border-radius: 999px; border: none; background: #fff; color: ${COLORS.hiraya}; font-size: 30px; font-weight: 700; line-height: 1; cursor: pointer; box-shadow: 0 10px 28px rgba(0,35,123,0.22); display: flex; align-items: center; justify-content: center; transition: transform 0.2s, background 0.2s, color 0.2s; }
+        .carousel-arrow:hover { background: ${COLORS.orange}; color: #fff; transform: translateY(-50%) scale(1.1); }
+        .carousel-dots { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
+        .carousel-dot { width: 10px; height: 10px; border-radius: 999px; border: none; background: rgba(0,35,123,0.2); cursor: pointer; padding: 0; transition: background 0.3s, transform 0.3s, width 0.3s; }
+        .carousel-dot.active { background: ${COLORS.orange}; width: 28px; }
         .nav-desktop { display: flex; gap: 36px; }
         .nav-mobile-toggle { display: none; }
         .section-pad { padding: 120px 6%; }
@@ -360,13 +372,14 @@ export default function PraderaIslands() {
       </section>
 
       {/* ATTRACTIONS */}
-      <section id="attractions" className="section-pad" style={{
+      <section id="attractions" style={{
         background: `linear-gradient(180deg, #f4f7ff 0%, #fff 100%)`,
         position: "relative",
         overflow: "hidden",
+        padding: "72px 6%",
       }}>
         <div style={{ maxWidth: 1240, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <div style={{ textAlign: "center", marginBottom: 72 }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>The Rides</div>
             <h2 className="display" style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, textTransform: "uppercase", color: COLORS.hiraya, lineHeight: 1 }}>
               Our <span style={{ color: COLORS.dagat }}>Attractions</span>
@@ -376,17 +389,37 @@ export default function PraderaIslands() {
             </p>
           </div>
 
-          <div className="grid-cards">
-            {attractions.map((a) => (
-              <div key={a.name} className="card" style={{
+          <div className="carousel-3d-wrap">
+            <button type="button" aria-label="Previous" onClick={() => goAttraction(-1)} className="carousel-arrow" style={{ left: 8 }}>‹</button>
+            <button type="button" aria-label="Next" onClick={() => goAttraction(1)} className="carousel-arrow" style={{ right: 8 }}>›</button>
+            <div className="carousel-3d-stage">
+            {attractions.map((a, i) => {
+              const n = attractions.length;
+              let offset = i - attractionIndex;
+              if (offset > n / 2) offset -= n;
+              if (offset < -n / 2) offset += n;
+              const abs = Math.abs(offset);
+              const visible = abs <= 2;
+              const sign = Math.sign(offset);
+              const scale = abs === 0 ? 1.15 : 1 - abs * 0.12;
+              const transform = `translate(-50%, -50%) translateX(${offset * 58}%) translateZ(${-abs * 220}px) rotateY(${-sign * Math.min(abs, 2) * 28}deg) scale(${scale})`;
+              return (
+              <div key={a.name} className="card carousel-3d-card" style={{
                 background: "#fff",
                 borderRadius: 24,
                 padding: 0,
                 overflow: "hidden",
                 border: "1px solid #eaecf4",
-              }}>
+                transform,
+                opacity: visible ? (abs === 0 ? 1 : abs === 1 ? 0.75 : 0.35) : 0,
+                pointerEvents: abs === 0 ? "auto" : "none",
+                zIndex: 10 - abs,
+                cursor: abs === 0 ? "default" : "pointer",
+              }}
+              onClick={() => abs !== 0 && setAttractionIndex(i)}
+              >
                 <div style={{
-                  height: 140,
+                  height: 200,
                   background: `linear-gradient(135deg, ${a.color} 0%, ${a.color}cc 100%)`,
                   position: "relative",
                   overflow: "hidden",
@@ -402,14 +435,27 @@ export default function PraderaIslands() {
                     backdropFilter: "blur(8px)",
                   }}>{a.theme}</span>
                 </div>
-                <div style={{ padding: 26 }}>
-                  <h3 className="display" style={{ fontSize: 22, fontWeight: 800, textTransform: "uppercase", color: COLORS.hiraya, marginBottom: 10, lineHeight: 1.1, letterSpacing: -0.3 }}>
+                <div style={{ padding: 34 }}>
+                  <h3 className="display" style={{ fontSize: 28, fontWeight: 800, textTransform: "uppercase", color: COLORS.hiraya, marginBottom: 14, lineHeight: 1.1, letterSpacing: -0.3 }}>
                     {a.name}
                   </h3>
-                  <p className="body" style={{ fontSize: 14, color: "#55566a" }}>{a.desc}</p>
+                  <p className="body" style={{ fontSize: 16, color: "#55566a", lineHeight: 1.55 }}>{a.desc}</p>
                 </div>
               </div>
-            ))}
+              );
+            })}
+            </div>
+            <div className="carousel-dots">
+              {attractions.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Go to attraction ${i + 1}`}
+                  onClick={() => setAttractionIndex(i)}
+                  className={"carousel-dot" + (i === attractionIndex ? " active" : "")}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -497,7 +543,7 @@ export default function PraderaIslands() {
                   <div style={{ position: "absolute", top: -30, right: -30, width: 140, height: 140, background: "rgba(255,255,255,0.12)", borderRadius: "50%" }} />
                   <div style={{ position: "absolute", bottom: -40, left: -40, width: 120, height: 120, background: "rgba(255,255,255,0.08)", borderRadius: "50%" }} />
                   {c.image ? (
-                    <img src={c.image} alt={c.name} style={{ width: "100%", maxWidth: 220, height: "auto", display: "block", margin: "0 auto", position: "relative", zIndex: 1, filter: "drop-shadow(0 14px 28px rgba(0,0,0,0.25))" }} className="float-anim" />
+                    <img src={c.image} alt={c.name} style={{ width: "auto", maxWidth: "100%", height: 240, objectFit: "contain", display: "block", margin: "0 auto", position: "relative", zIndex: 1, filter: "drop-shadow(0 14px 28px rgba(0,0,0,0.25))" }} className="float-anim" />
                   ) : (
                     <svg viewBox="0 0 80 80" width="80" height="80" style={{ margin: "0 auto", position: "relative", zIndex: 1, filter: "drop-shadow(0 6px 20px rgba(0,0,0,0.2))" }} className="float-anim">
                       <circle cx="40" cy="40" r="32" fill="rgba(255,255,255,0.2)" />
