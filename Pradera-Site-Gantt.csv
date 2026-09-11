@@ -1,0 +1,47 @@
+ID,Section,Task,Owner,Start,End,Duration (days),Predecessor,Confirm with Israel?,Notes
+0.1,0. Kickoff,Send consolidated request email to all depts,Israel,2026-06-15,2026-06-15,0,,Yes (milestone),Kickoff milestone
+0.2,0. Kickoff,Israel reviews & approves Gantt,Israel,2026-06-15,2026-06-15,1,0.1,Yes,Sign off before any work begins
+1.1,1. Structural prep,Scaffold Privacy / Terms / Rates / FAQ page shells,Claude,2026-06-16,2026-06-17,2,0.2,,No data needed
+1.2,1. Structural prep,Add image slots to attraction & F&B cards,Claude,2026-06-16,2026-06-16,1,0.2,,Falls back to current gradient
+1.3,1. Structural prep,SEO meta + Open Graph tags + sitemap,Claude,2026-06-18,2026-06-18,1,1.1,,Uses logo as OG fallback
+1.4,1. Structural prep,Cookie consent banner scaffold,Claude,2026-06-19,2026-06-19,1,1.3,,Activates when analytics decision is yes
+1.5,1. Structural prep,Custom domain DNS prep,Claude + IT,2026-06-16,2026-06-16,1,0.2,,Needs DNS access for praderaislands.com
+M1,1. Structural prep,MILESTONE: Confirm prep work with Israel,Israel,2026-06-22,2026-06-22,0,1.4,Yes (milestone),Sign off before integration phase
+2.1,2. Dept data — BLOCKERS,[OPS] Operating hours + opening date,Operations,2026-06-16,2026-06-18,3,0.1,,
+2.2,2. Dept data — BLOCKERS,[OPS] Final ride names + descriptions,Operations + Marketing,2026-06-16,2026-06-22,5,0.1,,
+2.3,2. Dept data — BLOCKERS,[OPS] Park rules + safety + accessibility,Operations + Legal,2026-06-16,2026-06-22,5,0.1,,
+2.4,2. Dept data — BLOCKERS,[OPS] Directions + parking + amenities,Operations,2026-06-16,2026-06-18,3,0.1,,
+2.5,2. Dept data — BLOCKERS,[SALES] Ticket / cabana / promo pricing,Sales,2026-06-16,2026-06-22,5,0.1,,
+2.6,2. Dept data — BLOCKERS,[F&B] Outlet names + descriptions,F&B Ops,2026-06-16,2026-06-18,3,0.1,,
+2.7,2. Dept data — BLOCKERS,[LEGAL] Privacy + Terms + Refund policy,Legal,2026-06-16,2026-06-22,5,0.1,,
+2.8,2. Dept data — BLOCKERS,[ADMIN] Customer service email + hotline,Admin/IT,2026-06-16,2026-06-17,2,0.1,,Confirm shared vs separate from Theme Park
+2.9,2. Dept data — BLOCKERS,[MKTG] IG + TikTok handles,Marketing,2026-06-16,2026-06-17,2,0.1,,
+2.10,2. Dept data — BLOCKERS,[MKTG] Hero photo (drone/wide),Marketing,2026-06-16,2026-06-24,7,0.1,,Weather-dependent shoot
+2.11,2. Dept data — BLOCKERS,[MKTG] Ride photos (11 rides),Marketing,2026-06-16,2026-06-29,10,0.1,,Park access required
+2.12,2. Dept data — BLOCKERS,[MKTG] F&B photos,Marketing,2026-06-16,2026-06-24,7,0.1,,Outlets ready required
+2.13,2. Dept data — BLOCKERS,[MKTG] Park map graphic,Marketing,2026-06-16,2026-06-29,10,0.1,,Design from scratch if none
+2.14,2. Dept data — BLOCKERS,[MKTG] FAQs + Open Graph share image,Marketing + CS,2026-06-16,2026-06-22,5,0.1,,
+2.15,2. Dept data — BLOCKERS,[MKTG] Teaser video clip (optional),Marketing,2026-06-16,2026-06-29,10,0.1,,Can launch without; add later
+2.16,2. Dept data — BLOCKERS,[OPS] Semnox booking URL,Operations,2026-06-16,2026-06-18,3,0.1,,Confirm with Semnox account manager
+M2,2. Dept data — BLOCKERS,MILESTONE: Confirm all data received with Israel,Israel,2026-06-29,2026-06-29,0,2.11,Yes (milestone),Hard checkpoint before integration
+3.1,3. Integration,Wire socials + email + website + hotline,Claude,2026-06-18,2026-06-18,1,2.9,,
+3.2,3. Integration,Populate ride descriptions + photos,Claude,2026-06-30,2026-07-01,2,2.11,,
+3.3,3. Integration,Populate F&B outlets + photos,Claude,2026-06-25,2026-06-25,1,2.12,,
+3.4,3. Integration,Replace hero with photo,Claude,2026-06-25,2026-06-25,1,2.10,,Video swap later
+3.5,3. Integration,Build Rates + Promos pages,Claude,2026-06-23,2026-06-24,2,2.5,,
+3.6,3. Integration,Build Park Rules / Directions / Amenities,Claude,2026-06-23,2026-06-24,2,2.3,,
+3.7,3. Integration,Build FAQ section,Claude,2026-06-23,2026-06-23,1,2.14,,
+3.8,3. Integration,Park map section,Claude,2026-06-30,2026-06-30,1,2.13,,
+3.9,3. Integration,Privacy / Terms / Refund pages go live,Claude,2026-06-23,2026-06-23,1,2.7,,
+M3,3. Integration,MILESTONE: Confirm content with Israel before QA,Israel,2026-07-01,2026-07-01,0,3.2,Yes (milestone),Last content checkpoint
+4.1,4. Technical wiring,Wire Semnox Buy Tickets URL,Claude,2026-06-19,2026-06-19,1,2.16,,
+4.2,4. Technical wiring,Netlify Forms notifications setup,Claude,2026-06-18,2026-06-18,1,2.8,,Sends to CS inbox
+4.3,4. Technical wiring,Custom domain go-live + SSL,Claude + IT,2026-06-17,2026-06-17,1,1.5,,
+4.4,4. Technical wiring,SPF / DKIM email records,IT,2026-06-18,2026-06-18,1,4.3,,For email deliverability
+4.5,4. Technical wiring,Google Analytics 4 (pending decision),Claude,2026-06-23,2026-06-23,1,M1,,Needs yes/no from Israel
+4.6,4. Technical wiring,Google Business Profile setup,Marketing + Ops,2026-06-19,2026-06-22,2,2.1,,Listing on Google Maps
+M4,4. Technical wiring,MILESTONE: Confirm tech setup with Israel,Israel,2026-06-18,2026-06-18,0,4.4,Yes (milestone),
+5.1,5. Launch,QA — desktop + mobile + cross-browser,Claude + Marketing,2026-07-02,2026-07-03,2,M3,,
+5.2,5. Launch,MILESTONE: Stakeholder review with Israel,Israel,2026-07-06,2026-07-06,1,5.1,Yes (milestone),Final approval gate
+5.3,5. Launch,Fix issues from review,Claude,2026-07-07,2026-07-07,1,5.2,,
+M5,5. Launch,MILESTONE: GO-LIVE,All,2026-07-08,2026-07-08,0,5.3,Yes (milestone),Site published to praderaislands.com

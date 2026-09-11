@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Pradera Islands Website — Gantt Chart</title>
+<style>
+  :root {
+    --c-kickoff: #6B7280;
+    --c-prep:    #2563EB;
+    --c-dept:    #DC2626;
+    --c-int:     #16A34A;
+    --c-tech:    #7C3AED;
+    --c-launch:  #F59E0B;
+    --c-milestone: #111827;
+    --row-h: 30px;
+    --left-col: 340px;
+    --day-w: 30px;
+    --days: 61;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f5f7fb; margin: 0; padding: 24px; color: #1f2937; }
+  h1 { margin: 0 0 4px; font-size: 24px; }
+  .sub { color: #6b7280; margin-bottom: 16px; font-size: 13px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 12px; border-radius: 3px; display: inline-block; }
+  .chart { background: #fff; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow-x: auto; overflow-y: visible; position: relative; border: 1px solid #cbd5e1; }
+  .header, .row { display: grid; grid-template-columns: var(--left-col) calc(var(--days) * var(--day-w)); align-items: stretch; }
+  .header { background: #111827; color: #fff; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 5; }
+  .header .left { padding: 12px 16px; display: flex; align-items: center; }
+  .header .right { display: grid; grid-template-columns: repeat(var(--days), var(--day-w)); border-left: 1px solid #374151; }
+  .header .right div { padding: 6px 2px; text-align: center; font-size: 10px; border-right: 1px solid #374151; line-height: 1.2; }
+  .header .right .wknd { background: #1f2937; color: #9ca3af; }
+  .header .right .month { background: #4338ca; color: #fff; font-weight: 700; }
+  .section-head { background: #eef2ff; padding: 8px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #4338ca; grid-column: 1 / -1; border-top: 2px solid #6366f1; border-bottom: 1px solid #cbd5e1; position: sticky; left: 0; }
+  .row { border-top: 1px solid #cbd5e1; min-height: var(--row-h); }
+  .row:hover { background: #f8fafc; }
+  .row .left { padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 8px; position: sticky; left: 0; background: #fff; z-index: 2; border-right: 2px solid #94a3b8; }
+  .row:hover .left { background: #f8fafc; }
+  .row .id { color: #9ca3af; font-variant-numeric: tabular-nums; font-size: 10px; min-width: 32px; }
+  .row .owner { color: #6b7280; font-size: 10px; margin-left: auto; white-space: nowrap; }
+  .row .right { position: relative; height: var(--row-h); background-image: repeating-linear-gradient(to right, transparent 0, transparent calc(var(--day-w) - 1px), #d1d5db calc(var(--day-w) - 1px), #d1d5db var(--day-w)); }
+  .row .right::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(to right, transparent 0, transparent calc(7 * var(--day-w) - 1px), #94a3b8 calc(7 * var(--day-w) - 1px), #94a3b8 calc(7 * var(--day-w))); }
+  .bar { position: absolute; top: 6px; height: 18px; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; color: #fff; font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.18); }
+  .bar.kickoff { background: var(--c-kickoff); }
+  .bar.prep    { background: var(--c-prep); }
+  .bar.dept    { background: var(--c-dept); }
+  .bar.int     { background: var(--c-int); }
+  .bar.tech    { background: var(--c-tech); }
+  .bar.launch  { background: var(--c-launch); }
+  .milestone { position: absolute; top: 7px; width: 16px; height: 16px; background: var(--c-milestone); transform: rotate(45deg); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); z-index: 3; }
+  .bar.critical { box-shadow: 0 0 0 2.5px #F59E0B, 0 2px 8px rgba(245,158,11,0.45); z-index: 4; }
+  .milestone.critical { box-shadow: 0 0 0 3px #F59E0B, 0 1px 4px rgba(0,0,0,0.3); z-index: 5; }
+  .critical-line { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 4; }
+  .confirm-flag { color: #dc2626; font-weight: 700; font-size: 10px; margin-left: 4px; }
+  .notes { font-size: 11px; color: #6b7280; padding: 16px 20px; position: sticky; left: 0; max-width: 1100px; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  @media print {
+    @page { size: A3 landscape; margin: 8mm; }
+    body { padding: 0; background: #fff; }
+    .chart { box-shadow: none; overflow: visible; }
+    .header { position: static; }
+    .row .left, .section-head, .notes { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Pradera Islands Website — Deployment Gantt</h1>
+<div class="sub">Start: Mon 2026-06-15 · Target Go-Live: Fri 2026-08-14 · Excludes Semnox online ticketing &amp; OTA (Klook) integration · Scroll right to see full timeline</div>
+
+<div class="legend">
+  <span><i style="background:var(--c-kickoff)"></i> Kickoff</span>
+  <span><i style="background:var(--c-prep)"></i> Structural prep (no data needed)</span>
+  <span><i style="background:var(--c-dept)"></i> Dept data — BLOCKERS</span>
+  <span><i style="background:var(--c-int)"></i> Integration</span>
+  <span><i style="background:var(--c-tech)"></i> Technical wiring</span>
+  <span><i style="background:var(--c-launch)"></i> Launch</span>
+  <span><i style="background:var(--c-milestone);transform:rotate(45deg);border-radius:0"></i> Milestone / Confirm with Israel</span>
+</div>
+
+<div class="legend" style="margin-top:-8px; padding: 10px 14px; background:#fff; border:1px solid #e5e7eb; border-radius:8px;">
+  <strong style="font-size:11px; color:#374151;">Date header key:</strong>
+  <span><i style="background:#4338ca"></i> Month start (J=Jun/Jul, A=Aug)</span>
+  <span><i style="background:#1f2937"></i> Weekend (Sat/Sun)</span>
+  <span style="color:#374151;"><strong>M</strong> Mon &nbsp; <strong>T</strong> Tue &nbsp; <strong>W</strong> Wed &nbsp; <strong>T</strong> Thu &nbsp; <strong>F</strong> Fri &nbsp; <strong>S</strong> Sat/Sun</span>
+  <span style="color:#374151;">Number below letter = day of month</span>
+</div>
+
+<div class="chart">
+
+  <div class="header">
+    <div class="left">Task</div>
+    <div class="right">
+      <div class="month">J<br>15</div><div class="month">J<br>16</div><div class="month">J<br>17</div><div class="month">J<br>18</div><div class="month">J<br>19</div><div class="wknd">S<br>20</div><div class="wknd">S<br>21</div>
+      <div>M<br>22</div><div>T<br>23</div><div>W<br>24</div><div>T<br>25</div><div>F<br>26</div><div class="wknd">S<br>27</div><div class="wknd">S<br>28</div>
+      <div>M<br>29</div><div>T<br>30</div><div class="month">J<br>1</div><div>T<br>2</div><div>F<br>3</div><div class="wknd">S<br>4</div><div class="wknd">S<br>5</div>
+      <div>M<br>6</div><div>T<br>7</div><div>W<br>8</div><div>T<br>9</div><div>F<br>10</div><div class="wknd">S<br>11</div><div class="wknd">S<br>12</div>
+      <div>M<br>13</div><div>T<br>14</div><div>W<br>15</div><div>T<br>16</div><div>F<br>17</div><div class="wknd">S<br>18</div><div class="wknd">S<br>19</div>
+      <div>M<br>20</div><div>T<br>21</div><div>W<br>22</div><div>T<br>23</div><div>F<br>24</div><div class="wknd">S<br>25</div><div class="wknd">S<br>26</div>
+      <div>M<br>27</div><div>T<br>28</div><div>W<br>29</div><div>T<br>30</div><div>F<br>31</div><div class="wknd">A<br>1</div><div class="wknd">S<br>2</div>
+      <div>M<br>3</div><div>T<br>4</div><div>W<br>5</div><div>T<br>6</div><div>F<br>7</div><div class="wknd">S<br>8</div><div class="wknd">S<br>9</div>
+      <div>M<br>10</div><div>T<br>11</div><div>W<br>12</div><div>T<br>13</div><div>F<br>14</div>
+    </div>
+  </div>
+
+  <div class="section-head">0. Kickoff</div>
+  <div class="row"><div class="left"><span class="id">0.1</span>Send request email to depts<span class="confirm-flag">★</span><span class="owner">Jearick / Marketing</span></div><div class="right"><div class="milestone" style="left: calc(0 * var(--day-w))"></div></div></div>
+  <div class="row"><div class="left"><span class="id">0.2</span>Jearick approves Gantt<span class="confirm-flag">★</span><span class="owner">Jearick / Marketing</span></div><div class="right"><div class="bar kickoff" style="left: calc(0 * var(--day-w)); width: calc(1 * var(--day-w))">Approve</div></div></div>
+
+  <div class="section-head">1. Structural Prep (no data needed)</div>
+  <div class="row"><div class="left"><span class="id">1.1</span>Scaffold Privacy / Terms / Rates / FAQ shells<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar prep" style="left: calc(1 * var(--day-w)); width: calc(7 * var(--day-w))">Page shells</div></div></div>
+  <div class="row"><div class="left"><span class="id">1.2</span>Image slots on attraction &amp; F&amp;B cards<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar prep" style="left: calc(1 * var(--day-w)); width: calc(4 * var(--day-w))">Slots</div></div></div>
+  <div class="row"><div class="left"><span class="id">1.4</span>Cookie consent banner scaffold<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar prep" style="left: calc(8 * var(--day-w)); width: calc(4 * var(--day-w))">Cookie</div></div></div>
+  <div class="row"><div class="left"><span class="id">1.5</span>Custom domain DNS prep<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar prep" style="left: calc(1 * var(--day-w)); width: calc(4 * var(--day-w))">DNS</div></div></div>
+  <div class="row"><div class="left"><span class="id">M1</span>Confirm prep with Israel<span class="confirm-flag">★</span><span class="owner">Israel</span></div><div class="right"><div class="milestone" style="left: calc(9 * var(--day-w) - 8px)"></div></div></div>
+
+  <div class="section-head">2. Department Data — BLOCKERS (extended window)</div>
+  <div class="row"><div class="left"><span class="id">2.1</span>[OPS] Operating hours + opening date<span class="owner">Operations</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(7 * var(--day-w))">5 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.2</span>[OPS] Final ride names + descriptions<span class="owner">Ops + Mktg</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(14 * var(--day-w))">10 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.3</span>[OPS] Park rules + safety + accessibility<span class="owner">Ops + Legal</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(14 * var(--day-w))">10 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.4</span>[OPS] Directions + parking + amenities<span class="owner">Operations</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(9 * var(--day-w))">7 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.5</span>[SALES] Ticket / cabana / promo pricing<span class="owner">Sales</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(14 * var(--day-w))">10 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.6</span>[F&amp;B] Outlet names + descriptions<span class="owner">F&amp;B Ops</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(9 * var(--day-w))">7 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.7</span>[LEGAL] Privacy + Terms + Refund<span class="owner">Legal</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(21 * var(--day-w))">15 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.8</span>[ADMIN] CS email + hotline<span class="owner">Admin/IT</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(7 * var(--day-w))">5 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.9</span>[MKTG] IG + TikTok handles<span class="owner">Marketing</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(4 * var(--day-w))">3 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.10</span>[MKTG] Hero photo (drone/wide)<span class="owner">Marketing</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(21 * var(--day-w))">15 working days (weather)</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.11</span>[MKTG] Ride photos (11)<span class="owner">Marketing</span></div><div class="right"><div class="bar dept critical" style="left: calc(1 * var(--day-w)); width: calc(35 * var(--day-w))">25 working days · CRITICAL PATH</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.12</span>[MKTG] F&amp;B photos<span class="owner">Marketing</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(21 * var(--day-w))">15 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.13</span>[MKTG] Park map graphic<span class="owner">Marketing</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(28 * var(--day-w))">20 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.14</span>[MKTG] FAQs + Open Graph image<span class="owner">Mktg + CS</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(14 * var(--day-w))">10 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.15</span>[MKTG] Teaser video (optional)<span class="owner">Marketing</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(35 * var(--day-w))">25 working days · optional</div></div></div>
+  <div class="row"><div class="left"><span class="id">2.16</span>[OPS] Semnox booking URL <span style="color:#dc2626; font-size:9px; font-weight:700; margin-left:6px;">[INFO PENDING]</span><span class="owner">Operations</span></div><div class="right"><div class="bar dept" style="left: calc(1 * var(--day-w)); width: calc(7 * var(--day-w)); background: repeating-linear-gradient(45deg, #DC2626, #DC2626 6px, #f87171 6px, #f87171 12px); opacity: 0.7;">Pending info</div></div></div>
+  <div class="row"><div class="left"><span class="id">M2</span>Confirm all data received<span class="confirm-flag">★</span><span class="owner">Israel</span></div><div class="right"><div class="milestone" style="left: calc(36 * var(--day-w) - 8px)"></div></div></div>
+
+  <div class="section-head">3. Integration (after dept data lands)</div>
+  <div class="row"><div class="left"><span class="id">3.1</span>Wire socials + email + website + hotline<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(7 * var(--day-w)); width: calc(4 * var(--day-w))">Wire</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.2</span>Populate ride descriptions + photos<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int critical" style="left: calc(36 * var(--day-w)); width: calc(7 * var(--day-w))">Rides</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.3</span>Populate F&amp;B outlets + photos<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(22 * var(--day-w)); width: calc(6 * var(--day-w))">F&amp;B</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.4</span>Replace hero with photo<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(22 * var(--day-w)); width: calc(5 * var(--day-w))">Hero</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.5</span>Build Rates + Promos pages<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(15 * var(--day-w)); width: calc(7 * var(--day-w))">Rates</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.6</span>Build Park Rules / Directions / Amenities<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(15 * var(--day-w)); width: calc(7 * var(--day-w))">Info pages</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.7</span>Build FAQ section<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(15 * var(--day-w)); width: calc(6 * var(--day-w))">FAQ</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.8</span>Park map section<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(29 * var(--day-w)); width: calc(4 * var(--day-w))">Map</div></div></div>
+  <div class="row"><div class="left"><span class="id">3.9</span>Privacy / Terms / Refund pages live<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar int" style="left: calc(22 * var(--day-w)); width: calc(6 * var(--day-w))">Legal</div></div></div>
+  <div class="row"><div class="left"><span class="id">M3</span>Confirm content before QA<span class="confirm-flag">★</span><span class="owner">Israel</span></div><div class="right"><div class="milestone critical" style="left: calc(42 * var(--day-w) - 8px)"></div></div></div>
+
+  <div class="section-head">4. Technical Wiring</div>
+  <div class="row"><div class="left"><span class="id">4.1</span>Wire Semnox Buy Tickets URL <span style="color:#dc2626; font-size:9px; font-weight:700; margin-left:6px;">[INFO PENDING]</span><span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar tech" style="left: calc(8 * var(--day-w)); width: calc(4 * var(--day-w)); background: repeating-linear-gradient(45deg, #7C3AED, #7C3AED 6px, #a78bfa 6px, #a78bfa 12px); opacity: 0.7;">Pending info</div></div></div>
+  <div class="row"><div class="left"><span class="id">4.2</span>Netlify Forms notifications<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar tech" style="left: calc(8 * var(--day-w)); width: calc(4 * var(--day-w))">Forms</div></div></div>
+  <div class="row"><div class="left"><span class="id">4.3</span>Custom domain go-live + SSL<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar tech" style="left: calc(3 * var(--day-w)); width: calc(4 * var(--day-w))">Domain</div></div></div>
+  <div class="row"><div class="left"><span class="id">4.4</span>SPF / DKIM email records<span class="owner">IT</span></div><div class="right"><div class="bar tech" style="left: calc(5 * var(--day-w)); width: calc(2 * var(--day-w))">DNS</div></div></div>
+  <div class="row"><div class="left"><span class="id">4.5</span>Google Analytics 4 (pending decision)<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar tech" style="left: calc(10 * var(--day-w)); width: calc(4 * var(--day-w))">GA4</div></div></div>
+  <div class="row"><div class="left"><span class="id">4.6</span>Google Business Profile setup<span class="owner">Mktg + Ops</span></div><div class="right"><div class="bar tech" style="left: calc(8 * var(--day-w)); width: calc(7 * var(--day-w))">GBP listing</div></div></div>
+  <div class="row"><div class="left"><span class="id">M4</span>Confirm tech setup<span class="confirm-flag">★</span><span class="owner">Israel</span></div><div class="right"><div class="milestone" style="left: calc(15 * var(--day-w) - 8px)"></div></div></div>
+
+  <div class="section-head">5. Launch</div>
+  <div class="row"><div class="left"><span class="id">5.1</span>QA — desktop + mobile + cross-browser<span class="owner">MIS/IT + Mktg</span></div><div class="right"><div class="bar launch critical" style="left: calc(42 * var(--day-w)); width: calc(8 * var(--day-w))">QA — 6 working days</div></div></div>
+  <div class="row"><div class="left"><span class="id">5.2</span>Stakeholder review with Israel<span class="confirm-flag">★</span><span class="owner">Israel</span></div><div class="right"><div class="bar launch critical" style="left: calc(50 * var(--day-w)); width: calc(3 * var(--day-w))">Review</div></div></div>
+  <div class="row"><div class="left"><span class="id">5.3</span>Fix issues from review<span class="owner">MIS/IT Team</span></div><div class="right"><div class="bar launch critical" style="left: calc(53 * var(--day-w)); width: calc(7 * var(--day-w))">Fix</div></div></div>
+  <div class="row"><div class="left"><span class="id">5.4</span>Final regression + smoke test<span class="owner">MIS/IT + Mktg</span></div><div class="right"><div class="bar launch critical" style="left: calc(57 * var(--day-w)); width: calc(3 * var(--day-w))">Smoke</div></div></div>
+  <div class="row"><div class="left"><span class="id">M5</span>GO-LIVE<span class="confirm-flag">★</span><span class="owner">All</span></div><div class="right"><div class="milestone" style="left: calc(60 * var(--day-w) - 8px); background: var(--c-launch)"></div></div></div>
+
+  <svg class="critical-line" width="2200" height="1700" viewBox="0 0 2200 1700" preserveAspectRatio="none">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#F59E0B" />
+      </marker>
+    </defs>
+    <polyline
+      points="1420,683 1420,953 1600,953 1600,1493 1810,1493 1840,1523 1930,1523 1930,1553 2110,1553 2110,1613 2140,1613"
+      stroke="#F59E0B" stroke-width="4" fill="none"
+      stroke-linecap="round" stroke-linejoin="round"
+      marker-end="url(#arrow)"
+      style="filter: drop-shadow(0 0 6px rgba(245,158,11,0.55));" />
+  </svg>
+
+  <div class="notes">
+    <strong>★</strong> = Confirmation required from Israel before next phase starts. Black diamonds = approval milestones; orange diamond = launch.<br>
+    <strong style="color: #F59E0B;">Gold-outlined bars + gold line</strong> = Critical Path (the chain of tasks that controls the launch date — any slip here slips launch).<br>
+    <strong>Critical path:</strong> 2.11 Ride photos (longest blocker) → 3.2 Populate rides → M3 → 5.1 QA → 5.2 Review → 5.3 Fix → 5.4 Smoke → <strong>M5 GO-LIVE Fri 2026-08-14</strong>.<br>
+    Bars span calendar days; department work is measured in working days (Mon–Fri), so weekends are included in bar length where the span crosses them.<br>
+    Scroll horizontally inside the chart to see the full 9-week timeline. Left column stays fixed.
+  </div>
+
+  <div style="padding: 16px 20px; border-top: 1px solid #e5e7eb; background: #fffbeb;">
+    <h3 style="margin: 0 0 8px; font-size: 13px; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">Important Notes</h3>
+    <ol style="margin: 0; padding-left: 20px; font-size: 12px; color: #374151; line-height: 1.6;">
+      <li><strong>Online ticket selling is NOT yet included</strong> in this Gantt chart. Semnox online booking integration, payment gateway setup, and OTA listings (Klook, Traveloka, KKday) will be planned in a follow-up phase once more information is available from the Semnox account manager and Sales team.</li>
+      <li><strong>Recommendation: engage a freelance web consultant</strong> for an external review of the site before launch. Project development and coding will be handled in-house by Israel (MIS/IT Team), but an outside consultation pass is highly recommended to validate UX, accessibility, performance, SEO, and overall output quality. Cost should be minimal — only a review/consultation engagement, not full development — since the majority of the work is being done in-house.</li>
+    </ol>
+  </div>
+
+</div>
+
+</body>
+</html>

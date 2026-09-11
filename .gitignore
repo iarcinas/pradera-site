@@ -28,3 +28,6 @@ yarn-error.log*
 # claude code local-only settings
 .claude/settings.local.json
 
+
+# local restore points, not part of the site
+/backups
