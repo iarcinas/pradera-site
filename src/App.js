@@ -645,7 +645,7 @@ export default function PraderaIslands() {
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="btn-primary" style={{ background: COLORS.orange, boxShadow: "0 12px 32px rgba(255,142,0,0.45)" }} onClick={() => alert("Buy Tickets — coming soon!")}>Buy Tickets</button>
-            <button className="btn-ghost" onClick={() => alert("Park Schedule — coming soon!")}>Park Schedule</button>
+            <button className="btn-ghost" onClick={() => scrollTo("visit")}>Park Hours</button>
           </div>
         </div>
 
@@ -1124,13 +1124,20 @@ export default function PraderaIslands() {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {[
                   { label: "Location", val: "Prado Siongco, Lubao, Pampanga", c: COLORS.orange, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Pradera Islands Waterpark, Prado Siongco, Lubao, Pampanga")}` },
+                  { label: "Park Hours", val: (
+                      <span style={{ display: "block", lineHeight: 1.55 }}>
+                        Thursday 10:00 AM – 4:00 PM<br />
+                        Friday to Sunday 10:00 AM – 5:00 PM<br />
+                        <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>Last entry one hour before closing · Closed Monday to Wednesday</span>
+                      </span>
+                    ), c: COLORS.sunset, href: null },
                   { label: "Email", val: "hello@praderaislands.com", c: COLORS.azure, href: null },
                   { label: "Website", val: "praderaislands.com", c: COLORS.janjan, href: null },
                 ].map(({ label, val, c, href }) => {
                   const rowStyle = { display: "flex", alignItems: "center", gap: 18, padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none", cursor: href ? "pointer" : "default", transition: "background 0.2s" };
                   const body = (
                     <>
-                      <div style={{ width: 6, height: 40, background: c, borderRadius: 3, flexShrink: 0 }} />
+                      <div style={{ width: 6, minHeight: 40, alignSelf: "stretch", background: c, borderRadius: 3, flexShrink: 0 }} />
                       <div>
                         <div className="eyebrow" style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, marginBottom: 4 }}>{label}</div>
                         <div className="body" style={{ fontSize: 15, color: "#fff", fontWeight: 500, lineHeight: 1.3, display: "flex", alignItems: "center", gap: 8 }}>
