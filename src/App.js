@@ -80,6 +80,23 @@ const characters = [
 
 const COOKIE_CONSENT_ENABLED = false;
 
+/* Admission rates from the Sales / Revenue information request form (Sept 2026).
+   Flip RATES_PUBLISHED to true once Sales marks them Final. */
+const RATES_PUBLISHED = true;
+/* Sections that are still empty shells stay hidden until their department delivers. */
+const FAQ_PUBLISHED = false;    // Marketing + Customer Service
+const LEGAL_PUBLISHED = false;  // Legal: Privacy Policy and Terms of Service
+const CS_EMAIL = null;          // Legal/Admin: customer service address, e.g. "info@praderaislands.com"
+
+const TICKET_RATES = [
+  { name: "Regular",        weekday: 1080, weekend: 1180, peakWeekday: 1280, peakWeekend: 1380 },
+  { name: "Junior",         note: "Ages 4 to 11", weekday: 880, weekend: 980, peakWeekday: 1080, peakWeekend: 1180 },
+  { name: "Senior / PWD",   note: "20% off Regular with valid ID", weekday: 864, weekend: 944, peakWeekday: 1024, peakWeekend: 1104 },
+  { name: "Infant",         note: "Under 3 years old", free: true },
+];
+
+const GROUP_RATE = { weekday: 9720, weekend: 10620, peakWeekday: 11520, peakWeekend: 12420 };
+
 /* Rest state for the social icons: a quiet tint of the brand colour; solid on hover. */
 const socialIconBg = (name, accent) => `${accent}26`;
 
@@ -211,7 +228,7 @@ export default function PraderaIslands() {
     { id: "characters", label: "characters" },
     { id: "map", label: "map" },
     { id: "gallery", label: "gallery" },
-    { id: "rates", label: "Rates", soon: true },
+    { id: "rates", label: "Rates", soon: !RATES_PUBLISHED },
     { id: "promos", label: "Promos", soon: true },
     { id: "guide", label: "Guide", soon: true },
     { id: "visit", label: "Contact Us" },
@@ -412,6 +429,22 @@ export default function PraderaIslands() {
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
         /* For short lists: collapse empty tracks, cap card width, centre the row */
         .grid-cards--center { grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); justify-content: center; }
+
+        /* ---- Rates table ---- */
+        .rates-wrap { overflow-x: auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+        .rates-table { width: 100%; border-collapse: collapse; min-width: 640px; font-variant-numeric: tabular-nums; }
+        .rates-table th { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase; color: #7a819a; text-align: left; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; background: #fafbff; }
+        .rates-table td { padding: 18px 20px; border-bottom: 1px solid #eef0f6; font-size: 17px; font-weight: 600; color: ${COLORS.hiraya}; }
+        .rates-table tr:last-child td { border-bottom: 0; }
+        .rates-table td:first-child { font-size: 15px; }
+        .rates-table .peak { color: #9a5300; background: #fff8ee; }
+        .rates-table th.peak { color: #9a5300; }
+        .rates-note { display: block; font-size: 12px; font-weight: 500; color: #7a819a; margin-top: 3px; }
+        .rates-free { color: ${COLORS.lakandanum}; font-family: 'Kanit', sans-serif; letter-spacing: 1.5px; text-transform: uppercase; font-size: 14px; }
+        .rates-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+        .rates-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 28px; }
+        .rates-card--soon { background: #f8f9fd; border-style: dashed; }
+        @media (max-width: 720px) { .rates-cards { grid-template-columns: 1fr; } }
         .carousel-3d-wrap { position: relative; perspective: 1600px; padding: 0; }
         .carousel-3d-stage { position: relative; height: clamp(380px, 44vw, 500px); transform-style: preserve-3d; display: flex; align-items: center; justify-content: center; }
         .carousel-3d-card { position: absolute; top: 50%; left: 50%; width: clamp(300px, 38vw, 460px); height: auto; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease, box-shadow 0.6s ease; box-shadow: 0 30px 60px rgba(0,35,123,0.18); will-change: transform, opacity; }
@@ -1128,11 +1161,11 @@ export default function PraderaIslands() {
                       <span style={{ display: "block", lineHeight: 1.55 }}>
                         Thursday 10:00 AM – 4:00 PM<br />
                         Friday to Sunday 10:00 AM – 5:00 PM<br />
-                        <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>Last entry one hour before closing · Closed Monday to Wednesday</span>
+                        <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>Last entry one hour before closing · Closed Monday to Wednesday · Holiday hours may differ</span>
                       </span>
                     ), c: COLORS.sunset, href: null },
-                  { label: "Email", val: "hello@praderaislands.com", c: COLORS.azure, href: null },
-                  { label: "Website", val: "praderaislands.com", c: COLORS.janjan, href: null },
+                  ...(CS_EMAIL ? [{ label: "Email", val: CS_EMAIL, c: COLORS.azure, href: `mailto:${CS_EMAIL}` }] : []),
+                  { label: "Parking", val: "₱50 flat rate", c: COLORS.janjan, href: null },
                 ].map(({ label, val, c, href }) => {
                   const rowStyle = { display: "flex", alignItems: "center", gap: 18, padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none", cursor: href ? "pointer" : "default", transition: "background 0.2s" };
                   const body = (
@@ -1142,7 +1175,7 @@ export default function PraderaIslands() {
                         <div className="eyebrow" style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, marginBottom: 4 }}>{label}</div>
                         <div className="body" style={{ fontSize: 15, color: "#fff", fontWeight: 500, lineHeight: 1.3, display: "flex", alignItems: "center", gap: 8 }}>
                           {val}
-                          {href && <span style={{ color: c, fontSize: 13, fontFamily: "'Kanit', sans-serif", fontWeight: 700, letterSpacing: 1 }}>VIEW MAP ↗</span>}
+                          {href && <span style={{ color: c, fontSize: 13, fontFamily: "'Kanit', sans-serif", fontWeight: 700, letterSpacing: 1 }}>{href.startsWith("mailto:") ? "EMAIL ↗" : "VIEW MAP ↗"}</span>}
                         </div>
                       </div>
                     </>
@@ -1241,28 +1274,90 @@ export default function PraderaIslands() {
       {/* RATES — scaffold; populate when Sales delivers pricing */}
       <section id="rates" style={{ background: "#f4f7ff", padding: "96px 6%" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Park & Cabana Rates</div>
-          <h2 className="display" style={{ fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 900, color: COLORS.hiraya, marginBottom: 28, lineHeight: 1.05 }}>
-            Rates & <span style={{ color: COLORS.dagat }}>Inclusions</span>
-          </h2>
-          <div style={{ background: "#fff", borderRadius: 10, padding: 36, border: "1px solid #e5e7eb" }}>
-            <p className="body" style={{ fontSize: 15, color: "#55566a", marginBottom: 18 }}>
-              Ticket and cabana rates will be published here once finalized by the Sales team. Categories to be filled in:
+          <div className="reveal" style={{ marginBottom: 28 }}>
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Park Rates</div>
+            <h2 className="display" style={{ fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 900, color: COLORS.hiraya, margin: 0, lineHeight: 1.05, textTransform: "uppercase" }}>
+              Admission <span style={{ color: COLORS.dagat }}>Rates</span>
+            </h2>
+            <p className="body" style={{ fontSize: 16, color: "#55566a", maxWidth: 620, margin: "16px 0 0" }}>
+              Full-day admission to every attraction. Rates are per guest in Philippine pesos.
             </p>
-            <ul style={{ paddingLeft: 20, color: "#55566a", fontSize: 15, lineHeight: 1.9 }}>
-              <li>Regular admission</li>
-              <li>Junior</li>
-              <li>PWD / Senior</li>
-              <li>Infant</li>
-              <li>Cabana rates (by type & capacity)</li>
-              <li>Group / school / corporate packages</li>
-              <li>Locker & towel rental</li>
-            </ul>
           </div>
+
+          {RATES_PUBLISHED ? (
+            <>
+              <div className="rates-wrap reveal">
+                <table className="rates-table">
+                  <thead>
+                    <tr>
+                      <th>Ticket</th>
+                      <th>Weekday</th>
+                      <th>Weekend</th>
+                      <th className="peak">Peak weekday</th>
+                      <th className="peak">Peak weekend</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {TICKET_RATES.map((r) => (
+                      <tr key={r.name}>
+                        <td>
+                          <strong>{r.name}</strong>
+                          {r.note && <span className="rates-note">{r.note}</span>}
+                        </td>
+                        {r.free ? (
+                          <td colSpan={4} className="rates-free">Free</td>
+                        ) : (
+                          <>
+                            <td>₱{r.weekday.toLocaleString()}</td>
+                            <td>₱{r.weekend.toLocaleString()}</td>
+                            <td className="peak">₱{r.peakWeekday.toLocaleString()}</td>
+                            <td className="peak">₱{r.peakWeekend.toLocaleString()}</td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="rates-cards reveal">
+                <div className="rates-card">
+                  <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 10 }}>Group Rate</div>
+                  <div className="display" style={{ fontSize: 30, fontWeight: 900, color: COLORS.hiraya, lineHeight: 1 }}>
+                    ₱{GROUP_RATE.weekday.toLocaleString()} <span style={{ fontSize: 14, fontWeight: 600, color: "#55566a" }}>weekday</span>
+                  </div>
+                  <div className="body" style={{ fontSize: 14, color: "#55566a", marginTop: 8, lineHeight: 1.7 }}>
+                    ₱{GROUP_RATE.weekend.toLocaleString()} weekend<br />
+                    Peak season ₱{GROUP_RATE.peakWeekday.toLocaleString()} weekday · ₱{GROUP_RATE.peakWeekend.toLocaleString()} weekend
+                  </div>
+                  <p className="body" style={{ fontSize: 13, color: "#7a819a", marginTop: 12, marginBottom: 0 }}>
+                    Message us to arrange a group visit.
+                  </p>
+                </div>
+                <div className="rates-card rates-card--soon">
+                  <div className="eyebrow" style={{ color: "#7a819a", marginBottom: 10 }}>Cabanas & Promos</div>
+                  <p className="body" style={{ fontSize: 15, color: "#55566a", margin: 0, lineHeight: 1.6 }}>
+                    Cabana rates, school and corporate packages, and opening promos will be posted here soon.
+                  </p>
+                </div>
+              </div>
+
+              <p className="body" style={{ fontSize: 13, color: "#7a819a", marginTop: 20, lineHeight: 1.6 }}>
+                Senior citizen and PWD rates require a valid ID at the gate. Peak season covers holidays and declared peak dates. Rates may change without prior notice.
+              </p>
+            </>
+          ) : (
+            <div className="reveal" style={{ background: "#fff", borderRadius: 10, padding: 36, border: "1px solid #e5e7eb" }}>
+              <p className="body" style={{ fontSize: 15, color: "#55566a", margin: 0 }}>
+                Admission, cabana and group rates will be published here once finalized by the Sales team.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
       {/* FAQ — scaffold */}
+      {FAQ_PUBLISHED && (
       <section id="faq" style={{ background: "#fff", padding: "96px 6%" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>FAQs</div>
@@ -1279,8 +1374,10 @@ export default function PraderaIslands() {
           </div>
         </div>
       </section>
+      )}
 
       {/* PRIVACY POLICY — scaffold */}
+      {LEGAL_PUBLISHED && (<>
       <section id="privacy" style={{ background: "#f9fafb", padding: "96px 6%" }}>
         <div style={{ maxWidth: 820, margin: "0 auto" }}>
           <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Legal</div>
@@ -1329,6 +1426,7 @@ export default function PraderaIslands() {
           </div>
         </div>
       </section>
+      </>)}
 
       {/* FOOTER */}
       <footer style={{
