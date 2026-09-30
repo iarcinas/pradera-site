@@ -444,7 +444,21 @@ export default function PraderaIslands() {
         .rates-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
         .rates-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 28px; }
         .rates-card--soon { background: #f8f9fd; border-style: dashed; }
-        @media (max-width: 720px) { .rates-cards { grid-template-columns: 1fr; } }
+        @media (max-width: 720px) {
+          .rates-cards { grid-template-columns: 1fr; }
+          /* Phones: each ticket becomes a stacked card instead of a sideways-scrolling table */
+          .rates-table { min-width: 0; }
+          .rates-table thead { display: none; }
+          .rates-table, .rates-table tbody, .rates-table tr, .rates-table td { display: block; }
+          .rates-table tr { padding: 16px 18px 12px; border-bottom: 1px solid #eef0f6; }
+          .rates-table tr:last-child { border-bottom: 0; }
+          .rates-table td { padding: 7px 0; border: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 16px; }
+          .rates-table td:first-child { display: block; padding: 0 0 10px; font-size: 17px; border-bottom: 1px dashed #e5e7eb; margin-bottom: 4px; }
+          .rates-table td[data-label]::before { content: attr(data-label); font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: #7a819a; }
+          .rates-table td.peak { background: transparent; }
+          .rates-table td.peak::before { color: #9a5300; }
+          .rates-table td.rates-free { justify-content: space-between; }
+        }
         .carousel-3d-wrap { position: relative; perspective: 1600px; padding: 0; }
         .carousel-3d-stage { position: relative; height: clamp(380px, 44vw, 500px); transform-style: preserve-3d; display: flex; align-items: center; justify-content: center; }
         .carousel-3d-card { position: absolute; top: 50%; left: 50%; width: clamp(300px, 38vw, 460px); height: auto; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease, box-shadow 0.6s ease; box-shadow: 0 30px 60px rgba(0,35,123,0.18); will-change: transform, opacity; }
@@ -1305,13 +1319,13 @@ export default function PraderaIslands() {
                           {r.note && <span className="rates-note">{r.note}</span>}
                         </td>
                         {r.free ? (
-                          <td colSpan={4} className="rates-free">Free</td>
+                          <td colSpan={4} className="rates-free" data-label="All days">Free</td>
                         ) : (
                           <>
-                            <td>₱{r.weekday.toLocaleString()}</td>
-                            <td>₱{r.weekend.toLocaleString()}</td>
-                            <td className="peak">₱{r.peakWeekday.toLocaleString()}</td>
-                            <td className="peak">₱{r.peakWeekend.toLocaleString()}</td>
+                            <td data-label="Weekday">₱{r.weekday.toLocaleString()}</td>
+                            <td data-label="Weekend">₱{r.weekend.toLocaleString()}</td>
+                            <td className="peak" data-label="Peak weekday">₱{r.peakWeekday.toLocaleString()}</td>
+                            <td className="peak" data-label="Peak weekend">₱{r.peakWeekend.toLocaleString()}</td>
                           </>
                         )}
                       </tr>
