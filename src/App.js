@@ -864,8 +864,8 @@ export default function PraderaIslands() {
         borderTop: `4px solid ${COLORS.orange}`,
       }}>
         <img
-          src="/photos/racer-slides.webp"
-          alt="Lunar Speedway, the six-lane racer slide at Pradera Islands"
+          src="/photos/lunar-speedway.webp"
+          alt="Lunar Speedway and the park beyond it at Pradera Islands"
           style={{
             position: "absolute", top: 0, left: 0,
             width: "100%", height: "118%", objectFit: "cover", zIndex: 0,
@@ -1281,7 +1281,7 @@ export default function PraderaIslands() {
             {[
               { src: "/photos/park-day.webp", alt: "Aerial view of Pradera Islands Waterpark", span: "span 2", row: "span 2" },
               { src: "/photos/wave-pool.webp", alt: "The wave pool", span: "span 2", row: "span 1" },
-              { src: "/photos/rain-park.webp", alt: "The rain park splash tower", span: "span 1", row: "span 1" },
+              { src: "/photos/racer-slides.webp", alt: "Racer slides", span: "span 1", row: "span 1" },
               { src: "/photos/bowl-slides.webp", alt: "Tornado bowl slides", span: "span 1", row: "span 1" },
               { src: "/photos/family-slides.webp", alt: "Family slides", span: "span 2", row: "span 1" },
               { src: "/photos/slides-tower.webp", alt: "Slide tower and wave pool", span: "span 2", row: "span 1" },
