@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const COLORS = {
   orange: "#FF8E00",
@@ -117,9 +117,14 @@ export default function PraderaIslands() {
   const [navOpen, setNavOpen] = useState(false);
 
   const [isNarrow, setIsNarrow] = useState(false);
+  // The page runs past 20,000px. Past the first screen, offer a way back up.
+  const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 60);
+      setShowTop(window.scrollY > window.innerHeight);
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -182,6 +187,11 @@ export default function PraderaIslands() {
       .catch(() => setFormState("error"));
   };
 
+  // A link tapped inside the open sheet parks its target id here. The sheet
+  // has the body pinned, so the page cannot be scrolled until the lock comes
+  // off — the close handler below does both in one move.
+  const pendingScroll = useRef(null);
+
   // Lock the page behind the mobile menu so scrolling the sheet can't
   // chain into the page. Pins body position and restores the exact
   // scroll offset on close — iOS Safari loses it with overflow:hidden alone.
@@ -198,7 +208,17 @@ export default function PraderaIslands() {
       document.body.style.top = top;
       document.body.style.width = width;
       document.body.style.overflowY = overflowY;
-      window.scrollTo(0, y);
+
+      // Exactly one scroll on the way out. Restoring the old offset and then
+      // scrolling to the target are two animations racing each other, and the
+      // restore wins — which is why tapping a menu item appeared to do nothing.
+      const target = pendingScroll.current && document.getElementById(pendingScroll.current);
+      pendingScroll.current = null;
+      if (target) {
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: "smooth" });
+      } else {
+        window.scrollTo(0, y);
+      }
     };
   }, [navOpen]);
 
@@ -247,9 +267,14 @@ export default function PraderaIslands() {
   }, []);
 
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     setActiveSection(id);
-    setNavOpen(false);
+    if (navOpen) {
+      // Hand the target to the lock cleanup; it scrolls once it has unpinned.
+      pendingScroll.current = id;
+      setNavOpen(false);
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
 
@@ -618,6 +643,25 @@ export default function PraderaIslands() {
           .carousel-arrow:hover { transform: scale(1.08); }
           .carousel-dots { margin-top: 8px; }
         }
+
+        /* The slides sit on the right of the band photo. A narrow screen crops
+           the centre, which is just walkway — shift the crop so they stay in frame. */
+        @media (max-width: 860px) { .band-photo { object-position: 76% center; } }
+
+        .to-top {
+          position: fixed; right: 22px; bottom: 22px; z-index: 90;
+          width: 46px; height: 46px; border-radius: 999px; border: none;
+          display: flex; align-items: center; justify-content: center;
+          background: ${COLORS.orange}; color: #fff; cursor: pointer;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+          opacity: 0; visibility: hidden; transform: translateY(8px);
+          transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+        }
+        .to-top.is-on { opacity: 1; visibility: visible; transform: none; }
+        .to-top:hover { background: ${COLORS.sunset}; }
+        .to-top:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+        @media (max-width: 760px) { .to-top { right: 16px; bottom: 16px; width: 44px; height: 44px; } }
+        @media (prefers-reduced-motion: reduce) { .to-top { transition: opacity 0.15s ease, visibility 0.15s; transform: none; } }
       `}</style>
 
       {/* INTRO SPLASH — a pool of water that drains to reveal the park */}
@@ -864,6 +908,7 @@ export default function PraderaIslands() {
         borderTop: `4px solid ${COLORS.orange}`,
       }}>
         <img
+          className="band-photo"
           src="/photos/lunar-speedway.webp"
           alt="Lunar Speedway and the park beyond it at Pradera Islands"
           style={{
@@ -1666,6 +1711,20 @@ export default function PraderaIslands() {
       </footer>
 
       {COOKIE_CONSENT_ENABLED && <CookieBanner />}
+
+      {/* Back to top. Tapping the logo already does this, but nothing says so,
+          and the page is long enough that guessing is a poor fallback. */}
+      <button
+        type="button"
+        className={`to-top${showTop ? " is-on" : ""}`}
+        onClick={() => scrollTo("home")}
+        aria-label="Back to top"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M12 19V5M12 5l-7 7M12 5l7 7" fill="none" stroke="currentColor"
+                strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
     </div>
   );
 }
