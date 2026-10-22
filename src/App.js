@@ -36,46 +36,50 @@ const mapPins = [
   { name: "Waves of Laut", x: 25.3, y: 82.9 },
   { name: "Lunar Speedway", x: 48.7, y: 84.9 },
   { name: "Habagat Rush", x: 84.9, y: 90.1 },
+  // Venues — resolved from the dining & retail list rather than the ride list.
+  { name: "Sinag", x: 75.6, y: 28.2, venue: true },
+  { name: "Pradera Treasures", x: 69.3, y: 9.6, venue: true },
 ];
 
 const attractions = [
-  { name: "Amihan Spinner", desc: "Feel the winds of the Northeast Monsoon in this spinning vortex slide — fast, furious, and unstoppable.", theme: "Wind & Storm", color: COLORS.dagat, logo: "/attractions/amihan-spinner.png" },
-  { name: "Habagat Rush", desc: "Ride the Southwest Monsoon's force down a high-speed plunge slide that leaves you breathless.", theme: "Thrill Slide", color: COLORS.orange, logo: "/attractions/habagat-rush.png" },
-  { name: "Danum 360", desc: "A triple-twisting serpentine slide inspired by the bakunawa — spiral through water in pure flow.", theme: "Twister", color: COLORS.azure, logo: "/attractions/danum-360.png" },
-  { name: "Lunar Speedway", desc: "Six lanes racing side by side under the lunar cycle — moon-inspired, tidal speed.", theme: "Race Slides", color: COLORS.lakandanum, logo: "/attractions/lunar-speedway.png" },
-  { name: "Ulan Towers", desc: "A multi-level rain-zone ride house where every turn pours with tropical abundance.", theme: "Family Rides", color: COLORS.janjan, logo: "/attractions/ulan-towers.png" },
-  { name: "Waves of Laut", desc: "Laut's domain — a massive adult wave pool with rolling swells and sun-soaked shores.", theme: "Wave Pool", color: COLORS.dagat, logo: "/attractions/waves-of-laut.png" },
-  { name: "Rio de Pradera", desc: "Drift along the Pampanga-inspired lazy river — the flowing heart of Pradera Islands.", theme: "Lazy River", color: COLORS.azure, logo: "/attractions/rio-de-pradera.png" },
-  { name: "Dapu's Cove", desc: "A sheltered splash lagoon with a gentle waterfall — Dapu's own hideaway for the littlest swimmers.", theme: "Kids Lagoon", color: COLORS.azure, logo: "/attractions/dapus-cove.png" },
-  { name: "Danaw Dapu", desc: "Dapu's playful cove — a gentle kiddie zone full of turtle slides and little splashes.", theme: "Kids Zone", color: COLORS.orange, logo: "/attractions/danaw-dapu.png" },
-  { name: "Drizzle District", desc: "A sun-drenched spray park where rain meets sunshine — perfect for little ones.", theme: "Spray Park", color: COLORS.sunset, logo: "/attractions/drizzle-district.png" },
-  { name: "Jan-Jan's Cove", desc: "Jan-Jan's pond-themed water dock — glide and splash in the most playful corner of the park.", theme: "Kids Slides", color: COLORS.janjan, logo: "/attractions/janjans-cove.png" },
-  { name: "Lake Liway", desc: "The chill tambayan zone — teen activity pool beside the restaurant and pool bar.", theme: "Teen Pool", color: COLORS.lakandanum, logo: "/attractions/lake-liway.png" },
+  { name: "Amihan Spinner", desc: "Feel the winds of the Northeast Monsoon in this spinning vortex slide — fast, furious, and unstoppable.", theme: "Wind & Storm", color: COLORS.dagat, logo: "/attractions/amihan-spinner.webp" },
+  { name: "Habagat Rush", desc: "Ride the Southwest Monsoon's force down a high-speed plunge slide that leaves you breathless.", theme: "Thrill Slide", color: COLORS.orange, logo: "/attractions/habagat-rush.webp" },
+  { name: "Danum 360", desc: "A triple-twisting serpentine slide inspired by the bakunawa — spiral through water in pure flow.", theme: "Twister", color: COLORS.azure, logo: "/attractions/danum-360.webp" },
+  { name: "Lunar Speedway", desc: "Six lanes racing side by side under the lunar cycle — moon-inspired, tidal speed.", theme: "Race Slides", color: COLORS.lakandanum, logo: "/attractions/lunar-speedway.webp" },
+  { name: "Ulan Towers", desc: "A multi-level rain-zone ride house where every turn pours with tropical abundance.", theme: "Family Rides", color: COLORS.janjan, logo: "/attractions/ulan-towers.webp" },
+  { name: "Waves of Laut", desc: "Laut's domain — a massive adult wave pool with rolling swells and sun-soaked shores.", theme: "Wave Pool", color: COLORS.dagat, logo: "/attractions/waves-of-laut.webp" },
+  { name: "Rio de Pradera", desc: "Drift along the Pampanga-inspired lazy river — the flowing heart of Pradera Islands.", theme: "Lazy River", color: COLORS.azure, logo: "/attractions/rio-de-pradera.webp" },
+  { name: "Dapu's Cove", desc: "A sheltered splash lagoon with a gentle waterfall — Dapu's own hideaway for the littlest swimmers.", theme: "Kids Lagoon", color: COLORS.azure, logo: "/attractions/dapus-cove.webp" },
+  { name: "Danaw Dapu", desc: "Dapu's playful cove — a gentle kiddie zone full of turtle slides and little splashes.", theme: "Kids Zone", color: COLORS.orange, logo: "/attractions/danaw-dapu.webp" },
+  { name: "Drizzle District", desc: "A sun-drenched spray park where rain meets sunshine — perfect for little ones.", theme: "Spray Park", color: COLORS.sunset, logo: "/attractions/drizzle-district.webp" },
+  { name: "Jan-Jan's Cove", desc: "Jan-Jan's pond-themed water dock — glide and splash in the most playful corner of the park.", theme: "Kids Slides", color: COLORS.janjan, logo: "/attractions/janjans-cove.webp" },
+  { name: "Lake Liway", desc: "The chill tambayan zone — teen activity pool beside the restaurant and pool bar.", theme: "Teen Pool", color: COLORS.lakandanum, logo: "/attractions/lake-liway.webp" },
+  { name: "Surf Ride", desc: "A FlowRider-style surf simulator is on its way — stand-up and bodyboard surfing on an endless wave. Name and details to be announced.", theme: "Coming Soon", color: COLORS.hiraya, comingSoon: true },
 ];
 
+/* Dining & retail lineup agreed 5 Oct 2026: Sinag, three food kiosks, one retail kiosk.
+   Kiosk names are pending Javi's approval; the generic labels stay until then. */
 const fnb = [
-  { name: "Sinag", desc: "Our main restaurant. Sun-drenched, sunrise-warm interiors with flavors as vibrant as first light.", type: "Main Restaurant", color: COLORS.orange },
-  { name: "Sinag Pool Bar", desc: "Cold drinks, warm vibes. An extension of Sinag right by the water — sun-themed and breezy.", type: "Pool Bar", color: COLORS.sunset },
-  { name: "Souvenir Shop", desc: "Take the islands home. Mascot plush, swimwear, towels, and Pradera merchandise by the park exit.", type: "Retail", color: COLORS.azure },
+  { name: "Sinag", desc: "Our main restaurant. Sun-drenched, sunrise-warm interiors with flavors as vibrant as first light.", type: "Main Restaurant", color: COLORS.orange, logo: "/brand/venues/sinag.webp" },
+  { name: "Food Kiosk 1", desc: "Quick bites and cold drinks, steps from the water. Name and menu to be announced.", type: "Food Kiosk", color: COLORS.janjan, pending: true },
+  { name: "Food Kiosk 2", desc: "Snacks and refreshments by the slides. Name and menu to be announced.", type: "Food Kiosk", color: COLORS.janjan, pending: true },
+  { name: "Food Kiosk 3", desc: "Treats and drinks for the family zone. Name and menu to be announced.", type: "Food Kiosk", color: COLORS.janjan, pending: true },
+  { name: "Pradera Treasures", desc: "Take the islands home. Mascot plush, swimwear, towels, and Pradera merchandise by the park exit.", type: "Retail", color: COLORS.azure, logo: "/brand/venues/pradera-treasures.webp" },
 ];
 
-/* Direct-message channels shown in the Contact section. Instagram and TikTok
-   stay null (rendered as "Coming soon") until Marketing supplies the handles —
-   set url to https://ig.me/m/<handle> and https://www.tiktok.com/@<handle>. */
-const MESSAGE_CHANNELS = [
-  { name: "Messenger", label: "Message us on Facebook", url: "https://m.me/61576524087915", accent: "#1877F2",
-    path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.13 8.44 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99C18.34 21.13 22 16.99 22 12z" /> },
-  { name: "Instagram", label: "Message us on Instagram", url: "https://ig.me/m/praderaislandswaterpark", accent: "#E1306C",
-    path: <path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.2-4.35-2.62-6.78-6.98-6.98C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z" /> },
-  { name: "TikTok", label: "Message us on TikTok", url: "https://www.tiktok.com/@praderaislandswaterpark", accent: "#25F4EE",
-    path: <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" /> },
-];
 
 const characters = [
-  { name: "Lakandanum", role: "Spirit of the Waters", desc: "Laidback, cool, intuitive. The calm presence of Hiraya Lake — guiding rivers and currents with quiet control.", color: COLORS.lakandanum, image: "/brand/characters/lakandanum.png" },
-  { name: "Jan-Jan", role: "Park Technician", desc: "Caring, reliable, and always ready to save the day. The behind-the-scenes magic that keeps Pradera running.", color: COLORS.takipsilim, image: "/brand/characters/janjan.png" },
-  { name: "Laut", role: "Guardian of the Waters", desc: "Fast, fearless, and always in motion. She charges waves, drives energy, and turns every splash into adventure.", color: COLORS.dagat, image: "/brand/characters/laut.png" },
-  { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange, image: "/brand/characters/dapu.png" },
+  { name: "Lakandanum", role: "Spirit of the Waters", desc: "Laidback, cool, intuitive. The calm presence of Hiraya Lake — guiding rivers and currents with quiet control.", color: COLORS.lakandanum, image: "/brand/characters/lakandanum.webp" },
+  { name: "Jan-Jan", role: "Park Technician", desc: "Caring, reliable, and always ready to save the day. The behind-the-scenes magic that keeps Pradera running.", color: COLORS.takipsilim, image: "/brand/characters/janjan.webp" },
+  { name: "Laut", role: "Guardian of the Waters", desc: "Fast, fearless, and always in motion. She charges waves, drives energy, and turns every splash into adventure.", color: COLORS.dagat, image: "/brand/characters/laut.webp" },
+  { name: "Dapu", role: "Children's Guide", desc: "Cheerful, gentle, and always alert. Pradera's friendly turtle guide who keeps every young adventurer safe.", color: COLORS.orange, image: "/brand/characters/dapu.webp" },
+];
+
+/* Social channels — shared by Find Us and the footer. */
+const SOCIALS = [
+{ name: "Facebook", url: "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/", accent: "#1877F2", path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" /> },
+{ name: "Instagram", url: "https://www.instagram.com/praderaislandswaterpark/", accent: "#E1306C", path: (<><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 01-.9 1.38c-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63A5.92 5.92 0 002 2.01 5.92 5.92 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.92 5.92 0 001.38 2.14 5.92 5.92 0 002.14 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a6.17 6.17 0 003.52-3.52c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.92 5.92 0 00-1.38-2.14A5.92 5.92 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" /><path d="M12 5.84A6.16 6.16 0 1018.16 12 6.17 6.17 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4z" /><circle cx="18.41" cy="5.59" r="1.44" /></>) },
+{ name: "TikTok", url: "https://www.tiktok.com/@praderaislandswaterpark", accent: "#25F4EE", path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" /> },
 ];
 
 const COOKIE_CONSENT_ENABLED = false;
@@ -89,13 +93,12 @@ const LEGAL_PUBLISHED = false;  // Legal: Privacy Policy and Terms of Service
 const CS_EMAIL = null;          // Legal/Admin: customer service address, e.g. "info@praderaislands.com"
 
 const TICKET_RATES = [
-  { name: "Regular",        weekday: 1080, weekend: 1180, peakWeekday: 1280, peakWeekend: 1380 },
-  { name: "Junior",         note: "Ages 4 to 11", weekday: 880, weekend: 980, peakWeekday: 1080, peakWeekend: 1180 },
-  { name: "Senior / PWD",   note: "20% off Regular with valid ID", weekday: 864, weekend: 944, peakWeekday: 1024, peakWeekend: 1104 },
+  { name: "Regular",        weekday: 1080, weekend: 1180 },
+  { name: "Junior",         note: "Ages 4 to 11", weekday: 880, weekend: 980 },
+  { name: "Senior / PWD",   note: "20% off Regular with valid ID", weekday: 864, weekend: 944 },
   { name: "Infant",         note: "Under 3 years old", free: true },
 ];
 
-const GROUP_RATE = { weekday: 9720, weekend: 10620, peakWeekday: 11520, peakWeekend: 12420 };
 
 /* Rest state for the social icons: a quiet tint of the brand colour; solid on hover. */
 const socialIconBg = (name, accent) => `${accent}26`;
@@ -149,6 +152,32 @@ export default function PraderaIslands() {
   const [bandShift, setBandShift] = useState(0);
   const [activePin, setActivePin] = useState(null);
   const [hoverPin, setHoverPin] = useState(null);
+  const [form, setForm] = useState({ name: "", contact: "", email: "", visitDate: "", message: "" });
+  const [formState, setFormState] = useState("idle"); // idle | sending | sent | error
+  const handleFormChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  // Planned visit date: optional, today or later, and only on days the park is open (Thu–Sun).
+  const todayISO = new Date().toLocaleDateString("en-CA");
+  const [visitDateWarn, setVisitDateWarn] = useState("");
+  const handleVisitDate = (e) => {
+    const v = e.target.value;
+    if (!v) { setVisitDateWarn(""); setForm({ ...form, visitDate: "" }); return; }
+    const day = new Date(v + "T00:00:00").getDay();
+    if (!OPEN_WEEKDAYS.has(day)) {
+      setVisitDateWarn("The park is closed on that day. Please pick a Thursday, Friday, Saturday, or Sunday.");
+      setForm({ ...form, visitDate: "" });
+      return;
+    }
+    setVisitDateWarn("");
+    setForm({ ...form, visitDate: v });
+  };
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    setFormState("sending");
+    const body = new URLSearchParams({ "form-name": "inquiry", ...form }).toString();
+    fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body })
+      .then((r) => { if (!r.ok) throw new Error(r.status); setFormState("sent"); setForm({ name: "", contact: "", email: "", visitDate: "", message: "" }); })
+      .catch(() => setFormState("error"));
+  };
 
   // Lock the page behind the mobile menu so scrolling the sheet can't
   // chain into the page. Pins body position and restores the exact
@@ -223,14 +252,14 @@ export default function PraderaIslands() {
 
 
   const navItems = [
+    // Order agreed at the 5 Oct 2026 website review; Promos live inside Rates.
     { id: "attractions", label: "attractions" },
-    { id: "dining", label: "dining" },
+    { id: "rates", label: "Rates", soon: !RATES_PUBLISHED },
     { id: "characters", label: "characters" },
+    { id: "dining", label: "dining" },
     { id: "map", label: "map" },
     { id: "gallery", label: "gallery" },
-    { id: "rates", label: "Rates", soon: !RATES_PUBLISHED },
-    { id: "promos", label: "Promos", soon: true },
-    { id: "guide", label: "Guide", soon: true },
+    { id: "guide", label: "Guide" },
     { id: "visit", label: "Contact Us" },
   ];
 
@@ -290,7 +319,7 @@ export default function PraderaIslands() {
         .crew-role-pill { position: absolute; top: 16px; left: 16px; z-index: 2; padding: 6px 11px; border-radius: 4px;
           background: rgba(255,255,255,0.16); backdrop-filter: blur(6px); color: #fff; font-family: 'Kanit', sans-serif;
           font-size: 10px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; }
-        .msg-row:hover { transform: translateX(4px); border-color: rgba(255,255,255,0.28) !important; background: rgba(255,255,255,0.09) !important; }
+
 
         /* ---- Interactive park map ---- */
         .map-frame { position: relative; border-radius: 12px; overflow: hidden; line-height: 0;
@@ -328,14 +357,12 @@ export default function PraderaIslands() {
           animation: splashMark 1.5s cubic-bezier(0.22,1,0.36,1) both; }
         .splash-mark img { width: clamp(170px, 26vw, 300px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.45));
           animation: splashBob 2.6s ease-in-out 0.4s infinite; }
-        .splash-line { width: 0; height: 2px; background: ${COLORS.orange}; animation: splashLine 1.2s ease 0.6s forwards; }
         .ripple { position: absolute; top: 50%; left: 50%; width: 320px; height: 320px; margin: -160px 0 0 -160px;
           border-radius: 50%; border: 2px solid rgba(120,240,255,0.7); box-shadow: 0 0 18px rgba(120,240,255,0.25); transform: scale(0.3); opacity: 0;
           animation: rippleOut 2.2s ease-out infinite; pointer-events: none; }
         .ripple.r2 { animation-delay: 0.7s; }
         .ripple.r3 { animation-delay: 1.4s; }
         @keyframes splashMark { from { opacity: 0; transform: scale(0.82) translateY(14px); } to { opacity: 1; transform: none; } }
-        @keyframes splashLine { to { width: 220px; } }
         @keyframes splashBob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-9px) rotate(1.5deg); } }
         @keyframes rippleOut { from { transform: scale(0.3); opacity: 0.9; } to { transform: scale(2.6); opacity: 0; } }
         @keyframes splashWave { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -430,35 +457,99 @@ export default function PraderaIslands() {
         /* For short lists: collapse empty tracks, cap card width, centre the row */
         .grid-cards--center { grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); justify-content: center; }
 
-        /* ---- Rates table ---- */
-        .rates-wrap { overflow-x: auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
-        .rates-table { width: 100%; border-collapse: collapse; min-width: 640px; font-variant-numeric: tabular-nums; }
-        .rates-table th { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase; color: #7a819a; text-align: left; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; background: #fafbff; }
-        .rates-table td { padding: 18px 20px; border-bottom: 1px solid #eef0f6; font-size: 17px; font-weight: 600; color: ${COLORS.hiraya}; }
-        .rates-table tr:last-child td { border-bottom: 0; }
-        .rates-table td:first-child { font-size: 15px; }
-        .rates-table .peak { color: #9a5300; background: #fff8ee; }
-        .rates-table th.peak { color: #9a5300; }
-        .rates-note { display: block; font-size: 12px; font-weight: 500; color: #7a819a; margin-top: 3px; }
-        .rates-free { color: ${COLORS.lakandanum}; font-family: 'Kanit', sans-serif; letter-spacing: 1.5px; text-transform: uppercase; font-size: 14px; }
-        .rates-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-        .rates-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 26px 28px; }
-        .rates-card--soon { background: #f8f9fd; border-style: dashed; }
-        @media (max-width: 720px) {
-          .rates-cards { grid-template-columns: 1fr; }
-          /* Phones: each ticket becomes a stacked card instead of a sideways-scrolling table */
-          .rates-table { min-width: 0; }
-          .rates-table thead { display: none; }
-          .rates-table, .rates-table tbody, .rates-table tr, .rates-table td { display: block; }
-          .rates-table tr { padding: 16px 18px 12px; border-bottom: 1px solid #eef0f6; }
-          .rates-table tr:last-child { border-bottom: 0; }
-          .rates-table td { padding: 7px 0; border: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 16px; }
-          .rates-table td:first-child { display: block; padding: 0 0 10px; font-size: 17px; border-bottom: 1px dashed #e5e7eb; margin-bottom: 4px; }
-          .rates-table td[data-label]::before { content: attr(data-label); font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: #7a819a; }
-          .rates-table td.peak { background: transparent; }
-          .rates-table td.peak::before { color: #9a5300; }
-          .rates-table td.rates-free { justify-content: space-between; }
-        }
+        /* ---- Rates: ticket cards ---- */
+        .ticket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .ticket { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px 24px 22px;
+          display: flex; flex-direction: column; gap: 20px; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), border-color 0.3s, background 0.3s; }
+        .ticket:hover { transform: translateY(-6px); border-color: ${COLORS.orange}88; background: rgba(255,255,255,0.08); }
+        .ticket-name { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px; color: #fff; letter-spacing: -0.3px; }
+        .ticket-note { font-size: 12.5px; color: rgba(255,255,255,0.5); margin-top: 4px; line-height: 1.4; }
+        .ticket-prices { display: grid; gap: 12px; margin-top: auto; }
+        .ticket-prices > div, .ticket-free { display: flex; flex-direction: column; gap: 2px; }
+        .ticket-free { margin-top: auto; }
+        .ticket-when { font-family: 'Kanit', sans-serif; font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+        .ticket-price { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
+        .ticket-prices > div:first-child .ticket-price { color: ${COLORS.orange}; }
+        .ticket-free .ticket-price { color: ${COLORS.azure}; }
+        .promo-callout { display: flex; align-items: center; gap: 24px; margin-top: 20px; padding: 24px 28px; border-radius: 12px;
+          background: linear-gradient(135deg, rgba(255,142,0,0.18) 0%, rgba(255,142,0,0.06) 100%); border: 1px solid rgba(255,142,0,0.4); }
+        .promo-badge { flex: 0 0 auto; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 900; font-size: 34px; color: ${COLORS.orange}; letter-spacing: -1px;
+          padding: 12px 20px; border-radius: 10px; background: rgba(255,142,0,0.14); white-space: nowrap; }
+        .promo-title { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 19px; color: #fff; margin-bottom: 6px; }
+        .promo-text { margin: 0; font-size: 14px; color: rgba(255,255,255,0.68); line-height: 1.65; }
+        .promo-link { background: none; border: 0; padding: 0; font: inherit; color: ${COLORS.orange}; font-weight: 700; cursor: pointer; text-decoration: underline; margin: 0 4px; }
+        @media (max-width: 960px) { .ticket-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 520px) { .ticket-grid { grid-template-columns: 1fr; } .promo-callout { flex-direction: column; align-items: flex-start; } }
+
+        /* ---- Find Us: address card, hours, contact ---- */
+        .findus-map { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 12px; text-decoration: none;
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), border-color 0.3s, background 0.3s; }
+        .findus-map:hover { transform: translateY(-3px); border-color: ${COLORS.orange}88; background: rgba(255,255,255,0.08); }
+        .findus-pin { width: 44px; height: 44px; border-radius: 10px; background: ${COLORS.orange}; color: #fff; display: flex; align-items: center; justify-content: center; flex: 0 0 44px; }
+        .findus-cta { font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; color: ${COLORS.orange}; white-space: nowrap; }
+        .findus-hours { margin-top: 16px; padding: 18px 20px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+        .hours-row { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 14.5px; color: rgba(255,255,255,0.75); }
+        .hours-row b { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .hours-row.muted, .hours-row.muted b { color: rgba(255,255,255,0.4); }
+        .hours-row:last-of-type { border-bottom: 0; }
+        .findus-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-top: 22px; flex-wrap: wrap; }
+        .findus-email { color: #fff; font-weight: 600; font-size: 15px; text-decoration: none; }
+        .findus-email:hover { color: ${COLORS.azure}; }
+        .social-dot { width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; border: 1px solid;
+          box-shadow: 0 6px 14px rgba(0,0,0,0.25); transition: transform 0.25s cubic-bezier(.2,.8,.2,1), background 0.25s, box-shadow 0.25s; }
+        .social-dot:hover { transform: translateY(-4px) scale(1.08); background: var(--accent) !important; box-shadow: 0 12px 26px rgba(0,0,0,0.35); }
+        @media (max-width: 520px) { .findus-cta { display: none; } }
+
+        /* ---- Dining & retail logo slot ---- */
+        .venue-logo-slot { height: 72px; display: flex; align-items: center; margin-bottom: 20px; }
+        .venue-logo-placeholder { height: 72px; width: 72px; border-radius: 12px; border: 1.5px dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-family: 'Kanit', sans-serif; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; background: rgba(255,255,255,0.04); }
+
+        /* ---- Inquiry form ---- */
+        .inq-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 15px 18px; color: #fff; font-size: 15px; font-family: 'Montserrat', sans-serif; outline: none; transition: border-color 0.2s, background 0.2s; }
+        .inq-input:focus { border-color: ${COLORS.orange}; background: rgba(255,255,255,0.08); }
+        .inq-input::placeholder { color: rgba(255,255,255,0.4); }
+        .inq-input[type="date"] { color-scheme: dark; }
+        .inq-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .inq-label { display: grid; gap: 6px; font-family: 'Kanit', sans-serif; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+        .inq-label em { font-style: normal; text-transform: none; letter-spacing: 0; font-family: 'Montserrat', sans-serif; color: rgba(255,255,255,0.4); }
+        .inq-warn { font-family: 'Montserrat', sans-serif; text-transform: none; letter-spacing: 0; font-size: 12px; color: ${COLORS.orange}; }
+        @media (max-width: 600px) { .inq-row { grid-template-columns: 1fr; } }
+
+        /* ---- Coming Soon mark on the surf-ride card ---- */
+        .coming-soon-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; }
+        .coming-soon-ring { position: absolute; width: 150px; height: 150px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.55); animation: spin-slow 24s linear infinite; }
+        .coming-soon-text { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px; line-height: 1; text-align: center; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+
+        /* ---- Guide + open-days calendar ---- */
+        .guide-grid { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 24px; align-items: start; }
+        .guide-card { background: #f4f7ff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 28px; }
+        .route-list { display: grid; gap: 18px; }
+        .route { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
+        .route-icon { width: 40px; height: 40px; border-radius: 10px; background: #fff; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .route strong { display: block; color: ${COLORS.hiraya}; font-size: 15px; margin-bottom: 6px; }
+        .route-time { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: ${COLORS.orange}; margin-left: 8px; }
+        .route ol { margin: 0; padding-left: 18px; color: #55566a; font-size: 14px; line-height: 1.65; }
+        .route ol li + li { margin-top: 4px; }
+        .route p { margin: 0; color: #55566a; font-size: 14px; line-height: 1.65; }
+        .route b { color: ${COLORS.hiraya}; font-weight: 600; }
+        .route-note { font-size: 12px !important; color: #9a5300 !important; margin-top: 8px !important; }
+        .cal { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; }
+        .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .cal-title { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 14px; color: ${COLORS.hiraya}; letter-spacing: 0.5px; }
+        .cal-nav { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; color: ${COLORS.hiraya}; font-size: 20px; line-height: 1; cursor: pointer; }
+        .cal-nav:hover { background: #f4f7ff; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-dow { text-align: center; font-family: 'Kanit', sans-serif; font-size: 10px; letter-spacing: 1px; color: #7a819a; padding: 4px 0 6px; }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 13px; font-weight: 600; color: #b4bacb; background: #f4f6fb; font-variant-numeric: tabular-nums; }
+        .cal-day.open { background: ${COLORS.orange}; color: #fff; }
+        .cal-day.past { opacity: 0.38; }
+        .cal-day.today { box-shadow: inset 0 0 0 2px ${COLORS.hiraya}; }
+        .cal-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #55566a; }
+        .cal-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: #f4f6fb; border: 1px solid #e5e7eb; }
+        .cal-swatch.open { background: ${COLORS.orange}; border-color: ${COLORS.orange}; }
+        .cal-legend .cal-swatch:not(:first-child) { margin-left: 10px; }
+        @media (max-width: 820px) { .guide-grid { grid-template-columns: 1fr; } }
+
         .carousel-3d-wrap { position: relative; perspective: 1600px; padding: 0; }
         .carousel-3d-stage { position: relative; height: clamp(380px, 44vw, 500px); transform-style: preserve-3d; display: flex; align-items: center; justify-content: center; }
         .carousel-3d-card { position: absolute; top: 50%; left: 50%; width: clamp(300px, 38vw, 460px); height: auto; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease, box-shadow 0.6s ease; box-shadow: 0 30px 60px rgba(0,35,123,0.18); will-change: transform, opacity; }
@@ -483,7 +574,7 @@ export default function PraderaIslands() {
             margin-left: 0; gap: 0; padding: 6px 0 40px;
             background-image:
               linear-gradient(180deg, rgba(0,22,66,0.90) 0%, rgba(0,14,42,0.96) 55%, rgba(0,10,32,0.99) 100%),
-              url('/photos/park-golden.jpg');
+              url('/photos/park-golden.webp');
             background-size: cover;
             background-position: center;
             border-top: 1px solid rgba(255,255,255,0.12);
@@ -548,8 +639,7 @@ export default function PraderaIslands() {
           {["b1","b2","b3","b4","b5","b6","b7","b8","b9","b10"].map((b) => <span key={b} className={`bubble ${b}`} />)}
 
           <div className="splash-mark">
-            <img src="/brand/emblem-full.png" alt="" />
-            <div className="splash-line" />
+            <img src="/brand/emblem-full.webp" alt="" />
           </div>
         </div>
       )}
@@ -565,7 +655,7 @@ export default function PraderaIslands() {
         height: 70,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", zIndex: 2 }} onClick={() => scrollTo("home")}>
-          <img src="/brand/emblem-full.png" alt="Pradera Islands" style={{ height: 46, width: "auto", display: "block" }} />
+          <img src="/brand/emblem-full.webp" alt="Pradera Islands" style={{ height: 46, width: "auto", display: "block" }} />
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
             <span style={{ color: "#fff", fontFamily: "'Kanit', sans-serif", fontWeight: 800, fontSize: 15, letterSpacing: 1.5 }}>PRADERA ISLANDS</span>
             <span style={{ color: COLORS.azure, fontFamily: "'Kanit', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: 4, marginTop: 2 }}>WATERPARK</span>
@@ -598,7 +688,7 @@ export default function PraderaIslands() {
                   Prado Siongco, Lubao<br />Pampanga
                 </p>
               </div>
-              <img src="/brand/emblem-full.png" alt="" style={{ width: 46, height: 46, opacity: 0.85 }} />
+              <img src="/brand/emblem-full.webp" alt="" style={{ width: 46, height: 46, opacity: 0.85 }} />
             </div>
           </div>
         </div>
@@ -620,7 +710,7 @@ export default function PraderaIslands() {
         {/* Real park photo backdrop */}
         <img
           className="hero-photo"
-          src="/photos/hero-aerial.jpg"
+          src="/photos/hero-aerial.webp"
           alt="Aerial view of Pradera Islands Waterpark at golden hour"
           style={{
             position: "absolute", top: 0, left: 0, right: 0,
@@ -642,13 +732,10 @@ export default function PraderaIslands() {
 
         {/* Hero content */}
         <div className="hero-copy" style={{ textAlign: "center", position: "relative", zIndex: 2, padding: "72px 6% 48px", maxWidth: 1100 }}>
-          <div className="eyebrow" style={{ color: "rgba(255,255,255,0.92)", marginBottom: 26, letterSpacing: 4 }}>
-            Bayúng Danum — The New Waters
-          </div>
 
           <h1 style={{ margin: "0 auto 10px", lineHeight: 0 }}>
             <img
-              src="/brand/pradera-islands-wordmark.png"
+              src="/brand/pradera-islands-wordmark.webp"
               alt="Pradera Islands"
               style={{
                 width: "clamp(210px, 40vw, 440px)",
@@ -687,7 +774,7 @@ export default function PraderaIslands() {
           <p className="body" style={{
             fontSize: "clamp(14px, 1.6vw, 17px)", lineHeight: 1.6, color: "rgba(255,255,255,0.88)", maxWidth: 580, margin: "0 auto 26px",
           }}>
-            Create unforgettable memories<br />and enjoy a refreshing waterpark adventure.
+            Twelve attractions, a wave pool the size of a beach,<br />and the crew of Bayúng Danum waiting to meet you.
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
@@ -706,17 +793,20 @@ export default function PraderaIslands() {
             <div>
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 16 }}>Our Story</div>
               <h2 className="display" style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, lineHeight: 0.95, textTransform: "uppercase", marginBottom: 28, color: COLORS.hiraya }}>
-                The New
-                <span style={{ color: COLORS.dagat, display: "block" }}>Waters</span>
+                Where Fun
+                <span style={{ color: COLORS.dagat, display: "block" }}>Flows</span>
               </h2>
               <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 20 }}>
-                Pradera Islands celebrates <strong style={{ color: COLORS.hiraya }}>renewal, abundance, purity, and prosperity</strong> through waves, color, sound, and shared play — rooted in the rich water traditions of Pampanga's river culture.
+                At Pradera Islands Waterpark, <strong style={{ color: COLORS.hiraya }}>the rush of being together becomes something we can jump into</strong>.
               </p>
               <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 20 }}>
-                It is a vibrant playground of movement and community, where everyone is invited to splash, flow, and celebrate together.
+                Built on the <strong style={{ color: COLORS.hiraya }}>Kapampangan tradition of Báyung Danum</strong>, Pradera Islands Waterpark celebrates <strong style={{ color: COLORS.hiraya }}>a more heartfelt meaning of abundance</strong> — the extraordinary rush of joy that comes from being together with the people who matter most.
+              </p>
+              <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 20 }}>
+                Here, water sets that excitement in motion. Every splash, wave, and slide pulls you and your loved ones from one thrill to the next, creating an experience that's impossible not to get swept up in.
               </p>
               <p className="body" style={{ fontSize: 17, color: "#3a3a4a", marginBottom: 40 }}>
-                Rooted in Pampanga's river culture and shared water traditions, <strong style={{ color: COLORS.hiraya }}>Bayúng Danum</strong> reflects a time of collective celebration, movement, and communal joy.
+                When the thrill of the water collides with the joy of being with your favorite people, there's only one thing left to do: <strong style={{ color: COLORS.orange }}>Ride the Rush.</strong>
               </p>
             </div>
 
@@ -732,7 +822,7 @@ export default function PraderaIslands() {
               }}>
                 <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, background: "rgba(255,255,255,0.06)", borderRadius: "50%" }} />
                 <div style={{ position: "absolute", bottom: -40, left: -40, width: 160, height: 160, background: `${COLORS.azure}25`, borderRadius: "50%" }} />
-                <img src="/brand/emblem-full.png" alt="" style={{ width: 88, height: 88, marginBottom: 20, filter: "drop-shadow(0 10px 24px rgba(0,0,0,0.3))" }} />
+                <img src="/brand/logo-main.webp" alt="Pradera Islands Waterpark" style={{ width: 150, height: "auto", marginBottom: 22, filter: "drop-shadow(0 10px 24px rgba(0,0,0,0.3))" }} />
                 <h3 className="display" style={{ fontSize: 30, fontWeight: 800, marginBottom: 14, textTransform: "uppercase", letterSpacing: -0.5 }}>Bayúng Danum</h3>
                 <p className="body" style={{ fontSize: 15, opacity: 0.88, marginBottom: 16 }}>
                   "New Water" in Kapampangan — a traditional celebration marking the arrival of new waters, symbolizing renewal, purification, and the coming of abundance and prosperity.
@@ -750,7 +840,7 @@ export default function PraderaIslands() {
                 
               }}>
                 <div className="eyebrow" style={{ color: "rgba(255,255,255,0.8)", fontSize: 9 }}>Located In</div>
-                <div className="display" style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1, marginTop: 4 }}>PRADO SIONGCO · LUBAO, PAMPANGA</div>
+                <div className="display" style={{ fontSize: 13.5, fontWeight: 800, letterSpacing: 0.8, marginTop: 4, lineHeight: 1.35 }}>PRADERA ISLANDS · PRADO SIONGCO · LUBAO, PAMPANGA</div>
               </div>
             </div>
           </div>
@@ -767,7 +857,7 @@ export default function PraderaIslands() {
         borderTop: `4px solid ${COLORS.orange}`,
       }}>
         <img
-          src="/photos/wave-pool.jpg"
+          src="/photos/wave-pool.webp"
           alt="The wave pool at Pradera Islands"
           style={{
             position: "absolute", top: 0, left: 0,
@@ -782,16 +872,19 @@ export default function PraderaIslands() {
         }} />
         <div style={{ position: "relative", zIndex: 2, maxWidth: 1240, margin: "0 auto", padding: "72px 6%", width: "100%" }}>
           <div className="reveal" style={{ maxWidth: 620, marginBottom: 44 }}>
-            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 16, letterSpacing: 4 }}>Central Luzon</div>
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 16, letterSpacing: 4 }}>Lubao, Pampanga</div>
             <h2 className="display" style={{
               fontSize: "clamp(30px, 4.4vw, 52px)", fontWeight: 900, color: "#fff",
               lineHeight: 1.08, letterSpacing: -0.5, margin: 0,
             }}>
-              Eleven attractions, one <span style={{ color: COLORS.orange }}>island of water</span>.
+              Twelve attractions, one <span style={{ color: COLORS.orange }}>island of water</span>.
             </h2>
+            <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", margin: "16px 0 0", lineHeight: 1.6 }}>
+              A combination of slides, pools and rain parks — plus one more on the way.
+            </p>
           </div>
           <div className="stat-row">
-            {[["11+", "Attractions"], ["3", "Dining & Retail"], ["7", "Hectares"], ["∞", "Memories"]].map(([n, l], si) => (
+            {[["12", "Attractions"], ["1", "Coming Soon"], ["5", "Dining & Retail"], ["4", "Characters"]].map(([n, l], si) => (
               <div key={l} className="reveal" data-reveal-delay={si * 110}>
                 <div className="display" style={{
                   fontSize: "clamp(44px, 6vw, 76px)", fontWeight: 900, color: "#fff",
@@ -873,11 +966,17 @@ export default function PraderaIslands() {
                       style={{
                         position: "absolute", top: "50%", left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: 132, height: 132,
-                        filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.28))",
+                        width: 170, height: 170, objectFit: "contain",
+                        filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.35))",
                         zIndex: 2,
                       }}
                     />
+                  )}
+                  {a.comingSoon && (
+                    <div className="coming-soon-mark" aria-hidden="true">
+                      <span className="coming-soon-ring" />
+                      <span className="coming-soon-text">Coming<br />Soon</span>
+                    </div>
                   )}
                   <span className="eyebrow" style={{
                     position: "absolute", top: 18, left: 20,
@@ -911,58 +1010,74 @@ export default function PraderaIslands() {
           </div>
         </div>
       </section>
-
-      <WaveEdge from="#f4f7ff" to={COLORS.dagat} />
-
-      {/* DINING */}
-      <section id="dining" className="section-pad" style={{
-        background: GRADIENTS.deep,
-        position: "relative",
-        overflow: "hidden",
-        color: "#fff",
-      }}>
-
-        <div style={{ maxWidth: 1240, margin: "0 auto", position: "relative", zIndex: 2 }}>
-          <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
-            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Food, Drinks & Retail</div>
-            <h2 className="display" style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, textTransform: "uppercase", color: "#fff", lineHeight: 1 }}>
-              Dining & Retail at <span style={{ color: COLORS.orange }}>Pradera</span>
+      {/* RATES — ticket cards on the dark ground, placed right after Attractions per the nav order */}
+      <section id="rates" style={{ background: "#071228", padding: "clamp(72px,8vw,110px) 6%", position: "relative", overflow: "hidden" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+          <div className="reveal" style={{ textAlign: "center", marginBottom: 44 }}>
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Park Rates</div>
+            <h2 className="display" style={{ fontSize: "clamp(38px, 6vw, 68px)", fontWeight: 900, lineHeight: 0.95, textTransform: "uppercase", color: "#fff", margin: 0 }}>
+              Admission <span style={{ color: COLORS.orange }}>Rates</span>
             </h2>
-            <p className="body" style={{ fontSize: 17, color: "rgba(255,255,255,0.72)", maxWidth: 560, margin: "20px auto 0" }}>
-              Sun-themed, sunrise-warm. From full meals to quick bites and ice-cold drinks — we have you covered.
+            <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", maxWidth: 560, margin: "18px auto 0" }}>
+              Full-day access to every attraction. Rates are per guest in Philippine pesos.
             </p>
           </div>
 
-          <div className="grid-cards grid-cards--center">
-            {fnb.map((f, fi) => (
-              <div key={f.name} className="card lift reveal" data-reveal-delay={fi * 90} style={{
-                background: "rgba(255,255,255,0.06)",
-                backdropFilter: "blur(14px)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 10,
-                padding: 32,
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {f.image && (
-                  <div style={{ margin: "-32px -32px 24px", height: 180, overflow: "hidden" }}>
-                    <img src={f.image} alt={f.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          {RATES_PUBLISHED ? (
+            <>
+              <div className="ticket-grid">
+                {TICKET_RATES.map((r, i) => (
+                  <div key={r.name} className="ticket reveal" data-reveal-delay={i * 90}>
+                    <div className="ticket-top">
+                      <div className="ticket-name">{r.name}</div>
+                      {r.note && <div className="ticket-note">{r.note}</div>}
+                    </div>
+                    {r.free ? (
+                      <div className="ticket-free">
+                        <span className="ticket-price">Free</span>
+                        <span className="ticket-when">All days</span>
+                      </div>
+                    ) : (
+                      <div className="ticket-prices">
+                        <div>
+                          <span className="ticket-when">Weekday</span>
+                          <span className="ticket-price">₱{r.weekday.toLocaleString()}</span>
+                        </div>
+                        <div>
+                          <span className="ticket-when">Weekend</span>
+                          <span className="ticket-price">₱{r.weekend.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-                <div style={{
-                  width: 56, height: 4,
-                  background: f.color,
-                  borderRadius: 2,
-                  marginBottom: 24,
-                }} />
-                <div className="eyebrow" style={{ color: f.color, marginBottom: 10, fontSize: 10 }}>{f.type}</div>
-                <h3 className="display" style={{ fontSize: 28, fontWeight: 900, textTransform: "uppercase", color: "#fff", marginBottom: 14, letterSpacing: -0.5 }}>{f.name}</h3>
-                <p className="body" style={{ fontSize: 14, color: "rgba(255,255,255,0.72)" }}>{f.desc}</p>
+                ))}
               </div>
-            ))}
-          </div>
+
+              <div className="promo-callout reveal">
+                <div className="promo-badge">10 + 1</div>
+                <div>
+                  <div className="promo-title">Bring ten, the eleventh is free</div>
+                  <p className="promo-text">
+                    Every ten paid admissions in one group earns one free. Planning a corporate outing, school field trip, or tour group?
+                    <button type="button" onClick={() => scrollTo("visit")} className="promo-link">Get in touch</button> with your date and group size and we will send a quote.
+                  </p>
+                </div>
+              </div>
+
+              <p className="body" style={{ fontSize: 13, color: "rgba(255,255,255,0.42)", marginTop: 22, textAlign: "center", lineHeight: 1.6 }}>
+                Senior citizen and PWD rates require a valid ID at the gate. Rates may change without prior notice.
+              </p>
+            </>
+          ) : (
+            <div className="reveal" style={{ background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: 36, border: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
+              <p className="body" style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", margin: 0 }}>
+                Admission, cabana and group rates will be published here once finalized by the Sales team.
+              </p>
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* CHARACTERS */}
       <section id="characters" className="section-pad" style={{
@@ -1000,7 +1115,7 @@ export default function PraderaIslands() {
                   minHeight: c.image ? 350 : 200,
                 }}>
                   {/* Brand watermark and a ground shadow so the character stands on something */}
-                  <img src="/brand/emblem-full.png" alt="" aria-hidden="true" className="crew-watermark" />
+                  <img src="/brand/emblem-full.webp" alt="" aria-hidden="true" className="crew-watermark" />
                   <div className="crew-ground" />
                   <span className="crew-role-pill">{c.role}</span>
                   {c.image ? (
@@ -1026,7 +1141,66 @@ export default function PraderaIslands() {
         </div>
       </section>
 
-      <WaveEdge from="#fff" to="#071228" />
+      <WaveEdge from="#fff" to={COLORS.dagat} />
+
+      {/* DINING */}
+      <section id="dining" className="section-pad" style={{
+        background: GRADIENTS.deep,
+        position: "relative",
+        overflow: "hidden",
+        color: "#fff",
+      }}>
+
+        <div style={{ maxWidth: 1240, margin: "0 auto", position: "relative", zIndex: 2 }}>
+          <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Food, Drinks & Retail</div>
+            <h2 className="display" style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, textTransform: "uppercase", color: "#fff", lineHeight: 1 }}>
+              Dining & Retail at <span style={{ color: COLORS.orange }}>Pradera</span>
+            </h2>
+            <p className="body" style={{ fontSize: 17, color: "rgba(255,255,255,0.72)", maxWidth: 560, margin: "20px auto 0" }}>
+              Sun-themed, sunrise-warm. From full meals to quick bites and ice-cold drinks — we have you covered.
+            </p>
+          </div>
+
+          <div className="grid-cards grid-cards--center">
+            {fnb.map((f, fi) => (
+              <div key={f.name} className="card lift reveal" data-reveal-delay={fi * 90} style={{
+                background: "rgba(255,255,255,0.06)",
+                backdropFilter: "blur(14px)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 10,
+                padding: 32,
+                position: "relative",
+                overflow: "hidden",
+              }}>
+                {f.image && (
+                  <div style={{ margin: "-32px -32px 24px", height: 180, overflow: "hidden" }}>
+                    <img src={f.image} alt={f.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                )}
+                {/* Every card gets the same 72px logo slot so the row lines up */}
+                <div className="venue-logo-slot">
+                  {f.logo ? (
+                    <img src={f.logo} alt="" aria-hidden="true" style={{ height: 72, width: "auto", display: "block", filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.3))" }} />
+                  ) : (
+                    <div className="venue-logo-placeholder" style={{ borderColor: `${f.color}66`, color: f.color }} aria-hidden="true">
+                      <img src="/brand/emblem-full.webp" alt="" style={{ width: 34, height: 34, opacity: 0.85 }} />
+                      <span>Logo soon</span>
+                    </div>
+                  )}
+                </div>
+                <div className="eyebrow" style={{ color: f.color, marginBottom: 10, fontSize: 10 }}>
+                  {f.type}{f.pending && <span style={{ marginLeft: 8, color: "rgba(255,255,255,0.45)" }}>· Name to be announced</span>}
+                </div>
+                <h3 className="display" style={{ fontSize: 28, fontWeight: 900, textTransform: "uppercase", color: "#fff", marginBottom: 14, letterSpacing: -0.5 }}>{f.name}</h3>
+                <p className="body" style={{ fontSize: 14, color: "rgba(255,255,255,0.72)" }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <WaveEdge from={COLORS.dagat} to="#071228" />
 
       {/* INTERACTIVE PARK MAP */}
       <section id="map" style={{ background: "#071228", padding: "clamp(72px,8vw,110px) 6%", position: "relative", overflow: "hidden" }}>
@@ -1037,14 +1211,14 @@ export default function PraderaIslands() {
               The Park <span style={{ color: COLORS.orange }}>Map</span>
             </h2>
             <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 18 }}>
-              Tap a marker to see the ride.
+              Tap a marker to see the attraction or venue.
             </p>
           </div>
 
           <div className="reveal map-frame">
-            <img src="/photos/park-map.jpg" alt="Pradera Islands Waterpark map" style={{ width: "100%", display: "block" }} />
+            <img src="/photos/park-map.webp" alt="Pradera Islands Waterpark map" style={{ width: "100%", display: "block" }} />
             {mapPins.map((p) => {
-              const ride = attractions.find((a) => a.name === p.name);
+              const ride = (p.venue ? fnb : attractions).find((a) => a.name === p.name);
               const on = (hoverPin || activePin) === p.name;
               return (
                 <button
@@ -1057,7 +1231,7 @@ export default function PraderaIslands() {
                   onMouseLeave={() => setHoverPin(null)}
                   onBlur={() => setHoverPin(null)}
                   onClick={() => setActivePin(activePin === p.name ? null : p.name)}
-                  aria-label={ride ? `${p.name} — ${ride.theme}` : p.name}
+                  aria-label={ride ? `${p.name} — ${ride.theme || ride.type}` : p.name}
                 />
               );
             })}
@@ -1066,16 +1240,17 @@ export default function PraderaIslands() {
           {/* Info panel — reads out whichever pin is active */}
           <div className="map-readout" aria-live="polite">
             {(() => {
-              const ride = attractions.find((a) => a.name === (hoverPin || activePin));
+              const sel = (hoverPin || activePin);
+              const ride = attractions.find((a) => a.name === sel) || fnb.find((v) => v.name === sel);
               if (!ride) {
-                return <span className="map-hint">Tap any marker to see the ride.</span>;
+                return <span className="map-hint">Tap any marker to see the attraction or venue.</span>;
               }
               return (
                 <>
-                  <img src={ride.logo} alt="" className="map-readout-logo" />
+                  {ride.logo && <img src={ride.logo} alt="" className="map-readout-logo" />}
                   <span>
                     <strong style={{ color: "#fff" }}>{ride.name}</strong>
-                    <em style={{ color: COLORS.orange, fontStyle: "normal" }}> · {ride.theme}</em>
+                    <em style={{ color: COLORS.orange, fontStyle: "normal" }}> · {ride.theme || ride.type}</em>
                     <span style={{ display: "block", color: "rgba(255,255,255,0.62)", marginTop: 4 }}>{ride.desc}</span>
                   </span>
                 </>
@@ -1096,17 +1271,89 @@ export default function PraderaIslands() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridAutoRows: 200, gap: 16 }}>
             {[
-              { src: "/photos/park-day.jpg", alt: "Aerial view of Pradera Islands Waterpark", span: "span 2", row: "span 2" },
-              { src: "/photos/wave-pool.jpg", alt: "The wave pool", span: "span 2", row: "span 1" },
-              { src: "/photos/racer-slides.jpg", alt: "Racer slides", span: "span 1", row: "span 1" },
-              { src: "/photos/bowl-slides.jpg", alt: "Tornado bowl slides", span: "span 1", row: "span 1" },
-              { src: "/photos/family-slides.jpg", alt: "Family slides", span: "span 2", row: "span 1" },
-              { src: "/photos/slides-tower.jpg", alt: "Slide tower and wave pool", span: "span 2", row: "span 1" },
+              { src: "/photos/park-day.webp", alt: "Aerial view of Pradera Islands Waterpark", span: "span 2", row: "span 2" },
+              { src: "/photos/wave-pool.webp", alt: "The wave pool", span: "span 2", row: "span 1" },
+              { src: "/photos/racer-slides.webp", alt: "Racer slides", span: "span 1", row: "span 1" },
+              { src: "/photos/bowl-slides.webp", alt: "Tornado bowl slides", span: "span 1", row: "span 1" },
+              { src: "/photos/family-slides.webp", alt: "Family slides", span: "span 2", row: "span 1" },
+              { src: "/photos/slides-tower.webp", alt: "Slide tower and wave pool", span: "span 2", row: "span 1" },
             ].map((g, i) => (
               <div key={i} className="gallery-tile reveal" data-reveal-delay={i * 90} style={{ gridColumn: g.span, gridRow: g.row, overflow: "hidden", borderRadius: 10, position: "relative" }}>
                 <img src={g.src} alt={g.alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* OPEN DAYS CALENDAR + TRAVEL GUIDE — agreed 5 Oct 2026 */}
+      <section id="guide" style={{ background: "#fff", padding: "clamp(72px,8vw,110px) 6%" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div className="reveal" style={{ marginBottom: 36 }}>
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Plan Your Visit</div>
+            <h2 className="display" style={{ fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 900, color: COLORS.hiraya, margin: 0, lineHeight: 1.05, textTransform: "uppercase" }}>
+              Travel <span style={{ color: COLORS.dagat }}>Guide</span>
+            </h2>
+          </div>
+
+          <div className="guide-grid">
+            {/* Open-days calendar — separate from the park-hours block in Contact */}
+            <div className="reveal guide-card">
+              <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Open Days</div>
+              <OpenDaysCalendar />
+              <p className="body" style={{ fontSize: 13, color: "#7a819a", margin: "16px 0 0", lineHeight: 1.6 }}>
+                Open Thursday to Sunday. Thursday 10:00 AM – 4:00 PM, Friday to Sunday 10:00 AM – 5:00 PM. Holiday hours may differ.
+              </p>
+            </div>
+
+            {/* How to get here — car route is from the park's location; the bus line
+                reuses the "How to get to Pradera" content sheet once Marketing sends it. */}
+            <div className="reveal guide-card">
+              <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>How to Get to Pradera Islands</div>
+              <h3 className="display" style={{ fontSize: 22, fontWeight: 800, color: COLORS.hiraya, margin: "0 0 6px" }}>Prado Siongco, Lubao, Pampanga</h3>
+              <p className="body" style={{ fontSize: 14, color: "#55566a", margin: "0 0 20px", lineHeight: 1.6 }}>
+                About 90 km north-west of Metro Manila. Set your navigation to <strong>Pradera Islands Waterpark</strong> or <strong>Pradera Verde, Lubao</strong>.
+              </p>
+
+              <div className="route-list">
+                <div className="route">
+                  <div className="route-icon" aria-hidden="true">🚗</div>
+                  <div>
+                    <strong>By private car <span className="route-time">1.5 – 2 hrs from Manila</span></strong>
+                    <ol>
+                      <li>Take <b>NLEX</b> northbound to the <b>SCTEX</b> link at Mabalacat.</li>
+                      <li>On SCTEX, exit at <b>Floridablanca</b>.</li>
+                      <li>Follow the Floridablanca–Lubao road toward the town proper, then continue to <b>Prado Siongco</b>. Watch for the Pradera Verde signs.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div className="route">
+                  <div className="route-icon" aria-hidden="true">🚌</div>
+                  <div>
+                    <strong>By bus <span className="route-time">2.5 – 3 hrs</span></strong>
+                    <ol>
+                      <li>From Cubao or Pasay, board any bus bound for <b>Olongapo</b> or <b>Bataan</b> via SCTEX, or a Pampanga bus to <b>Lubao</b>.</li>
+                      <li>Alight at <b>Lubao</b> (ask for Prado Siongco or Pradera Verde).</li>
+                      <li>Take a tricycle or jeepney to the park gate.</li>
+                    </ol>
+                    <p className="route-note">Bus routes and fares to be confirmed by Marketing.</p>
+                  </div>
+                </div>
+
+                <div className="route">
+                  <div className="route-icon" aria-hidden="true">🅿️</div>
+                  <div>
+                    <strong>Parking</strong>
+                    <p>On-site parking is available at a flat rate of ₱50 per vehicle.</p>
+                  </div>
+                </div>
+              </div>
+
+              <a href="https://www.google.com/maps/search/?api=1&query=Pradera+Islands+Waterpark+Prado+Siongco+Lubao+Pampanga" target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: "inline-block", marginTop: 22, background: COLORS.orange, textDecoration: "none", padding: "13px 26px", fontSize: 13 }}>
+                Open in Google Maps
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1122,10 +1369,10 @@ export default function PraderaIslands() {
 
         {/* The crew, framing the message */}
         {[
-          { src: "/brand/characters/lakandanum.png", left: "1%", bottom: 0, height: "clamp(150px, 18vw, 260px)", delay: 0 },
-          { src: "/brand/characters/janjan.png",     left: "15%", bottom: 14, height: "clamp(110px, 12vw, 175px)", delay: 1.2 },
-          { src: "/brand/characters/laut.png",       right: "15%", bottom: 0, height: "clamp(135px, 16vw, 235px)", delay: 0.6 },
-          { src: "/brand/characters/dapu.png",       right: "1%", bottom: 28, height: "clamp(120px, 13vw, 195px)", delay: 1.8 },
+          { src: "/brand/characters/lakandanum.webp", left: "1%", bottom: 0, height: "clamp(150px, 18vw, 260px)", delay: 0 },
+          { src: "/brand/characters/janjan.webp",     left: "15%", bottom: 14, height: "clamp(110px, 12vw, 175px)", delay: 1.2 },
+          { src: "/brand/characters/laut.webp",       right: "15%", bottom: 0, height: "clamp(135px, 16vw, 235px)", delay: 0.6 },
+          { src: "/brand/characters/dapu.webp",       right: "1%", bottom: 28, height: "clamp(120px, 13vw, 195px)", delay: 1.8 },
         ].map((ch, i) => (
           <img key={i} className="cta-mascot" src={ch.src} alt="" aria-hidden="true" style={{
             position: "absolute",
@@ -1145,7 +1392,7 @@ export default function PraderaIslands() {
             The New Waters <span style={{ color: COLORS.orange }}>Await</span>
           </h2>
           <p className="body" style={{ fontSize: 18, color: "rgba(255,255,255,0.88)", maxWidth: 540, margin: "0 auto 40px", lineHeight: 1.6 }}>
-            Splash, flow, and celebrate at Pradera Islands Waterpark — Central Luzon's most vibrant water destination.
+            Splash, flow, and celebrate at Pradera Islands Waterpark — Lubao, Pampanga's new home for water, fun, and family.
           </p>
           <button className="btn-primary" style={{ background: COLORS.orange, boxShadow: "0 14px 34px rgba(255,142,0,0.45)" }} onClick={() => scrollTo("visit")}>Get in Touch</button>
         </div>
@@ -1162,213 +1409,111 @@ export default function PraderaIslands() {
           <div className="grid-2">
             <div>
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 16 }}>Find Us</div>
-              <h2 className="display" style={{ fontSize: "clamp(34px, 4.5vw, 54px)", fontWeight: 900, textTransform: "uppercase", marginBottom: 28, lineHeight: 0.95, color: "#fff" }}>
+              <h2 className="display" style={{ fontSize: "clamp(34px, 4.5vw, 54px)", fontWeight: 900, textTransform: "uppercase", marginBottom: 20, lineHeight: 0.95, color: "#fff" }}>
                 Visit<br /><span style={{ color: COLORS.azure }}>Pradera Islands</span><br />Waterpark
               </h2>
-              <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.65)", marginBottom: 36 }}>
-                Located in the vibrant heartland of Pampanga, Central Luzon — Pradera Islands Waterpark is the new premier destination for water, fun, and community celebration.
+              <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.65)", marginBottom: 28, maxWidth: 480 }}>
+                Prado Siongco, Lubao, Pampanga — an easy drive from Metro Manila via NLEX and SCTEX.
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {[
-                  { label: "Location", val: "Prado Siongco, Lubao, Pampanga", c: COLORS.orange, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Pradera Islands Waterpark, Prado Siongco, Lubao, Pampanga")}` },
-                  { label: "Park Hours", val: (
-                      <span style={{ display: "block", lineHeight: 1.55 }}>
-                        Thursday 10:00 AM – 4:00 PM<br />
-                        Friday to Sunday 10:00 AM – 5:00 PM<br />
-                        <span style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}>Last entry one hour before closing · Closed Monday to Wednesday · Holiday hours may differ</span>
-                      </span>
-                    ), c: COLORS.sunset, href: null },
-                  ...(CS_EMAIL ? [{ label: "Email", val: CS_EMAIL, c: COLORS.azure, href: `mailto:${CS_EMAIL}` }] : []),
-                  { label: "Parking", val: "₱50 flat rate", c: COLORS.janjan, href: null },
-                ].map(({ label, val, c, href }) => {
-                  const rowStyle = { display: "flex", alignItems: "center", gap: 18, padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none", cursor: href ? "pointer" : "default", transition: "background 0.2s" };
-                  const body = (
-                    <>
-                      <div style={{ width: 6, minHeight: 40, alignSelf: "stretch", background: c, borderRadius: 3, flexShrink: 0 }} />
-                      <div>
-                        <div className="eyebrow" style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, marginBottom: 4 }}>{label}</div>
-                        <div className="body" style={{ fontSize: 15, color: "#fff", fontWeight: 500, lineHeight: 1.3, display: "flex", alignItems: "center", gap: 8 }}>
-                          {val}
-                          {href && <span style={{ color: c, fontSize: 13, fontFamily: "'Kanit', sans-serif", fontWeight: 700, letterSpacing: 1 }}>{href.startsWith("mailto:") ? "EMAIL ↗" : "VIEW MAP ↗"}</span>}
-                        </div>
-                      </div>
-                    </>
-                  );
-                  return href
-                    ? <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={rowStyle}>{body}</a>
-                    : <div key={label} style={rowStyle}>{body}</div>;
-                })}
 
-                <div style={{ display: "flex", alignItems: "center", gap: 18, padding: "14px 0" }}>
-                  <div style={{ width: 6, height: 40, background: COLORS.sunset, borderRadius: 3, flexShrink: 0 }} />
-                  <div>
-                    <div className="eyebrow" style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, marginBottom: 8 }}>Follow Us</div>
-                    <div style={{ display: "flex", gap: 10 }}>
-                      {[
-                        { name: "Facebook", url: "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/", accent: "#1877F2", path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" /> },
-                        { name: "Instagram", url: "https://www.instagram.com/praderaislandswaterpark/", accent: "#E1306C", path: (<><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 01-.9 1.38c-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63A5.92 5.92 0 002 2.01 5.92 5.92 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.92 5.92 0 001.38 2.14 5.92 5.92 0 002.14 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a6.17 6.17 0 003.52-3.52c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.92 5.92 0 00-1.38-2.14A5.92 5.92 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" /><path d="M12 5.84A6.16 6.16 0 1018.16 12 6.17 6.17 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4z" /><circle cx="18.41" cy="5.59" r="1.44" /></>) },
-                        { name: "TikTok", url: "https://www.tiktok.com/@praderaislandswaterpark", accent: "#25F4EE", path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" /> },
-                      ].map(({ name, url, accent, path }) => {
-                        const iconStyle = {
-                          width: 42, height: 42, borderRadius: "50%",
-                          display: "inline-flex", alignItems: "center", justifyContent: "center",
-                          background: socialIconBg(name, accent), border: `1px solid ${accent}8c`, boxShadow: "0 6px 14px rgba(0,0,0,0.25)",
-                          color: url ? "#fff" : "rgba(255,255,255,0.3)",
-                          textDecoration: "none", cursor: url ? "pointer" : "not-allowed",
-                          transition: "transform 0.25s cubic-bezier(.2,.8,.2,1), background 0.25s, border-color 0.25s, box-shadow 0.25s",
-                        };
-                        const svg = <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">{path}</svg>;
-                        return url ? (
-                          <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={name} style={iconStyle}
-                            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px) scale(1.08)"; e.currentTarget.style.background = accent; e.currentTarget.style.borderColor = accent; e.currentTarget.style.boxShadow = `0 12px 26px ${accent}66`; }}
-                            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)"; e.currentTarget.style.background = socialIconBg(name, accent); e.currentTarget.style.borderColor = `${accent}8c`; e.currentTarget.style.boxShadow = "0 6px 14px rgba(0,0,0,0.25)"; }}>
-                            {svg}
-                          </a>
-                        ) : (
-                          <span key={name} title={`${name} — coming soon`} aria-label={`${name} coming soon`} style={iconStyle}>{svg}</span>
-                        );
-                      })}
-                    </div>
+              {/* Address card with a real map button */}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Pradera Islands Waterpark, Prado Siongco, Lubao, Pampanga")}`}
+                target="_blank" rel="noopener noreferrer" className="findus-map"
+              >
+                <div className="findus-pin" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginBottom: 4 }}>Location</div>
+                  <div style={{ color: "#fff", fontWeight: 600, fontSize: 16, lineHeight: 1.3 }}>Prado Siongco, Lubao, Pampanga</div>
+                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, marginTop: 4 }}>Parking on site · ₱50 flat rate</div>
+                </div>
+                <span className="findus-cta">Open in Maps ↗</span>
+              </a>
+
+              {/* Hours */}
+              <div className="findus-hours">
+                <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginBottom: 12 }}>Park Hours</div>
+                <div className="hours-row"><span>Thursday</span><b>10:00 AM – 4:00 PM</b></div>
+                <div className="hours-row"><span>Friday – Sunday</span><b>10:00 AM – 5:00 PM</b></div>
+                <div className="hours-row muted"><span>Monday – Wednesday</span><b>Closed</b></div>
+                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12.5, margin: "12px 0 0", lineHeight: 1.55 }}>
+                  Last entry one hour before closing. Holiday hours may differ — see the <button type="button" onClick={() => scrollTo("guide")} className="promo-link" style={{ color: COLORS.azure }}>open-days calendar</button>.
+                </p>
+              </div>
+
+              {/* Contact + social */}
+              <div className="findus-foot">
+                <a href={`mailto:${CS_EMAIL || "sales@praderaislands.com"}`} className="findus-email">
+                  <span className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, display: "block", marginBottom: 4 }}>Email</span>
+                  {CS_EMAIL || "sales@praderaislands.com"}
+                </a>
+                <div>
+                  <span className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, display: "block", marginBottom: 8 }}>Follow Us</span>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {SOCIALS.map(({ name, url, accent, path }) => (
+                      <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={name} className="social-dot" style={{ "--accent": accent, background: `${accent}26`, borderColor: `${accent}8c` }}>
+                        <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">{path}</svg>
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Message us on social — replaces the contact form */}
+            {/* Inquiry form — agreed 5 Oct 2026. Submissions land in Netlify Forms and are
+                forwarded to the sales@ Google Workspace group (set the notification in the
+                Netlify dashboard under Forms → Notifications). */}
             <div style={{
               background: "rgba(255,255,255,0.04)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderRadius: 10, padding: 44,
             }}>
               <h3 className="display" style={{ fontSize: 24, fontWeight: 800, textTransform: "uppercase", marginBottom: 10, letterSpacing: -0.3, color: "#fff" }}>
-                Message Us
+                Get in Touch
               </h3>
-              <p className="body" style={{ fontSize: 15, color: "rgba(255,255,255,0.62)", marginBottom: 28, lineHeight: 1.6 }}>
-                Fastest way to reach the team — send us a message on the platform you already use.
+              <p className="body" style={{ fontSize: 15, color: "rgba(255,255,255,0.62)", marginBottom: 26, lineHeight: 1.6 }}>
+                Tell us about your visit, group, or event and our team will get back to you.
               </p>
-              <div style={{ display: "grid", gap: 12 }}>
-                {MESSAGE_CHANNELS.map(({ name, label, url, accent, path }) => {
-                  const live = Boolean(url);
-                  const inner = (
-                    <>
-                      <span style={{
-                        width: 44, height: 44, borderRadius: 10, flex: "0 0 44px",
-                        display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        background: live ? accent : "rgba(255,255,255,0.08)", color: live ? "#fff" : "rgba(255,255,255,0.35)",
-                      }}>
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">{path}</svg>
-                      </span>
-                      <span style={{ flex: 1, textAlign: "left" }}>
-                        <span style={{ display: "block", fontFamily: "'Kanit', sans-serif", fontWeight: 700, fontSize: 15, letterSpacing: 0.4, color: live ? "#fff" : "rgba(255,255,255,0.45)" }}>{label}</span>
-                        <span style={{ display: "block", fontSize: 12, color: live ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.3)", marginTop: 2 }}>
-                          {live ? `Opens ${name}` : "Coming soon"}
-                        </span>
-                      </span>
-                      <span aria-hidden="true" style={{ color: live ? accent : "rgba(255,255,255,0.25)", fontSize: 20, lineHeight: 1 }}>›</span>
-                    </>
-                  );
-                  const rowStyle = {
-                    display: "flex", alignItems: "center", gap: 16, padding: "14px 16px", borderRadius: 10,
-                    background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                    textDecoration: "none", cursor: live ? "pointer" : "not-allowed",
-                    transition: "transform 0.25s cubic-bezier(.2,.8,.2,1), border-color 0.25s, background 0.25s",
-                  };
-                  return live ? (
-                    <a key={name} href={url} target="_blank" rel="noopener noreferrer" className="msg-row" style={rowStyle}>{inner}</a>
-                  ) : (
-                    <div key={name} className="msg-row" style={rowStyle} title="Handle to be provided by Marketing">{inner}</div>
-                  );
-                })}
-              </div>
+
+              {formState === "sent" ? (
+                <div style={{ padding: "32px 24px", textAlign: "center", background: `${COLORS.azure}18`, border: `1px solid ${COLORS.azure}55`, borderRadius: 10 }}>
+                  <div className="display" style={{ fontSize: 20, fontWeight: 800, color: COLORS.azure, marginBottom: 8 }}>Message sent</div>
+                  <p className="body" style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", margin: 0 }}>Thank you — our team will be in touch soon.</p>
+                  <button className="btn-ghost" style={{ marginTop: 20, padding: "10px 24px", fontSize: 12 }} onClick={() => setFormState("idle")}>Send another</button>
+                </div>
+              ) : (
+                <form name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" onSubmit={handleFormSubmit} style={{ display: "grid", gap: 12 }}>
+                  <input type="hidden" name="form-name" value="inquiry" />
+                  <p hidden><label>Don't fill this out: <input name="bot-field" onChange={() => {}} /></label></p>
+                  <input name="name" type="text" placeholder="Full name" required autoComplete="name" value={form.name} onChange={handleFormChange} className="inq-input" />
+                  <div className="inq-row">
+                    <input name="contact" type="tel" placeholder="Contact number" required autoComplete="tel" value={form.contact} onChange={handleFormChange} className="inq-input" />
+                    <input name="email" type="email" placeholder="Email address" required autoComplete="email" value={form.email} onChange={handleFormChange} className="inq-input" />
+                  </div>
+                  <label className="inq-label">
+                    <span>Planned visit date <em>(optional — park is open Thursday to Sunday)</em></span>
+                    <input name="visitDate" type="date" min={todayISO} value={form.visitDate} onChange={handleVisitDate} className="inq-input" />
+                    {visitDateWarn && <span className="inq-warn">{visitDateWarn}</span>}
+                  </label>
+                  <textarea name="message" placeholder="Your message" rows={4} required value={form.message} onChange={handleFormChange} className="inq-input" style={{ resize: "vertical" }} />
+                  <button type="submit" className="btn-primary" disabled={formState === "sending"} style={{ marginTop: 6, background: COLORS.orange, opacity: formState === "sending" ? 0.7 : 1 }}>
+                    {formState === "sending" ? "Sending…" : "Get in Touch"}
+                  </button>
+                  {formState === "error" && (
+                    <div className="body" style={{ fontSize: 13, color: COLORS.sunset }}>Something went wrong. Please try again, or message us on Facebook.</div>
+                  )}
+                  <p className="body" style={{ fontSize: 12, color: "rgba(255,255,255,0.42)", margin: "4px 0 0", lineHeight: 1.6 }}>
+                    By sending this form you agree that Pradera Islands Waterpark may contact you about your inquiry and keep your details to follow up.
+                  </p>
+                </form>
+              )}
             </div>
           </div>
         </div>
       </section>
 
       {/* RATES — scaffold; populate when Sales delivers pricing */}
-      <section id="rates" style={{ background: "#f4f7ff", padding: "96px 6%" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="reveal" style={{ marginBottom: 28 }}>
-            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Park Rates</div>
-            <h2 className="display" style={{ fontSize: "clamp(36px, 5vw, 56px)", fontWeight: 900, color: COLORS.hiraya, margin: 0, lineHeight: 1.05, textTransform: "uppercase" }}>
-              Admission <span style={{ color: COLORS.dagat }}>Rates</span>
-            </h2>
-            <p className="body" style={{ fontSize: 16, color: "#55566a", maxWidth: 620, margin: "16px 0 0" }}>
-              Full-day admission to every attraction. Rates are per guest in Philippine pesos.
-            </p>
-          </div>
-
-          {RATES_PUBLISHED ? (
-            <>
-              <div className="rates-wrap reveal">
-                <table className="rates-table">
-                  <thead>
-                    <tr>
-                      <th>Ticket</th>
-                      <th>Weekday</th>
-                      <th>Weekend</th>
-                      <th className="peak">Peak weekday</th>
-                      <th className="peak">Peak weekend</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {TICKET_RATES.map((r) => (
-                      <tr key={r.name}>
-                        <td>
-                          <strong>{r.name}</strong>
-                          {r.note && <span className="rates-note">{r.note}</span>}
-                        </td>
-                        {r.free ? (
-                          <td colSpan={4} className="rates-free" data-label="All days">Free</td>
-                        ) : (
-                          <>
-                            <td data-label="Weekday">₱{r.weekday.toLocaleString()}</td>
-                            <td data-label="Weekend">₱{r.weekend.toLocaleString()}</td>
-                            <td className="peak" data-label="Peak weekday">₱{r.peakWeekday.toLocaleString()}</td>
-                            <td className="peak" data-label="Peak weekend">₱{r.peakWeekend.toLocaleString()}</td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="rates-cards reveal">
-                <div className="rates-card">
-                  <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 10 }}>Group Rate</div>
-                  <div className="display" style={{ fontSize: 30, fontWeight: 900, color: COLORS.hiraya, lineHeight: 1 }}>
-                    ₱{GROUP_RATE.weekday.toLocaleString()} <span style={{ fontSize: 14, fontWeight: 600, color: "#55566a" }}>weekday</span>
-                  </div>
-                  <div className="body" style={{ fontSize: 14, color: "#55566a", marginTop: 8, lineHeight: 1.7 }}>
-                    ₱{GROUP_RATE.weekend.toLocaleString()} weekend<br />
-                    Peak season ₱{GROUP_RATE.peakWeekday.toLocaleString()} weekday · ₱{GROUP_RATE.peakWeekend.toLocaleString()} weekend
-                  </div>
-                  <p className="body" style={{ fontSize: 13, color: "#7a819a", marginTop: 12, marginBottom: 0 }}>
-                    Message us to arrange a group visit.
-                  </p>
-                </div>
-                <div className="rates-card rates-card--soon">
-                  <div className="eyebrow" style={{ color: "#7a819a", marginBottom: 10 }}>Cabanas & Promos</div>
-                  <p className="body" style={{ fontSize: 15, color: "#55566a", margin: 0, lineHeight: 1.6 }}>
-                    Cabana rates, school and corporate packages, and opening promos will be posted here soon.
-                  </p>
-                </div>
-              </div>
-
-              <p className="body" style={{ fontSize: 13, color: "#7a819a", marginTop: 20, lineHeight: 1.6 }}>
-                Senior citizen and PWD rates require a valid ID at the gate. Peak season covers holidays and declared peak dates. Rates may change without prior notice.
-              </p>
-            </>
-          ) : (
-            <div className="reveal" style={{ background: "#fff", borderRadius: 10, padding: 36, border: "1px solid #e5e7eb" }}>
-              <p className="body" style={{ fontSize: 15, color: "#55566a", margin: 0 }}>
-                Admission, cabana and group rates will be published here once finalized by the Sales team.
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* FAQ — scaffold */}
       {FAQ_PUBLISHED && (
@@ -1451,7 +1596,7 @@ export default function PraderaIslands() {
         flexWrap: "wrap", gap: 24,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <img src="/brand/emblem-full.png" alt="Pradera Islands" style={{ height: 40, width: "auto" }} />
+          <img src="/brand/emblem-full.webp" alt="Pradera Islands" style={{ height: 40, width: "auto" }} />
           <div style={{ lineHeight: 1.2 }}>
             <div className="display" style={{ color: "#fff", fontWeight: 800, fontSize: 13, letterSpacing: 1.5 }}>PRADERA ISLANDS</div>
             <div className="eyebrow" style={{ color: COLORS.azure, fontSize: 9, marginTop: 2 }}>Waterpark</div>
@@ -1470,32 +1615,7 @@ export default function PraderaIslands() {
         </a>
         <div className="body" style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>© 2026 Pradera Islands Waterpark. All rights reserved.</div>
         <div style={{ display: "flex", gap: 14 }}>
-          {[
-            {
-              name: "Facebook",
-              url: "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/",
-              accent: "#1877F2",
-              path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />,
-            },
-            {
-              name: "Instagram",
-              url: "https://www.instagram.com/praderaislandswaterpark/",
-              accent: "#E1306C",
-              path: (
-                <>
-                  <path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 01-.9 1.38c-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63A5.92 5.92 0 002 2.01 5.92 5.92 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.92 5.92 0 001.38 2.14 5.92 5.92 0 002.14 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a6.17 6.17 0 003.52-3.52c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.92 5.92 0 00-1.38-2.14A5.92 5.92 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" />
-                  <path d="M12 5.84A6.16 6.16 0 1018.16 12 6.17 6.17 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4z" />
-                  <circle cx="18.41" cy="5.59" r="1.44" />
-                </>
-              ),
-            },
-            {
-              name: "TikTok",
-              url: "https://www.tiktok.com/@praderaislandswaterpark",
-              accent: "#25F4EE",
-              path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" />,
-            },
-          ].map(({ name, url, accent, path }) => {
+          {SOCIALS.map(({ name, url, accent, path }) => {
             const iconStyle = {
               width: 46, height: 46, borderRadius: "50%",
               display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -1538,6 +1658,44 @@ export default function PraderaIslands() {
       </footer>
 
       {COOKIE_CONSENT_ENABLED && <CookieBanner />}
+    </div>
+  );
+}
+
+/* Month calendar that marks which days the park is open (Thu–Sun). Shows the
+   current month and lets guests step forward. Days before today are dimmed. */
+const OPEN_WEEKDAYS = new Set([4, 5, 6, 0]); // Thu, Fri, Sat, Sun (JS getDay)
+function OpenDaysCalendar() {
+  const today = new Date();
+  const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const year = cursor.getFullYear(), month = cursor.getMonth();
+  const first = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
+  const cells = [...Array(first).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
+  const label = cursor.toLocaleDateString("en-PH", { month: "long", year: "numeric" });
+  const isPast = (d) => new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const isToday = (d) => d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+  return (
+    <div className="cal">
+      <div className="cal-head">
+        <button type="button" className="cal-nav" onClick={() => setCursor(new Date(year, month - 1, 1))} aria-label="Previous month">‹</button>
+        <div className="cal-title">{label}</div>
+        <button type="button" className="cal-nav" onClick={() => setCursor(new Date(year, month + 1, 1))} aria-label="Next month">›</button>
+      </div>
+      <div className="cal-grid" role="grid" aria-label={`Open days, ${label}`}>
+        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => <div key={d} className="cal-dow">{d}</div>)}
+        {cells.map((d, i) => {
+          if (d === null) return <div key={`e${i}`} />;
+          const open = OPEN_WEEKDAYS.has(new Date(year, month, d).getDay());
+          return (
+            <div key={d} className={`cal-day${open ? " open" : ""}${isPast(d) ? " past" : ""}${isToday(d) ? " today" : ""}`}
+              aria-label={`${d} ${label}, ${open ? "open" : "closed"}`}>
+              {d}
+            </div>
+          );
+        })}
+      </div>
+      <div className="cal-legend"><span className="cal-swatch open" /> Open <span className="cal-swatch" /> Closed</div>
     </div>
   );
 }
