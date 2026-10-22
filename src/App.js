@@ -82,6 +82,9 @@ const SOCIALS = [
 { name: "TikTok", url: "https://www.tiktok.com/@praderaislandswaterpark", accent: "#25F4EE", path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" /> },
 ];
 
+/* Online ticket sales run through Klook for now. */
+const TICKETS_URL = "https://www.klook.com/en-US/activity/226976-pradera-islands-theme-park/";
+
 const COOKIE_CONSENT_ENABLED = false;
 
 /* Admission rates from the Sales / Revenue information request form (Sept 2026).
@@ -473,7 +476,8 @@ export default function PraderaIslands() {
         .ticket-free .ticket-price { color: ${COLORS.azure}; }
         .promo-callout { display: flex; align-items: center; gap: 24px; margin-top: 20px; padding: 24px 28px; border-radius: 12px;
           background: linear-gradient(135deg, rgba(255,142,0,0.18) 0%, rgba(255,142,0,0.06) 100%); border: 1px solid rgba(255,142,0,0.4); }
-        .promo-badge { flex: 0 0 auto; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 900; font-size: 34px; color: ${COLORS.orange}; letter-spacing: -1px;
+        .promo-badge-sub { display: block; font-family: 'Kanit', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+        .promo-badge { flex: 0 0 auto; text-align: center; line-height: 0.95; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 900; font-size: 34px; color: ${COLORS.orange}; letter-spacing: -1px;
           padding: 12px 20px; border-radius: 10px; background: rgba(255,142,0,0.14); white-space: nowrap; }
         .promo-title { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 19px; color: #fff; margin-bottom: 6px; }
         .promo-text { margin: 0; font-size: 14px; color: rgba(255,255,255,0.68); line-height: 1.65; }
@@ -674,13 +678,16 @@ export default function PraderaIslands() {
 
           {/* Mobile sheet footer — gives the menu a purpose instead of dead space */}
           <div className="nav-sheet-foot">
-            <button
+            <a
               className="btn-primary"
-              style={{ background: COLORS.orange, width: "100%", padding: "17px 24px" }}
-              onClick={() => { setNavOpen(false); alert("Buy Tickets — coming soon!"); }}
+              href={TICKETS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ background: COLORS.orange, width: "100%", padding: "17px 24px", textDecoration: "none", display: "block", textAlign: "center", boxSizing: "border-box" }}
+              onClick={() => setNavOpen(false)}
             >
               Buy Tickets
-            </button>
+            </a>
             <div className="nav-sheet-meta">
               <div>
                 <span className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 9 }}>Location</span>
@@ -738,14 +745,14 @@ export default function PraderaIslands() {
               src="/brand/pradera-islands-wordmark.webp"
               alt="Pradera Islands"
               style={{
-                width: "clamp(210px, 40vw, 440px)",
+                width: "clamp(265px, 50vw, 560px)",
                 height: "auto",
                 display: "block",
                 margin: "0 auto",
               }}
             />
           </h1>
-          <svg viewBox="0 0 900 140" preserveAspectRatio="xMidYMid meet" style={{ width: "clamp(230px, 46vw, 500px)", height: "auto", display: "block", margin: "0 auto 30px" }} aria-label="Waterpark">
+          <svg viewBox="0 0 900 140" preserveAspectRatio="xMidYMid meet" style={{ width: "clamp(292px, 57vw, 632px)", height: "auto", display: "block", margin: "0 auto 30px" }} aria-label="Waterpark">
             <defs>
               <mask id="wp-mask" maskUnits="userSpaceOnUse" x="-24" y="-24" width="948" height="188">
                 <rect x="-24" y="-24" width="948" height="188" fill="black" />
@@ -774,11 +781,11 @@ export default function PraderaIslands() {
           <p className="body" style={{
             fontSize: "clamp(14px, 1.6vw, 17px)", lineHeight: 1.6, color: "rgba(255,255,255,0.88)", maxWidth: 580, margin: "0 auto 26px",
           }}>
-            Twelve attractions, a wave pool the size of a beach,<br />and the crew of Bayúng Danum waiting to meet you.
+            Create unforgettable memories<br />and enjoy a refreshing waterpark adventure.
           </p>
 
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn-primary" style={{ background: COLORS.orange, boxShadow: "0 12px 32px rgba(255,142,0,0.45)" }} onClick={() => alert("Buy Tickets — coming soon!")}>Buy Tickets</button>
+            <a className="btn-primary" href={TICKETS_URL} target="_blank" rel="noopener noreferrer" style={{ background: COLORS.orange, boxShadow: "0 12px 32px rgba(255,142,0,0.45)", textDecoration: "none", display: "inline-block" }}>Buy Tickets</a>
             <button className="btn-ghost" onClick={() => scrollTo("visit")}>Park Hours</button>
           </div>
         </div>
@@ -857,8 +864,8 @@ export default function PraderaIslands() {
         borderTop: `4px solid ${COLORS.orange}`,
       }}>
         <img
-          src="/photos/wave-pool.webp"
-          alt="The wave pool at Pradera Islands"
+          src="/photos/racer-slides.webp"
+          alt="Lunar Speedway, the six-lane racer slide at Pradera Islands"
           style={{
             position: "absolute", top: 0, left: 0,
             width: "100%", height: "118%", objectFit: "cover", zIndex: 0,
@@ -1054,11 +1061,12 @@ export default function PraderaIslands() {
               </div>
 
               <div className="promo-callout reveal">
-                <div className="promo-badge">10 + 1</div>
+                <div className="promo-badge">10%<span className="promo-badge-sub">off</span></div>
                 <div>
-                  <div className="promo-title">Bring ten, the eleventh is free</div>
+                  <div className="promo-title">10 for 10 — ten tickets, ten percent off</div>
                   <p className="promo-text">
-                    Every ten paid admissions in one group earns one free. Planning a corporate outing, school field trip, or tour group?
+                    Book ten admissions together for <strong style={{ color: "#fff" }}>₱9,720</strong> — that's ₱972 each instead of ₱1,080.
+                    Planning a corporate outing, school field trip, or tour group?
                     <button type="button" onClick={() => scrollTo("visit")} className="promo-link">Get in touch</button> with your date and group size and we will send a quote.
                   </p>
                 </div>
@@ -1273,7 +1281,7 @@ export default function PraderaIslands() {
             {[
               { src: "/photos/park-day.webp", alt: "Aerial view of Pradera Islands Waterpark", span: "span 2", row: "span 2" },
               { src: "/photos/wave-pool.webp", alt: "The wave pool", span: "span 2", row: "span 1" },
-              { src: "/photos/racer-slides.webp", alt: "Racer slides", span: "span 1", row: "span 1" },
+              { src: "/photos/rain-park.webp", alt: "The rain park splash tower", span: "span 1", row: "span 1" },
               { src: "/photos/bowl-slides.webp", alt: "Tornado bowl slides", span: "span 1", row: "span 1" },
               { src: "/photos/family-slides.webp", alt: "Family slides", span: "span 2", row: "span 1" },
               { src: "/photos/slides-tower.webp", alt: "Slide tower and wave pool", span: "span 2", row: "span 1" },
