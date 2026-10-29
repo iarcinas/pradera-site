@@ -54,16 +54,18 @@ const attractions = [
   { name: "Drizzle District", desc: "A sun-drenched spray park where rain meets sunshine — perfect for little ones.", theme: "Spray Park", color: COLORS.sunset, logo: "/attractions/drizzle-district.webp" },
   { name: "Jan-Jan's Cove", desc: "Jan-Jan's pond-themed water dock — glide and splash in the most playful corner of the park.", theme: "Kids Slides", color: COLORS.janjan, logo: "/attractions/janjans-cove.webp" },
   { name: "Lake Liway", desc: "The chill tambayan zone — teen activity pool beside the restaurant and pool bar.", theme: "Teen Pool", color: COLORS.lakandanum, logo: "/attractions/lake-liway.webp" },
-  { name: "Surf Ride", desc: "A FlowRider-style surf simulator is on its way — stand-up and bodyboard surfing on an endless wave. Name and details to be announced.", theme: "Coming Soon", color: COLORS.hiraya, comingSoon: true },
+  { name: "To Be Announced", desc: "A FlowRider-style surf simulator is on its way — stand-up and bodyboard surfing on an endless wave.", theme: "Coming Soon", color: COLORS.hiraya, comingSoon: true },
 ];
 
 /* Dining & retail lineup agreed 5 Oct 2026: Sinag, three food kiosks, one retail kiosk.
-   Kiosk names are pending Javi's approval; the generic labels stay until then. */
+   Kiosk names and logos delivered 25 Oct 2026. Pepito's copy is drawn from the
+   Kiosk 1 menu board; the other two still describe only what their name says,
+   pending their menus. No prices on the page — the boards are the source. */
 const fnb = [
   { name: "Sinag", desc: "Our main restaurant. Sun-drenched, sunrise-warm interiors with flavors as vibrant as first light.", type: "Main Restaurant", color: COLORS.orange, logo: "/brand/venues/sinag.webp" },
-  { name: "Food Kiosk 1", desc: "Quick bites and cold drinks, steps from the water. Name and menu to be announced.", type: "Food Kiosk", color: COLORS.janjan, pending: true },
-  { name: "Food Kiosk 2", desc: "Snacks and refreshments by the slides. Name and menu to be announced.", type: "Food Kiosk", color: COLORS.janjan, pending: true },
-  { name: "Food Kiosk 3", desc: "Treats and drinks for the family zone. Name and menu to be announced.", type: "Food Kiosk", color: COLORS.janjan, pending: true },
+  { name: "Pepito's Rice House", desc: "Filipino rice plates — sisig, kaldereta, adobo, barbecue — plus fried chicken by the bucket when the whole group is hungry.", type: "Food Kiosk", color: COLORS.azure, logo: "/brand/venues/pepitos-rice-house.webp" },
+  { name: "Dapu's Pizza Pit", desc: "Hot pizza by the slice, straight from Dapu's own oven.", type: "Food Kiosk", color: COLORS.orange, logo: "/brand/venues/dapus-pizza-pit.webp" },
+  { name: "Jan-Jan's Snack Shack", desc: "Quick bites and ice-cold drinks for the stretch between rides.", type: "Food Kiosk", color: COLORS.janjan, logo: "/brand/venues/jan-jans-snack-shack.webp" },
   { name: "Pradera Treasures", desc: "Take the islands home. Mascot plush, swimwear, towels, and Pradera merchandise by the park exit.", type: "Retail", color: COLORS.azure, logo: "/brand/venues/pradera-treasures.webp" },
 ];
 
@@ -1066,7 +1068,7 @@ export default function PraderaIslands() {
       <section id="rates" style={{ background: "#071228", padding: "clamp(72px,8vw,110px) 6%", position: "relative", overflow: "hidden" }}>
         <div style={{ maxWidth: 1240, margin: "0 auto" }}>
           <div className="reveal" style={{ textAlign: "center", marginBottom: 44 }}>
-            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Park Rates</div>
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Waterpark Rates</div>
             <h2 className="display" style={{ fontSize: "clamp(38px, 6vw, 68px)", fontWeight: 900, lineHeight: 0.95, textTransform: "uppercase", color: "#fff", margin: 0 }}>
               Admission <span style={{ color: COLORS.orange }}>Rates</span>
             </h2>
@@ -1142,7 +1144,7 @@ export default function PraderaIslands() {
           <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
             <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Meet the Crew</div>
             <h2 className="display" style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, textTransform: "uppercase", color: COLORS.hiraya, lineHeight: 1 }}>
-              Park <span style={{ color: COLORS.dagat }}>Characters</span>
+              Waterpark <span style={{ color: COLORS.dagat }}>Characters</span>
             </h2>
             <p className="body" style={{ fontSize: 17, color: "#55566a", maxWidth: 560, margin: "20px auto 0" }}>
               Guardians of the waters, spirits of the river — meet the vibrant characters of Pradera Islands.
@@ -1208,7 +1210,7 @@ export default function PraderaIslands() {
           <div className="reveal" style={{ textAlign: "center", marginBottom: 72 }}>
             <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Food, Drinks & Retail</div>
             <h2 className="display" style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, textTransform: "uppercase", color: "#fff", lineHeight: 1 }}>
-              Dining & Retail at <span style={{ color: COLORS.orange }}>Pradera</span>
+              Dining & Retail at <span style={{ color: COLORS.orange }}>Pradera Islands</span>
             </h2>
             <p className="body" style={{ fontSize: 17, color: "rgba(255,255,255,0.72)", maxWidth: 560, margin: "20px auto 0" }}>
               Sun-themed, sunrise-warm. From full meals to quick bites and ice-cold drinks — we have you covered.
@@ -1261,7 +1263,7 @@ export default function PraderaIslands() {
           <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
             <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Find Your Way</div>
             <h2 className="display" style={{ fontSize: "clamp(38px, 6vw, 68px)", fontWeight: 900, lineHeight: 0.95, textTransform: "uppercase", color: "#fff", margin: 0 }}>
-              The Park <span style={{ color: COLORS.orange }}>Map</span>
+              The Waterpark <span style={{ color: COLORS.orange }}>Map</span>
             </h2>
             <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", marginTop: 18 }}>
               Tap a marker to see the attraction or venue.
@@ -1325,7 +1327,7 @@ export default function PraderaIslands() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridAutoRows: 200, gap: 16 }}>
             {[
               { src: "/photos/park-day.webp", alt: "Aerial view of Pradera Islands Waterpark", span: "span 2", row: "span 2" },
-              { src: "/photos/wave-pool.webp", alt: "The wave pool", span: "span 2", row: "span 1" },
+              { src: "/photos/aqua-play.webp", alt: "The kids aqua play zone", span: "span 2", row: "span 1" },
               { src: "/photos/racer-slides.webp", alt: "Racer slides", span: "span 1", row: "span 1" },
               { src: "/photos/bowl-slides.webp", alt: "Tornado bowl slides", span: "span 1", row: "span 1" },
               { src: "/photos/family-slides.webp", alt: "Family slides", span: "span 2", row: "span 1" },
