@@ -166,6 +166,10 @@ export default function PraderaIslands() {
   const [hoverPin, setHoverPin] = useState(null);
   const [form, setForm] = useState({ name: "", contact: "", email: "", visitDate: "", message: "" });
   const [formState, setFormState] = useState("idle"); // idle | sending | sent | error
+  // Honeypot. Hidden from people, irresistible to scrapers. Kept out of `form`
+  // so it can never reach a real field, and posted under its own name so
+  // Netlify's own filter sees it too.
+  const [botField, setBotField] = useState("");
   const handleFormChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   // Planned visit date: optional, today or later, and only on days the park is open (Thu–Sun).
   const todayISO = new Date().toLocaleDateString("en-CA");
@@ -184,8 +188,12 @@ export default function PraderaIslands() {
   };
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    // A filled honeypot means a bot. Show the same thank-you it expects and
+    // send nothing — the free Forms tier allows 100 submissions a month, and
+    // a real customer's inquiry should not be the one that gets turned away.
+    if (botField) { setFormState("sent"); return; }
     setFormState("sending");
-    const body = new URLSearchParams({ "form-name": "inquiry", ...form }).toString();
+    const body = new URLSearchParams({ "form-name": "inquiry", "bot-field": botField, ...form }).toString();
     fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body })
       .then((r) => { if (!r.ok) throw new Error(r.status); setFormState("sent"); setForm({ name: "", contact: "", email: "", visitDate: "", message: "" }); })
       .catch(() => setFormState("error"));
@@ -1560,7 +1568,7 @@ export default function PraderaIslands() {
               ) : (
                 <form name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" onSubmit={handleFormSubmit} style={{ display: "grid", gap: 12 }}>
                   <input type="hidden" name="form-name" value="inquiry" />
-                  <p hidden><label>Don't fill this out: <input name="bot-field" onChange={() => {}} /></label></p>
+                  <p hidden><label>Don't fill this out: <input name="bot-field" tabIndex={-1} autoComplete="off" value={botField} onChange={(e) => setBotField(e.target.value)} /></label></p>
                   <input name="name" type="text" placeholder="Full name" required autoComplete="name" value={form.name} onChange={handleFormChange} className="inq-input" />
                   <div className="inq-row">
                     <input name="contact" type="tel" placeholder="Contact number" required autoComplete="tel" value={form.contact} onChange={handleFormChange} className="inq-input" />

@@ -1,3 +1,44 @@
+# Security headers, applied to every response.
+#
+# The site loads nothing from outside except Google Fonts, so the policy can
+# stay tight. Two things to remember when that changes:
+#   - GA4 will need googletagmanager.com in script-src and
+#     google-analytics.com in connect-src.
+#   - Netlify's reCAPTCHA, if the form ever needs it, needs google.com and
+#     gstatic.com in script-src and frame-src.
+# A blocked resource fails silently in the browser; check the console after
+# adding any third-party script.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # All styling is inline style attributes plus one <style> block, so
+    # style-src has to allow inline. Scripts do not — the build emits a single
+    # external bundle with no inline script, so script-src stays strict.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests"
+
+    # Nobody may frame this site. Without it, anyone can load the real page in
+    # an iframe, lay their own "Buy Tickets" over ours, and the visitor sees
+    # Pradera the whole time. frame-ancestors above is the modern form of this;
+    # the header stays for older browsers that ignore CSP.
+    X-Frame-Options = "DENY"
+
+    # Serve files as the type we declared, never as what the bytes resemble.
+    X-Content-Type-Options = "nosniff"
+
+    # Other sites learn we sent the visitor, not which page they were reading.
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+    # The page asks for none of these, so the browser should refuse on sight.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+
+    # One year of HTTPS-only. No preload directive: that is irreversible for
+    # months, and praderaislands.com is not pointed here yet.
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# Pre-existing, left as it was. Worth knowing: these filenames are fixed, not
+# content-hashed, and they do get edited in place — slides-tower.webp was
+# retouched under its own name. A year of immutable caching means a returning
+# visitor keeps the old picture until the name changes.
 [[headers]]
   for = "/photos/*"
   [headers.values]
