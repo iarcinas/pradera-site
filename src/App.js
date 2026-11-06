@@ -42,7 +42,7 @@ const mapPins = [
 ];
 
 const attractions = [
-  { name: "Amihan Spinner", desc: "Feel the winds of the Northeast Monsoon in this spinning vortex slide — fast, furious, and unstoppable.", theme: "Wind & Storm", color: COLORS.dagat, logo: "/attractions/amihan-spinner.webp" },
+  { name: "Amihan Spinner", desc: "Feel the winds of the Northeast Monsoon in this spinning vortex slide — fast, furious, and unstoppable.", theme: "Wind & Storm", color: COLORS.dagat, logo: "/attractions/amihan-spinner.webp", image: "/photos/amihan-spinner.webp" },
   { name: "Habagat Rush", desc: "Ride the Southwest Monsoon's force down a high-speed plunge slide that leaves you breathless.", theme: "Thrill Slide", color: COLORS.orange, logo: "/attractions/habagat-rush.webp" },
   { name: "Danum 360", desc: "A triple-twisting serpentine slide inspired by the bakunawa — spiral through water in pure flow.", theme: "Twister", color: COLORS.azure, logo: "/attractions/danum-360.webp" },
   { name: "Lunar Speedway", desc: "Six lanes racing side by side under the lunar cycle — moon-inspired, tidal speed.", theme: "Race Slides", color: COLORS.lakandanum, logo: "/attractions/lunar-speedway.webp" },
@@ -54,7 +54,9 @@ const attractions = [
   { name: "Drizzle District", desc: "A sun-drenched spray park where rain meets sunshine — perfect for little ones.", theme: "Spray Park", color: COLORS.sunset, logo: "/attractions/drizzle-district.webp" },
   { name: "Jan-Jan's Cove", desc: "Jan-Jan's pond-themed water dock — glide and splash in the most playful corner of the park.", theme: "Kids Slides", color: COLORS.janjan, logo: "/attractions/janjans-cove.webp" },
   { name: "Lake Liway", desc: "The chill tambayan zone — teen activity pool beside the restaurant and pool bar.", theme: "Teen Pool", color: COLORS.lakandanum, logo: "/attractions/lake-liway.webp" },
-  { name: "To Be Announced", desc: "A FlowRider-style surf simulator is on its way — stand-up and bodyboard surfing on an endless wave.", theme: "Coming Soon", color: COLORS.hiraya, comingSoon: true },
+  /* Name confirmed by Marketing 4 Nov 2026. Still unbuilt, so the card keeps
+     the Coming Soon mark and has no logo or map pin yet. */
+  { name: "Danum Flow", desc: "A FlowRider-style surf simulator is on its way — stand-up and bodyboard surfing on an endless wave.", theme: "Surf Simulator", color: COLORS.hiraya, comingSoon: true, tempMark: "DF" },
 ];
 
 /* Dining & retail lineup agreed 5 Oct 2026: Sinag, three food kiosks, one retail kiosk.
@@ -549,7 +551,11 @@ export default function PraderaIslands() {
         /* ---- Coming Soon mark on the surf-ride card ---- */
         .coming-soon-mark { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; }
         .coming-soon-ring { position: absolute; width: 150px; height: 150px; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.55); animation: spin-slow 24s linear infinite; }
-        .coming-soon-text { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px; line-height: 1; text-align: center; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+        .coming-soon-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+        /* Stand-in monogram until the real ride logo is delivered. Drop the
+           mark from the data and this collapses back to the plain ring. */
+        .coming-soon-mono { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 900; font-size: 56px; line-height: 0.9; color: #fff; letter-spacing: 1px; text-shadow: 0 6px 20px rgba(0,0,0,0.45); }
+        .coming-soon-text { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 12px; line-height: 1; text-align: center; color: #fff; text-transform: uppercase; letter-spacing: 2.4px; text-shadow: 0 4px 16px rgba(0,0,0,0.4); }
 
         /* ---- Guide + open-days calendar ---- */
         .guide-grid { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 24px; align-items: start; }
@@ -1005,7 +1011,16 @@ export default function PraderaIslands() {
                   overflow: "hidden",
                 }}>
                   {a.image && (
-                    <img src={a.image} alt={a.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                    <>
+                      <img src={a.image} alt={a.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                      {/* The logo lands mid-frame, where a bright sky or pale
+                          concrete would swallow it. A band of shade across the
+                          middle keeps it readable on any photo. */}
+                      <span aria-hidden="true" style={{
+                        position: "absolute", inset: 0, zIndex: 1,
+                        background: "linear-gradient(to bottom, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.40) 50%, rgba(0,0,0,0.10) 100%)",
+                      }} />
+                    </>
                   )}
                   {!a.image && (
                     <svg viewBox="0 0 400 140" style={{ position: "absolute", bottom: 0, width: "100%", height: "60%" }} preserveAspectRatio="none">
@@ -1029,7 +1044,10 @@ export default function PraderaIslands() {
                   {a.comingSoon && (
                     <div className="coming-soon-mark" aria-hidden="true">
                       <span className="coming-soon-ring" />
-                      <span className="coming-soon-text">Coming<br />Soon</span>
+                      <span className="coming-soon-inner">
+                        {a.tempMark && <span className="coming-soon-mono">{a.tempMark}</span>}
+                        <span className="coming-soon-text">Coming Soon</span>
+                      </span>
                     </div>
                   )}
                   <span className="eyebrow" style={{
@@ -1328,8 +1346,10 @@ export default function PraderaIslands() {
             {[
               { src: "/photos/park-day.webp", alt: "Aerial view of Pradera Islands Waterpark", span: "span 2", row: "span 2" },
               { src: "/photos/aqua-play.webp", alt: "The kids aqua play zone", span: "span 2", row: "span 1" },
-              { src: "/photos/racer-slides.webp", alt: "Racer slides", span: "span 1", row: "span 1" },
-              { src: "/photos/bowl-slides.webp", alt: "Tornado bowl slides", span: "span 1", row: "span 1" },
+              /* Same shot as the stat band above — Marketing's pick, 4 Nov 2026. */
+              { src: "/photos/lunar-speedway.webp", alt: "Lunar Speedway racer slides", span: "span 1", row: "span 1" },
+              /* Marketing dropped the flat-sky racer and bowl shots, 6 Nov 2026. */
+              { src: "/photos/pools-and-slides.webp", alt: "Pools and slides across Pradera Islands", span: "span 1", row: "span 1" },
               { src: "/photos/family-slides.webp", alt: "Family slides", span: "span 2", row: "span 1" },
               { src: "/photos/slides-tower.webp", alt: "Slide tower and wave pool", span: "span 2", row: "span 1" },
             ].map((g, i) => (
