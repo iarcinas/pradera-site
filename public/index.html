@@ -24,6 +24,44 @@
     <meta name="twitter:title" content="Pradera Islands Waterpark" />
     <meta name="twitter:description" content="The New Waters await — splash, flow, and celebrate at Central Luzon's vibrant new waterpark in Pampanga." />
     <meta name="twitter:image" content="%PUBLIC_URL%/og-image.png" />
+
+    <!-- Structured data. This is what lets Google show the address, the open
+         days and the price band in search and on Maps, rather than just a blue
+         link. Root-relative URLs here are made absolute at deploy time by
+         scripts/og-absolute.js, which knows the address the site is served
+         from. Telephone is deliberately absent: the park has not published
+         one, and inventing a number is worse than omitting the field. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AmusementPark",
+      "name": "Pradera Islands Waterpark",
+      "description": "A waterpark in Lubao, Pampanga, built around Bayúng Danum — the arrival of new waters. Twelve attractions across slides, pools and rain parks.",
+      "url": "/",
+      "image": "/og-image.png",
+      "logo": "/brand/logo-main.webp",
+      "email": "sales@praderaislands.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Prado Siongco",
+        "addressLocality": "Lubao",
+        "addressRegion": "Pampanga",
+        "addressCountry": "PH"
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Thursday", "Friday"], "opens": "10:00", "closes": "16:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday", "Sunday"], "opens": "09:00", "closes": "17:00" }
+      ],
+      "priceRange": "₱864–₱1,180",
+      "currenciesAccepted": "PHP",
+      "isAccessibleForFree": false,
+      "sameAs": [
+        "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/",
+        "https://www.instagram.com/praderaislandswaterpark/",
+        "https://www.tiktok.com/@praderaislandswaterpark"
+      ]
+    }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

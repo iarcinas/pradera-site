@@ -1,10 +1,11 @@
 /* Facebook, Messenger and Viber ignore a relative og:image — the share preview
-   comes out as a bare link with no picture. They need a full address.
+   comes out as a bare link with no picture. Google's structured data and the
+   canonical link want full addresses too.
    Rather than hardcode one, take whatever URL this deploy is actually served
    from. Netlify sets URL to the site's primary address, so this stays on
    *.netlify.app today and switches itself the day the custom domain becomes
    primary, with no code change.
-   Locally there is no such variable, so the tags are left alone. */
+   Locally there is no such variable, so everything is left alone. */
 
 const fs = require("fs");
 const path = require("path");
@@ -33,9 +34,58 @@ if (!/property="og:url"/.test(html)) {
   );
 }
 
+/* The canonical link. Once praderaislands.com is pointed here, the old
+   *.netlify.app address keeps answering, and to a search engine that is a
+   second site carrying the same words — the ranking gets split between them.
+   This names the one address that counts. */
+if (!/rel="canonical"/.test(html)) {
+  html = html.replace(
+    /(<\/title>)/,
+    `$1<link rel="canonical" href="${origin}/"/>`
+  );
+}
+
+/* Structured data ships with root-relative URLs so the source stays readable
+   and deploy previews describe themselves rather than production. Walk the
+   block and prefix anything that starts with a single slash. */
+html = html.replace(
+  /(<script type="application\/ld\+json">)([\s\S]*?)(<\/script>)/,
+  (_m, open, json, close) => {
+    const fixed = json.replace(/"(\/[^"/][^"]*)"/g, `"${origin}$1"`).replace(/"\/"/g, `"${origin}/"`);
+    return open + fixed + close;
+  }
+);
+
 if (html === before) {
   console.log("og-absolute: nothing to rewrite.");
 } else {
   fs.writeFileSync(file, html);
-  console.log(`og-absolute: social tags now point at ${origin}`);
+  console.log(`og-absolute: social tags, canonical and structured data now point at ${origin}`);
 }
+
+/* One page, so the sitemap is one entry — but Search Console asks for a
+   sitemap before it will report anything useful, and both files need the
+   full address, which only exists at deploy time. Generated rather than
+   committed for that reason. Add a <url> block here when the rates, FAQ or
+   legal pages stop being sections and become their own addresses. */
+const build = path.join(__dirname, "..", "build");
+const today = new Date().toISOString().slice(0, 10);
+
+fs.writeFileSync(
+  path.join(build, "sitemap.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${origin}/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+</urlset>
+`
+);
+
+const robots = path.join(build, "robots.txt");
+let txt = fs.readFileSync(robots, "utf8").replace(/^Sitemap:.*$/gm, "").trimEnd();
+fs.writeFileSync(robots, `${txt}\n\nSitemap: ${origin}/sitemap.xml\n`);
+
+console.log(`og-absolute: sitemap.xml written and pointed at from robots.txt`);

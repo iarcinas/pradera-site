@@ -678,6 +678,24 @@ export default function PraderaIslands() {
         .to-top:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
         @media (max-width: 760px) { .to-top { right: 16px; bottom: 16px; width: 44px; height: 44px; } }
         @media (prefers-reduced-motion: reduce) { .to-top { transition: opacity 0.15s ease, visibility 0.15s; transform: none; } }
+
+        /* ---- Stat figures, each one a jump to the section it counts ---- */
+        /* Must stay after .reveal: the button reset would otherwise undo it. */
+        .stat-link { display: block; text-align: left; background: none; border: none;
+          padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer;
+          -webkit-tap-highlight-color: transparent; }
+        .stat-num { display: block; font-size: clamp(44px, 6vw, 76px); font-weight: 900;
+          color: #fff; line-height: 0.9; letter-spacing: -2px;
+          transition: color 0.22s ease; }
+        .stat-label { display: block; margin-top: 10px; font-size: 10px;
+          color: rgba(255,255,255,0.7); transition: color 0.22s ease; }
+        .stat-link:hover .stat-num { color: ${COLORS.orange}; }
+        .stat-link:hover .stat-label { color: #fff; }
+        /* The underline only appears on hover, so the figures still read as a
+           row of statistics rather than a row of links. */
+        .stat-link:hover .stat-label { text-decoration: underline; text-underline-offset: 4px; }
+        .stat-link:focus-visible { outline: 3px solid ${COLORS.orange}; outline-offset: 6px; border-radius: 4px; }
+        @media (prefers-reduced-motion: reduce) { .stat-num, .stat-label { transition: none; } }
       `}</style>
 
       {/* INTRO SPLASH — a pool of water that drains to reveal the park */}
@@ -803,7 +821,10 @@ export default function PraderaIslands() {
           <h1 style={{ margin: "0 auto 10px", lineHeight: 0 }}>
             <img
               src="/brand/pradera-islands-wordmark.webp"
-              alt="Pradera Islands"
+              /* The h1 is this image, so its alt text is the strongest heading
+                 on the page — for search engines and for anyone listening to
+                 it read aloud. Worth the full name and the place. */
+              alt="Pradera Islands Waterpark — Lubao, Pampanga"
               style={{
                 width: "clamp(265px, 50vw, 560px)",
                 height: "auto",
@@ -951,15 +972,32 @@ export default function PraderaIslands() {
               A combination of slides, pools and rain parks — plus one more on the way.
             </p>
           </div>
+          {/* Each figure is a way into the section it counts. Buttons rather
+              than links: these move the page, they do not open an address. */}
           <div className="stat-row">
-            {[["12", "Attractions"], ["1", "Coming Soon"], ["5", "Dining & Retail"], ["4", "Characters"]].map(([n, l], si) => (
-              <div key={l} className="reveal" data-reveal-delay={si * 110}>
-                <div className="display" style={{
-                  fontSize: "clamp(44px, 6vw, 76px)", fontWeight: 900, color: "#fff",
-                  lineHeight: 0.9, letterSpacing: -2,
-                }}><CountUp value={n} /></div>
-                <div className="eyebrow" style={{ color: "rgba(255,255,255,0.7)", marginTop: 10, fontSize: 10 }}>{l}</div>
-              </div>
+            {[
+              { n: "12", l: "Attractions", to: "attractions", say: "Attractions" },
+              // The one still to come is the last card in the carousel, so
+              // send the carousel there too — landing on Amihan Spinner when
+              // you asked about what is coming would be its own small lie.
+              { n: "1", l: "Coming Soon", to: "attractions", say: "Attractions", card: attractions.length - 1 },
+              { n: "5", l: "Dining & Retail", to: "dining", say: "Dining and Retail" },
+              { n: "4", l: "Characters", to: "characters", say: "Waterpark Characters" },
+            ].map(({ n, l, to, say, card }, si) => (
+              <button
+                type="button"
+                key={l}
+                className="reveal stat-link"
+                data-reveal-delay={si * 110}
+                aria-label={`${n} ${l}. Go to ${say}.`}
+                onClick={() => {
+                  if (card !== undefined) setAttractionIndex(card);
+                  scrollTo(to);
+                }}
+              >
+                <span className="display stat-num"><CountUp value={n} /></span>
+                <span className="eyebrow stat-label">{l}</span>
+              </button>
             ))}
           </div>
         </div>
@@ -1385,7 +1423,7 @@ export default function PraderaIslands() {
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Open Days</div>
               <OpenDaysCalendar />
               <p className="body" style={{ fontSize: 13, color: "#7a819a", margin: "16px 0 0", lineHeight: 1.6 }}>
-                Open Thursday to Sunday. Thursday 10:00 AM – 4:00 PM, Friday to Sunday 10:00 AM – 5:00 PM. Holiday hours may differ.
+                Open Thursday to Sunday. Thursday and Friday 10:00 AM – 4:00 PM, Saturday and Sunday 9:00 AM – 5:00 PM. Holiday hours may differ.
               </p>
             </div>
 
@@ -1518,8 +1556,8 @@ export default function PraderaIslands() {
               {/* Hours */}
               <div className="findus-hours">
                 <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginBottom: 12 }}>Park Hours</div>
-                <div className="hours-row"><span>Thursday</span><b>10:00 AM – 4:00 PM</b></div>
-                <div className="hours-row"><span>Friday – Sunday</span><b>10:00 AM – 5:00 PM</b></div>
+                <div className="hours-row"><span>Thursday – Friday</span><b>10:00 AM – 4:00 PM</b></div>
+                <div className="hours-row"><span>Saturday – Sunday</span><b>9:00 AM – 5:00 PM</b></div>
                 <div className="hours-row muted"><span>Monday – Wednesday</span><b>Closed</b></div>
                 <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12.5, margin: "12px 0 0", lineHeight: 1.55 }}>
                   Last entry one hour before closing. Holiday hours may differ — see the <button type="button" onClick={() => scrollTo("guide")} className="promo-link" style={{ color: COLORS.azure }}>open-days calendar</button>.
