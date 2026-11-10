@@ -178,8 +178,10 @@ export default function PraderaIslands() {
     const v = e.target.value;
     if (!v) { setVisitDateWarn(""); setForm({ ...form, visitDate: "" }); return; }
     const day = new Date(v + "T00:00:00").getDay();
-    if (!OPEN_WEEKDAYS.has(day)) {
-      setVisitDateWarn("The park is closed on that day. Please pick a Thursday, Friday, Saturday, or Sunday.");
+    // A holiday opening beats the weekday rule — turning away a guest who
+    // picked a day we are open would be the worst kind of wrong.
+    if (!HOLIDAYS_OPEN.has(v) && !OPEN_WEEKDAYS.has(day)) {
+      setVisitDateWarn("The park is closed on that day. Please pick a Thursday, Friday, Saturday, Sunday, or a holiday marked open on the calendar.");
       setForm({ ...form, visitDate: "" });
       return;
     }
@@ -1423,7 +1425,7 @@ export default function PraderaIslands() {
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Open Days</div>
               <OpenDaysCalendar />
               <p className="body" style={{ fontSize: 13, color: "#7a819a", margin: "16px 0 0", lineHeight: 1.6 }}>
-                Open Thursday to Sunday. Thursday and Friday 10:00 AM – 4:00 PM, Saturday and Sunday 9:00 AM – 5:00 PM. Holiday hours may differ.
+                Open Thursday to Sunday, plus the holidays marked above. Thursday and Friday 10:00 AM – 4:00 PM. Saturday, Sunday and holidays 9:00 AM – 5:00 PM.
               </p>
             </div>
 
@@ -1557,8 +1559,8 @@ export default function PraderaIslands() {
               <div className="findus-hours">
                 <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginBottom: 12 }}>Park Hours</div>
                 <div className="hours-row"><span>Thursday – Friday</span><b>10:00 AM – 4:00 PM</b></div>
-                <div className="hours-row"><span>Saturday – Sunday</span><b>9:00 AM – 5:00 PM</b></div>
-                <div className="hours-row muted"><span>Monday – Wednesday</span><b>Closed</b></div>
+                <div className="hours-row"><span>Saturday – Sunday &amp; Holidays</span><b>9:00 AM – 5:00 PM</b></div>
+                <div className="hours-row muted"><span>Monday – Wednesday</span><b>Closed, except holidays</b></div>
                 <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12.5, margin: "12px 0 0", lineHeight: 1.55 }}>
                   Last entry one hour before closing. Holiday hours may differ — see the <button type="button" onClick={() => scrollTo("guide")} className="promo-link" style={{ color: COLORS.azure }}>open-days calendar</button>.
                 </p>
@@ -1613,7 +1615,7 @@ export default function PraderaIslands() {
                     <input name="email" type="email" placeholder="Email address" required autoComplete="email" value={form.email} onChange={handleFormChange} className="inq-input" />
                   </div>
                   <label className="inq-label">
-                    <span>Planned visit date <em>(optional — park is open Thursday to Sunday)</em></span>
+                    <span>Planned visit date <em>(optional — park is open Thursday to Sunday and on holidays)</em></span>
                     <input name="visitDate" type="date" min={todayISO} value={form.visitDate} onChange={handleVisitDate} className="inq-input" />
                     {visitDateWarn && <span className="inq-warn">{visitDateWarn}</span>}
                   </label>
@@ -1800,6 +1802,16 @@ export default function PraderaIslands() {
 /* Month calendar that marks which days the park is open (Thu–Sun). Shows the
    current month and lets guests step forward. Days before today are dimmed. */
 const OPEN_WEEKDAYS = new Set([4, 5, 6, 0]); // Thu, Fri, Sat, Sun (JS getDay)
+
+/* Holidays the park opens on even though they land Monday to Wednesday.
+   Approved by MPC and sent by Marketing 9 Nov 2026; a holiday keeps the
+   weekend hours, 9 AM to 5 PM. Keyed by full ISO date so next year's
+   calendar cannot inherit this year's dates by accident. Add to this set
+   as each month's operating calendar is approved — and keep the holiday
+   dates in index.html's structured data in step, or Google will go on
+   telling people we are closed. */
+const HOLIDAYS_OPEN = new Set(["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"]);
+const isoDate = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 function OpenDaysCalendar() {
   const today = new Date();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -1821,10 +1833,12 @@ function OpenDaysCalendar() {
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => <div key={d} className="cal-dow">{d}</div>)}
         {cells.map((d, i) => {
           if (d === null) return <div key={`e${i}`} />;
-          const open = OPEN_WEEKDAYS.has(new Date(year, month, d).getDay());
+          const holiday = HOLIDAYS_OPEN.has(isoDate(year, month, d));
+          const open = holiday || OPEN_WEEKDAYS.has(new Date(year, month, d).getDay());
           return (
             <div key={d} className={`cal-day${open ? " open" : ""}${isPast(d) ? " past" : ""}${isToday(d) ? " today" : ""}`}
-              aria-label={`${d} ${label}, ${open ? "open" : "closed"}`}>
+              title={holiday ? "Holiday — open, 9 AM to 5 PM" : undefined}
+              aria-label={`${d} ${label}, ${holiday ? "open for the holiday" : open ? "open" : "closed"}`}>
               {d}
             </div>
           );
