@@ -5,25 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#00237B" />
 
-    <title>Admission &amp; Safety Terms — Pradera Islands Waterpark</title>
-    <meta name="description" content="The admission and safety terms for Pradera Islands Waterpark in Lubao, Pampanga. Please read before entering the park." />
+    <title>Guest Terms &amp; Waiver — Pradera Islands Water Park</title>
+    <meta name="description" content="The General Terms and Conditions of Admission and the Guest Liability Waiver for Pradera Islands Water Park in Lubao, Pampanga. Version 1.0, effective 10 November 2026." />
 
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="Admission &amp; Safety Terms" />
-    <meta property="og:description" content="Please read before entering Pradera Islands Waterpark." />
+    <meta property="og:title" content="Guest Terms &amp; Waiver" />
+    <meta property="og:description" content="Please read before buying a ticket or entering Pradera Islands Water Park." />
     <meta property="og:image" content="/og-image.png" />
 
-    <!-- This page is the destination of the QR code on the gate tarpaulin, so
-         its address must not move. Served from /terms by sitting in its own
+    <!-- This page is the destination of the QR code displayed at the gate, so
+         its address must never move. Served from /terms by sitting in its own
          folder — no redirect rule to forget, no .html in the printed URL.
-         Deliberately a plain static page rather than part of the React app:
-         a guest scanning this is standing at the gate on park wi-fi or mobile
-         data with a queue behind them. Nothing here needs JavaScript, so the
-         page is readable the moment the HTML lands. -->
+
+         Deliberately plain static HTML rather than part of the React app: a
+         guest scanning this is standing at the gate with a queue behind them,
+         on park wi-fi. Nothing here needs JavaScript, so the words are on
+         screen the moment the HTML lands.
+
+         Both documents run in full, one after the other, with nothing behind
+         a tab or a toggle — Counsel's instruction, and the sounder position:
+         terms that must be opened to be seen invite the argument that they
+         were never really shown. The contents list at the top only jumps; it
+         hides nothing.
+
+         Wording follows the two signed PDFs exactly. The one departure is in
+         section 12, where the source repeats a word ("prohibited within the
+         Park prohibited"); the stray word is dropped here. Section 14's
+         "Pradera Islands Waterpark" is left as written even though the rest
+         of both documents says "Water Park" — that is Counsel's to settle,
+         not ours.
+
+         When Version 2.0 is issued, copy this file to /terms/v1/ first so the
+         version in force on any past date stays reachable, then edit here.
+         The address in the QR keeps pointing at the current version. -->
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=Montserrat:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap');
 
@@ -34,28 +52,27 @@
         --lakandanum: #0EB0C0;
         --ink: #1b2340;
         --muted: #55566a;
+        --line: #e3e7f2;
       }
 
       * { box-sizing: border-box; }
-      html { -webkit-text-size-adjust: 100%; }
+      html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
       body {
         margin: 0;
         background: #f4f6fb;
         color: var(--ink);
         font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
         font-size: 16px;
-        line-height: 1.7;
+        line-height: 1.72;
       }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+      /* ---- Masthead ---- */
       .masthead {
         background: linear-gradient(160deg, #0021E8 0%, #00237B 100%);
-        padding: 28px 20px 34px;
+        padding: 26px 20px 34px;
         text-align: center;
       }
-      /* The same lockup the site nav uses: emblem beside the name, with
-         WATERPARK set underneath in azure. Rebuilt in markup rather than
-         pulled in as one image, so it stays sharp and reads correctly to a
-         screen reader. */
       .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
       .brand img { height: 46px; width: auto; display: block; }
       .brand-name { display: flex; flex-direction: column; line-height: 1; text-align: left; }
@@ -68,120 +85,174 @@
         letter-spacing: 4px; color: #3AE1B4; margin-top: 2px;
       }
       .kicker {
-        margin: 18px 0 0;
-        font-family: 'Kanit', sans-serif;
-        font-weight: 600;
-        font-size: 11px;
-        letter-spacing: 3.4px;
-        text-transform: uppercase;
-        color: var(--orange);
+        margin: 20px 0 0;
+        font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px;
+        letter-spacing: 3.4px; text-transform: uppercase; color: var(--orange);
       }
       .masthead h1 {
         margin: 8px 0 0;
         font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
         font-weight: 800;
-        font-size: clamp(26px, 7vw, 40px);
-        line-height: 1.1;
+        font-size: clamp(25px, 6.5vw, 38px);
+        line-height: 1.12;
         letter-spacing: -0.02em;
         color: #fff;
         text-transform: uppercase;
-      }
-      .masthead p {
-        margin: 10px auto 0;
-        max-width: 40ch;
-        font-size: 14px;
-        color: rgba(255,255,255,0.75);
-        /* Keeps the last word off a line of its own. */
         text-wrap: balance;
       }
-      .masthead h1 { text-wrap: balance; }
-
-      main {
-        max-width: 720px;
-        margin: -18px auto 0;
-        padding: 0 16px 64px;
+      .stamp {
+        display: inline-block;
+        margin: 16px 0 0;
+        padding: 7px 16px;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 999px;
+        font-family: 'Kanit', sans-serif;
+        font-size: 11px;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.9);
       }
+
+      main { max-width: 760px; margin: -18px auto 0; padding: 0 16px 70px; }
+
       .card {
         background: #fff;
-        border: 1px solid #e3e7f2;
+        border: 1px solid var(--line);
         border-radius: 14px;
         padding: 26px 22px;
         margin-bottom: 18px;
         box-shadow: 0 10px 30px rgba(0,35,123,0.06);
       }
-      .card h2 {
-        margin: 0 0 14px;
+      .card > :first-child { margin-top: 0; }
+      .card > :last-child { margin-bottom: 0; }
+      p { margin: 0 0 14px; }
+      strong { font-weight: 700; color: var(--hiraya); }
+
+      /* ---- Contents ---- */
+      .toc h2 {
+        margin: 0;
+        font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px;
+        letter-spacing: 2.6px; text-transform: uppercase; color: var(--muted);
+      }
+      .toc > ol { margin: 14px 0 0; padding-left: 0; list-style: none; }
+      .toc > ol > li { margin-bottom: 18px; }
+      .toc > ol > li:last-child { margin-bottom: 0; }
+      .toc > ol > li > a {
+        font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
+        font-weight: 800; font-size: 17px; color: var(--hiraya);
+        line-height: 1.3; display: inline-block; margin-bottom: 6px;
+      }
+      .toc ol ol { margin: 0; padding-left: 20px; font-size: 14.5px; }
+      .toc ol ol li { margin-bottom: 3px; }
+      .toc a { color: var(--dagat); text-decoration: none; }
+      .toc a:hover { color: var(--orange); text-decoration: underline; }
+
+      /* ---- Document parts ---- */
+      .part { scroll-margin-top: 16px; }
+      .part-label {
+        font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 11px;
+        letter-spacing: 2.6px; text-transform: uppercase; color: var(--orange);
+        margin: 0 0 8px;
+      }
+      .part h2 {
+        margin: 0 0 6px;
         font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
         font-weight: 800;
-        font-size: 19px;
+        font-size: clamp(21px, 4.6vw, 27px);
+        line-height: 1.2;
+        letter-spacing: -0.015em;
+        color: var(--hiraya);
+      }
+      .part-sub { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+      .notice {
+        background: #eef3ff;
+        border-left: 4px solid var(--dagat);
+        border-radius: 0 10px 10px 0;
+        padding: 16px 18px;
+        margin: 18px 0 0;
+        font-weight: 600;
+        color: var(--hiraya);
+      }
+      .notice p:last-child { margin-bottom: 0; }
+
+      h3 {
+        margin: 30px 0 10px;
+        scroll-margin-top: 16px;
+        font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
+        font-weight: 800;
+        font-size: 17.5px;
+        line-height: 1.3;
         letter-spacing: -0.01em;
         color: var(--hiraya);
       }
-      .card p { margin: 0 0 14px; }
-      .card p:last-child { margin-bottom: 0; }
-      .lede { font-size: 16.5px; }
-      strong { font-weight: 700; color: var(--hiraya); }
+      h3 .n { color: var(--lakandanum); }
 
-      ul.rules { margin: 0; padding: 0; list-style: none; }
-      ul.rules li {
-        position: relative;
-        padding: 0 0 15px 26px;
-        margin-bottom: 15px;
-        border-bottom: 1px solid #eef1f8;
+      /* The Filipino passages the waiver carries, kept visually distinct so a
+         reader looking for them can find them — and so nobody mistakes them
+         for a translation of everything above. */
+      .fil {
+        border-left: 3px solid var(--lakandanum);
+        padding-left: 14px;
+        color: #2b3357;
       }
+
+      ul.rules, ul.bullets { margin: 0 0 14px; padding: 0; list-style: none; }
+      ul.rules li, ul.bullets li { position: relative; padding-left: 26px; margin-bottom: 12px; }
+      ul.rules li::before, ul.bullets li::before {
+        content: ""; position: absolute; left: 2px; top: 11px;
+        width: 8px; height: 8px; border-radius: 50%; background: var(--lakandanum);
+      }
+      ul.rules li { padding-bottom: 12px; border-bottom: 1px solid #eef1f8; }
       ul.rules li:last-child { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
-      /* A dot rather than a bullet glyph: it sits on the first line at any
-         text size, where a list-style marker drifts. */
-      ul.rules li::before {
-        content: "";
-        position: absolute;
-        left: 2px;
-        top: 11px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--lakandanum);
-      }
 
       .tap {
         background: linear-gradient(135deg, #FF8E00 0%, #DC22AE 100%);
-        border: 0;
-        color: #fff;
+        border: 0; color: #fff;
       }
-      .tap h2 { color: #fff; }
-      .tap p { color: rgba(255,255,255,0.93); }
+      .tap h3 { color: #fff; margin-top: 0; }
+      .tap p { color: rgba(255,255,255,0.94); }
 
-      .meta {
-        text-align: center;
-        font-size: 13px;
-        color: var(--muted);
-        padding: 0 8px;
-      }
-      .meta a { color: var(--dagat); font-weight: 600; }
-      .meta a:hover { color: var(--orange); }
-      .home {
+      .top {
         display: inline-block;
-        margin-top: 18px;
-        padding: 13px 30px;
-        border-radius: 6px;
-        background: var(--orange);
-        color: #fff;
-        text-decoration: none;
-        font-family: 'Kanit', sans-serif;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
+        margin-top: 24px;
+        font-family: 'Kanit', sans-serif; font-size: 11px;
+        letter-spacing: 1.4px; text-transform: uppercase;
+        color: var(--muted); text-decoration: none;
       }
-      .home:hover { color: #fff; filter: brightness(1.06); }
+      .top:hover { color: var(--orange); }
+
+      .meta { text-align: center; font-size: 13px; color: var(--muted); padding: 0 8px; }
+      .meta a.home {
+        display: inline-block; margin-top: 18px; padding: 13px 30px;
+        border-radius: 6px; background: var(--orange); color: #fff;
+        text-decoration: none; font-family: 'Kanit', sans-serif; font-weight: 700;
+        font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase;
+      }
+      .meta a.home:hover { filter: brightness(1.06); }
 
       @media (max-width: 420px) {
         .card { padding: 22px 18px; }
         body { font-size: 15.5px; }
       }
+      /* Guest Services may be asked for a printed copy — section 12 of the
+         waiver promises one — so the page has to survive Ctrl+P. */
+      @media print {
+        body { background: #fff; font-size: 11pt; }
+        .masthead { background: none; padding: 0 0 12pt; }
+        .masthead h1, .brand-name b { color: #000; }
+        .brand-name span, .kicker { color: #444; }
+        .stamp { border-color: #888; color: #000; }
+        .card { box-shadow: none; border: 0; padding: 0; margin: 0 0 14pt; }
+        .toc, .top, .home { display: none; }
+        .notice { background: none; border-left: 2pt solid #000; }
+        .tap { background: none; color: #000; }
+        .tap h3, .tap p { color: #000; }
+        h3 { page-break-after: avoid; }
+      }
     </style>
   </head>
-  <body>
+  <body id="top">
     <header class="masthead">
       <a class="brand" href="/">
         <img src="/brand/emblem-full.webp" alt="" />
@@ -191,26 +262,76 @@
         </span>
       </a>
       <p class="kicker">Please read before entering</p>
-      <h1>Important Admission &amp; Safety Terms</h1>
-      <p>Your safety and enjoyment are important to us.</p>
+      <h1>Guest Terms &amp; Waiver</h1>
+      <span class="stamp">Version 1.0 · Effective 10 November 2026</span>
     </header>
 
     <main>
-      <section class="card">
-        <p class="lede">
-          Admission to <strong>Pradera Islands Waterpark</strong> is subject to the park's
-          <strong>General Terms and Conditions of Admission, Park Rules, Safety Requirements
-          and Assumption of Risk.</strong>
-        </p>
-        <p>
-          By purchasing or accepting admission, using your RFID or wristband, and entering the
-          waterpark, you acknowledge that you have been given the opportunity to review and
-          agree to comply with these terms.
-        </p>
-      </section>
+      <nav class="card toc" aria-label="Contents">
+        <h2>On this page</h2>
+        <ol>
+          <li><a href="#remember">Please remember</a></li>
+          <li>
+            <a href="#terms">General Terms and Conditions of Admission</a>
+            <ol>
+              <li><a href="#t1">Operator, scope, and definitions</a></li>
+              <li><a href="#t2">Access to these Terms and acknowledgment at entry</a></li>
+              <li><a href="#t3">Tickets, prices, inclusions, and authorized sellers</a></li>
+              <li><a href="#t4">Ticket validity, date changes, and transfers</a></li>
+              <li><a href="#t5">Admission, RFID wristbands, and re-entry</a></li>
+              <li><a href="#t6">Operating hours, attraction availability, and closures</a></li>
+              <li><a href="#t7">Cancellations, refunds, and booking channels</a></li>
+              <li><a href="#t8">Compliance with attraction-specific safety guidelines</a></li>
+              <li><a href="#t9">Children, guardians, and supervision</a></li>
+              <li><a href="#t10">Health, hygiene, and swimming safety</a></li>
+              <li><a href="#t11">Food, restaurants, and allergens</a></li>
+              <li><a href="#t12">Guest conduct and prohibited activities</a></li>
+              <li><a href="#t13">Security, safety screening, and emergency instructions</a></li>
+              <li><a href="#t14">Photography, filming, and guest-generated content</a></li>
+              <li><a href="#t15">CCTV, personal information, and third-party platforms</a></li>
+              <li><a href="#t16">Personal property, lockers, and lost items</a></li>
+              <li><a href="#t17">Damage to property and guest responsibility</a></li>
+              <li><a href="#t18">Complaints, incident reports, and requests for assistance</a></li>
+              <li><a href="#t19">Liability and the separate Assumption of Risk Agreement</a></li>
+              <li><a href="#t20">Promotions, special events, and third-party services</a></li>
+              <li><a href="#t21">Changes to these Terms, severability, and governing law</a></li>
+            </ol>
+          </li>
+          <li>
+            <a href="#waiver">Guest Liability Waiver &amp; Assumption of Risk Agreement</a>
+            <ol>
+              <li><a href="#w1">Who this agreement covers</a></li>
+              <li><a href="#w2">Nature of the activities and inherent risks</a></li>
+              <li><a href="#w3">Health, suitability, and the right not to participate</a></li>
+              <li><a href="#w4">Compliance with Park and attraction-specific safety rules</a></li>
+              <li><a href="#w5">Children and other persons requiring assistance</a></li>
+              <li><a href="#w6">Safety decisions and emergency assistance</a></li>
+              <li><a href="#w7">Voluntary participation and limited assumption of risk</a></li>
+              <li><a href="#w8">Personal belongings and responsible conduct</a></li>
+              <li><a href="#w9">Privacy, photography, and separate permissions</a></li>
+              <li><a href="#w10">How this agreement is acknowledged</a></li>
+              <li><a href="#w11">Relationship to other rules; governing law</a></li>
+              <li><a href="#w12">Contact and availability of a copy</a></li>
+            </ol>
+          </li>
+        </ol>
+      </nav>
 
-      <section class="card">
+      <!-- ===== The gate summary ===== -->
+      <section class="card part" id="remember">
+        <p class="part-label">Before you enter</p>
         <h2>Please remember</h2>
+        <p class="part-sub">The short version displayed at the gate. Both full documents follow below.</p>
+
+        <div class="notice">
+          <p>Admission to Pradera Islands Waterpark is subject to the park's General Terms and
+          Conditions of Admission, Park Rules, Safety Requirements and Assumption of Risk.</p>
+          <p>By purchasing or accepting admission, using your RFID or wristband, and entering the
+          waterpark, you acknowledge that you have been given the opportunity to review and agree
+          to comply with these terms.</p>
+        </div>
+
+        <h3>At a glance</h3>
         <ul class="rules">
           <li>Waterpark activities involve inherent risks, including wet and slippery surfaces, moving water, changes in speed and direction, loss of balance, and contact with other guests or surfaces.</li>
           <li>Follow all posted attraction rules, health warnings, weight and age requirements, and the instructions of lifeguards and park personnel.</li>
@@ -225,24 +346,355 @@
       </section>
 
       <section class="card tap">
-        <h2>Before you tap</h2>
-        <p>
-          By tapping your RFID card or wristband and entering the waterpark, you confirm that you
-          have had the opportunity to read these terms and agree to comply with them.
-        </p>
+        <h3>Before you tap</h3>
+        <p>By tapping your RFID card or wristband and entering the waterpark, you confirm that you
+        have had the opportunity to read these terms and agree to comply with them.</p>
       </section>
 
-      <section class="card">
-        <h2>Questions?</h2>
-        <p>
-          Please speak with our ticketing personnel before tapping your RFID credential and
-          entering the park. You can also reach us at
-          <a href="mailto:sales@praderaislands.com">sales@praderaislands.com</a>.
-        </p>
+      <!-- ===== Document 1 — General T&C ===== -->
+      <section class="card part" id="terms">
+        <p class="part-label">Document 1 of 2</p>
+        <h2>General Terms and Conditions of Admission, Park Rules, Safety Requirements and Assumption of Risk</h2>
+        <p class="part-sub">Ticketing, admission, safety, refunds, conduct and photography · Version 1.0 · Effective 10 November 2026</p>
+
+        <div class="notice">
+          <p>PLEASE READ BEFORE BUYING A TICKET OR ENTERING. These Terms apply to Pradera Islands
+          Water Park. The Guest Liability Waiver &amp; Assumption of Risk Agreement and all
+          attraction-specific safety signs should also be read. Printed copies or assistance are
+          available at Guest Services.</p>
+        </div>
+
+        <h3 id="t1"><span class="n">1.</span> Operator, scope, and definitions</h3>
+        <p>Pradera Islands Water Park (the "Park") is operated by LPM Management &amp; Marketing
+        Corporation ("Pradera," "we," "us," or the "Operator"). These Terms apply to all guests,
+        ticket purchasers, companions, invitees, and persons entering the Park, whether tickets are
+        purchased directly, through Klook or another authorized seller, or admission is
+        complimentary. "Ticket" includes an approved electronic voucher, QR code, entry credential
+        or other authorized booking confirmation. "RFID" refers to the wristband or credential used
+        for Park admission or other enabled services.</p>
+
+        <h3 id="t2"><span class="n">2.</span> Access to these Terms and acknowledgment at entry</h3>
+        <p>These Terms and the separate Guest Liability Waiver are made available before admission
+        through the Park's posted QR code and by request at Guest Services. They should also be
+        accessible through our direct booking flow and, as applicable, authorized third-party sales
+        listings before purchase. Guests should review them before buying tickets and before
+        entering.</p>
+        <p>Subject to applicable law and adequate notice, a guest who knowingly taps an RFID
+        wristband and enters the Park acknowledges these Terms and the Guest Liability Waiver by
+        conduct. Pradera may keep relevant admission logs and version records as evidence of the
+        applicable terms, subject to data-protection requirements.</p>
+        <p>Purchasers arranging admission for others must bring these Terms to their attention.
+        Parents, legal guardians, or persons legally exercising parental authority who bring minors
+        into the Park and knowingly tap their own RFID card or wristband and enter, after a
+        reasonable opportunity to review these Terms and the Guest Liability Waiver, are deemed to
+        accept both documents for themselves and, to the extent permitted by law, on behalf of the
+        minors accompanying them. By entering, they also consent to the minors' admission and
+        participation in permitted Park activities and agree to comply with all applicable
+        supervision and safety requirements. Nothing in these Terms waives rights that cannot
+        legally be waived.</p>
+
+        <h3 id="t3"><span class="n">3.</span> Tickets, prices, inclusions, and authorized sellers</h3>
+        <p>Ticket prices, visit dates, age bands, eligibility, operating hours and included services
+        are those clearly stated in the applicable offer or booking confirmation at the time of
+        purchase, subject to mandatory law. Special events, meals, lockers, rentals, premium
+        experiences and other goods and services are separately charged.</p>
+        <p>Tickets should be purchased only from Pradera or authorized distribution partners.
+        Tickets obtained through unauthorized resale, fraudulent means or misuse may be declined
+        after reasonable verification. Pradera may reasonably require proof of purchase, identity,
+        eligibility for a discounted category, or another valid admission credential.</p>
+
+        <h3 id="t4"><span class="n">4.</span> Ticket validity, date changes, and transfers</h3>
+        <p>A ticket is valid only for the date, category, inclusions and other conditions identified
+        in the relevant purchase terms. Rebooking or changes requested for personal convenience are
+        subject to the disclosed conditions for that ticket type and available capacity. Tickets and
+        RFID wristbands must not be copied, altered, resold or transferred in violation of disclosed
+        ticket rules. Where a permitted transfer or correction is needed, the guest should contact
+        the original seller or Guest Services before use.</p>
+
+        <h3 id="t5"><span class="n">5.</span> Admission, RFID wristbands, and re-entry</h3>
+        <p>Guests must complete applicable registration, ticket validation and RFID issuance or
+        activation before entering. Each entry credential is for the authorized holder and should
+        not be shared. Lost, damaged or malfunctioning wristbands must be promptly reported so the
+        credential can be checked or deactivated.</p>
+        <p>Admission is subject to capacity limits, operating conditions and lawful safety
+        screening. <strong>Re-entry is not allowed.</strong></p>
+
+        <h3 id="t6"><span class="n">6.</span> Operating hours, attraction availability, and closures</h3>
+        <p>The Park aims to provide the attractions and facilities described in the guest's
+        purchased offer. Operating hours and access to specific attractions may nevertheless be
+        affected by weather, lightning, water-quality concerns, maintenance, safety conditions,
+        emergency response, capacity restrictions, regulatory requirements or events beyond
+        reasonable control. An attraction will not operate when its use is considered unsafe.</p>
+        <p>Temporary closure of an individual attraction does not automatically entitle a guest to a
+        full ticket refund where the Park substantially delivers the advertised experience, subject
+        to applicable law and what was promised at sale. Where the Park cannot open, closes
+        materially early, or fails to deliver a substantial part of the paid-for service, Pradera
+        will assess appropriate remedies.</p>
+
+        <h3 id="t7"><span class="n">7.</span> Cancellations, refunds, and booking channels</h3>
+        <p>For a change of mind, late arrival, no-show or other guest-initiated cancellation not
+        caused by Pradera, the cancellation and rebooking conditions shown before purchase will
+        ordinarily apply, to the extent lawful.</p>
+        <p>For tickets bought through Klook or another authorized seller, guests should normally
+        submit changes and refund requests through the issuing platform using the process disclosed
+        in their booking. Pradera will coordinate with that partner when the reason concerns Park
+        operations, service non-delivery or guest safety, and this process will not remove statutory
+        rights or remedies. For tickets purchased directly from Pradera, contact Guest Services at
+        <a href="mailto:sales@praderaislands.com">sales@praderaislands.com</a>.</p>
+        <p>Guests should retain their booking confirmation and relevant transaction details.</p>
+
+        <h3 id="t8"><span class="n">8.</span> Compliance with attraction-specific safety guidelines</h3>
+        <p>All guests must read and follow the rules and warnings displayed at each slide, pool and
+        attraction, as well as reasonable instructions of lifeguards, ride operators, security
+        personnel and authorized staff. Posted requirements may include height, weight, age, health,
+        swimming ability, rider position, number of riders, prohibited items, use of mats or tubes,
+        and other attraction-specific restrictions. The applicable posted sign and the operator's
+        safety instructions govern participation in that attraction.</p>
+        <p>For safety reasons, Pradera may temporarily stop an attraction or refuse participation
+        where a guest fails to meet the applicable restrictions, cannot safely follow instructions,
+        is impaired, or creates a risk to others. Guests should not enter restricted or staff-only
+        areas.</p>
+
+        <h3 id="t9"><span class="n">9.</span> Children, guardians, and supervision</h3>
+        <p>Parents, legal guardians and accompanying responsible adults must ensure children in
+        their care comply with the rules applicable to each facility and attraction. A responsible
+        adult must provide supervision appropriate to the child's age, swimming ability and the
+        Park's requirements, even when lifeguards are on duty. Where specific rules require an
+        accompanying adult, the child may not participate without one. Acceptance by a parent or
+        guardian on behalf of accompanying minors is addressed in Section 2 above.</p>
+        <p>If a child becomes separated from an accompanying adult, Park staff may apply the
+        missing-child protocol and take reasonable measures to reunite them. Assistance can be
+        requested immediately from any authorized staff member.</p>
+
+        <h3 id="t10"><span class="n">10.</span> Health, hygiene, and swimming safety</h3>
+        <p>Guests must judge their own fitness to participate and observe medical or physical
+        restrictions posted at attractions. Do not use an attraction when affected by a condition,
+        injury, illness or impairment that makes use unsafe. Guests should maintain appropriate
+        personal hygiene and follow showering, pool-use and sanitation instructions. Persons with
+        conditions that may pose an immediate health or safety risk to themselves or others may be
+        restricted from the affected area where lawful and reasonably necessary.</p>
+        <p>Guests must not run on wet walkways, push others, engage in horseplay, misuse rescue
+        equipment, enter pools outside designated areas or ignore directions to exit the water. Any
+        injury, near miss, unsafe condition or suspected contamination should be reported promptly
+        to staff.</p>
+
+        <h3 id="t11"><span class="n">11.</span> Food, restaurants, and allergens</h3>
+        <p>Food and beverage outlets operate subject to posted menus, prices, availability and
+        applicable food-safety requirements. Guests should notify restaurant staff of known
+        allergies and ask about ingredients before ordering. While staff may provide available
+        information, the Park cannot guarantee a particular food is free from all allergens unless
+        expressly confirmed by the relevant operator. <strong>Bringing outside food, drinks, glass
+        containers or other items is not allowed.</strong></p>
+
+        <h3 id="t12"><span class="n">12.</span> Guest conduct and prohibited activities</h3>
+        <ul class="bullets">
+          <li>Be respectful to staff and other guests. No violence, harassment, threats, discriminatory abuse, intimidation or deliberate damage to property.</li>
+          <li>No dangerous conduct, queue jumping that creates safety risks, tampering with equipment, climbing barriers, misuse of attractions or entering restricted spaces.</li>
+          <li>No illegal drugs, weapons, hazardous items or glass in areas where prohibited for safety. Alcohol consumption and smoking/vaping are prohibited within the Park.</li>
+          <li>Wear appropriate attire and footwear where required and comply with instructions concerning loose articles, jewelry, phones and unsecured equipment.</li>
+          <li>Pets are not allowed in the Park.</li>
+          <li>All entering guests shall abide by the rules on restricted and prohibited items.</li>
+          <li>Refrain from conduct that unreasonably intrudes on others' privacy or prevents their safe and comfortable use of the Park.</li>
+        </ul>
+        <p>Where reasonably necessary and consistent with law, Pradera may warn a guest, stop an
+        unsafe activity, refuse access to an attraction, or require a guest to leave.</p>
+
+        <h3 id="t13"><span class="n">13.</span> Security, safety screening, and emergency instructions</h3>
+        <p>Reasonable security and bag-screening procedures may be applied for safety, in a lawful,
+        proportionate and non-discriminatory manner. Guests must comply with emergency
+        announcements, evacuation directions and instructions from authorized personnel. Pradera may
+        provide or summon available first aid and emergency assistance.</p>
+
+        <h3 id="t14"><span class="n">14.</span> Photography, filming, and guest-generated content</h3>
+        <p>Personal photos and videos may be taken in areas where permitted, provided filming does
+        not interfere with safety, staff duties or others' privacy. Photography or recording is
+        prohibited in toilets, changing rooms and other clearly designated private or restricted
+        areas. Cameras, mounts, drones and other equipment may not be used on attractions or in
+        other areas where prohibited by posted signs or staff directions. Commercial shoots,
+        organized influencer activities and advertising productions require prior written permission
+        from Pradera and any other necessary permissions.</p>
+        <p>Photography and filming may take place in designated areas of Pradera Islands Waterpark
+        for promotional use on its official channels, advertisements, and partner publications,
+        subject to applicable privacy laws.</p>
+        <p>Guests must respect the privacy and intellectual-property rights of others.</p>
+
+        <h3 id="t15"><span class="n">15.</span> CCTV, personal information, and third-party platforms</h3>
+        <p>Pradera may process limited personal information for ticketing, admission, safety,
+        security, customer support, incident response, accounting and other lawful purposes. CCTV
+        may operate in appropriately designated public or semi-public areas for legitimate security
+        and safety purposes. Where applicable, booking and payment partners process information
+        under their own notices and contractual roles.</p>
+
+        <h3 id="t16"><span class="n">16.</span> Personal property, lockers, and lost items</h3>
+        <p>Guests should keep valuables secured and use any available storage facilities according
+        to posted instructions. Guests should report missing property to Guest Services. To the
+        extent permitted by law, Pradera is not responsible for losses arising solely from guests'
+        own failure to safeguard belongings, but nothing here excludes responsibility established
+        under applicable law. Found items are handled under the Park's applicable retention and
+        return procedures.</p>
+
+        <h3 id="t17"><span class="n">17.</span> Damage to property and guest responsibility</h3>
+        <p>Guests may be held responsible, in accordance with law, for damage or loss directly
+        caused by their intentional misconduct or negligent misuse of Park property. Pradera may
+        seek lawful remedies for fraud, theft, vandalism or other prohibited acts.</p>
+
+        <h3 id="t18"><span class="n">18.</span> Complaints, incident reports, and requests for assistance</h3>
+        <p>Please report injuries, unsafe conditions, failed ticket scans, billing concerns, staff
+        misconduct or other incidents promptly to Guest Services or an authorized manager. Where
+        possible, provide the date and time, relevant ticket or RFID reference, location and a short
+        description so the matter can be investigated. Pradera may preserve relevant records for
+        safety, legal compliance, insurance or legitimate claims, subject to applicable law.</p>
+
+        <h3 id="t19"><span class="n">19.</span> Liability and the separate Assumption of Risk Agreement</h3>
+        <p>Water attractions involve ordinary inherent risks. Guests must comply with the separate
+        Guest Liability Waiver &amp; Assumption of Risk Agreement, which explains those risks and the
+        guest's voluntary participation. Nothing in these Terms waives rights or excludes liability
+        that cannot lawfully be waived, including liability arising from negligence, gross
+        negligence, willful misconduct, statutory violations or failure to comply with applicable
+        safety duties.</p>
+
+        <h3 id="t20"><span class="n">20.</span> Promotions, special events, and third-party services</h3>
+        <p>Special offers, vouchers, group arrangements, hosted events and third-party services may
+        have additional written conditions, provided these are made accessible before the relevant
+        transaction and do not override mandatory rights. Any authorized third-party seller's
+        booking mechanics should be read together with these Terms. Where terms conflict, Pradera
+        commercial terms apply to the extent lawful and consistent with what was actually sold.</p>
+
+        <h3 id="t21"><span class="n">21.</span> Changes to these Terms, severability, and governing law</h3>
+        <p>Pradera may update these Terms prospectively for operational, safety, legal or commercial
+        reasons. We will identify the applicable version and effective date and provide reasonable
+        notice of material changes. Changes will not retroactively remove accrued customer rights or
+        materially reduce promised benefits for tickets already purchased, except where required by
+        law or reasonably necessary for safety, with appropriate remedies where applicable.
+        Immediate safety rules and staff instructions remain enforceable for current conditions.</p>
+        <p>If any provision is invalid or unenforceable, the remaining lawful provisions continue to
+        apply. Philippine law governs these Terms, without prejudice to the rights of consumers to
+        avail themselves of legally available complaint and dispute-resolution processes.</p>
+
+        <a class="top" href="#top">↑ Back to contents</a>
+      </section>
+
+      <!-- ===== Document 2 — the waiver ===== -->
+      <section class="card part" id="waiver">
+        <p class="part-label">Document 2 of 2</p>
+        <h2>Guest Liability Waiver &amp; Assumption of Risk Agreement</h2>
+        <p class="part-sub">Applies to paid and complimentary guests · Version 1.0 · Effective 10 November 2026</p>
+
+        <div class="notice">
+          <p>IMPORTANT: Please read this document and the Park General Terms &amp; Conditions of
+          Admission, Park Rules, Safety Requirements and Assumption of Risk before entering. If you
+          do not understand a provision, ask Guest Services for an explanation or a printed copy
+          before tapping your RFID wristband.</p>
+        </div>
+
+        <h3 id="w1"><span class="n">1.</span> Who this agreement covers</h3>
+        <p>This document applies to each person entering or using Pradera Islands Water Park (the
+        "Park"), operated by LPM Management &amp; Marketing Corporation ("Pradera" or the
+        "Operator"), whether admission is paid, complimentary, or obtained through an authorized
+        ticketing partner. "Attractions" includes pools, water slides, play areas, and other
+        water-based activities offered at the Park.</p>
+
+        <h3 id="w2"><span class="n">2.</span> Nature of the activities and inherent risks</h3>
+        <p>I understand that visiting a water park and using its attractions involve physical
+        activity and inherent risks. These can include slipping or falling on wet surfaces; sudden
+        movement, acceleration or impact; collision with a slide, equipment or another person; loss
+        of balance; accidental injury; immersion in water, difficulty swimming, and drowning.
+        Weather, crowd movement and other guests' actions may also affect safety. Not every risk can
+        be eliminated even where reasonable precautions are taken.</p>
+        <p class="fil">Naiintindihan ko na may kaakibat na panganib ang paglangoy at paggamit ng
+        water slides at iba pang attractions. Kusang-loob akong sasali at susunod sa mga safety
+        rules.</p>
+
+        <h3 id="w3"><span class="n">3.</span> Health, suitability, and the right not to participate</h3>
+        <p>I am responsible for deciding whether I can safely participate and for checking the
+        restrictions applicable to each attraction. I will not use an attraction if I have a
+        medical, physical or other condition that makes it unsafe for me, or if I do not meet its
+        posted requirements. Certain attractions may not be appropriate for persons who are
+        pregnant; have heart, blood-pressure, neck, back or other conditions; have undergone recent
+        surgery; or otherwise require medical clearance. I will ask Park staff about safety
+        requirements where uncertain. I understand that I may choose not to participate in any
+        attraction.</p>
+
+        <h3 id="w4"><span class="n">4.</span> Compliance with Park and attraction-specific safety rules</h3>
+        <p>I will comply with the Park Terms &amp; Conditions, all posted signs, and instructions of
+        lifeguards, slide operators, security personnel and other authorized staff. These include
+        applicable height, weight, age, rider-position, swimwear and health restrictions;
+        instructions on flotation devices; and rules governing queues, entry and exit from each
+        attraction. I will not run, push, dive into prohibited areas, ride in a prohibited manner,
+        bypass a safety device, or engage in unsafe behavior. I will not use an attraction while
+        impaired by alcohol, medication, or drugs.</p>
+        <p>Specific rules displayed at individual attractions form part of the applicable safety
+        requirements. If a sign or instruction is unclear, I will ask an authorized staff member
+        before riding.</p>
+
+        <h3 id="w5"><span class="n">5.</span> Children and other persons requiring assistance</h3>
+        <p>A parent or lawful guardian must ensure that a minor under their supervision meets each
+        attraction's requirements and follows all safety instructions. Minors and persons who
+        require assistance must be accompanied or supervised as required by the Park's posted rules
+        and staff directions. Lifeguards and Park personnel do not replace the responsibility of an
+        accompanying adult to supervise children in their care.</p>
+        <p>The parent or lawful guardian should complete the Park's designated guardian
+        acknowledgment at registration or through the approved ticketing process. A minor's RFID tap
+        alone is not treated as a parent's signature or as a waiver of the minor's legal rights.</p>
+
+        <h3 id="w6"><span class="n">6.</span> Safety decisions and emergency assistance</h3>
+        <p>Pradera may delay, suspend, restrict or stop the use of an attraction, or refuse entry or
+        continued participation, when reasonably necessary for safety, operational or lawful
+        reasons. Staff may request that a guest leave an attraction or an unsafe area. In an
+        emergency, the Park may call first responders or arrange available first aid, and may share
+        necessary information with responders in accordance with applicable law. This does not
+        replace professional medical assessment or treatment.</p>
+
+        <h3 id="w7"><span class="n">7.</span> Voluntary participation and limited assumption of risk</h3>
+        <p>By choosing to enter and participate, I voluntarily accept the ordinary and inherent
+        risks described above insofar as they arise without fault or breach of legal duty by
+        Pradera. To the extent permitted by Philippine law, I agree not to make claims against
+        Pradera, its officers, employees and authorized representatives solely for injuries or
+        losses resulting from such inherent risks, where Pradera has acted lawfully and with due
+        care.</p>
+        <p>Nothing in this Agreement waives or excludes liability that cannot lawfully be waived,
+        including liability arising from negligence, gross negligence, willful misconduct, violation
+        of law or failure to comply with applicable safety duties.</p>
+
+        <h3 id="w8"><span class="n">8.</span> Personal belongings and responsible conduct</h3>
+        <p>I will take reasonable care of my belongings, secure loose items before using
+        attractions, and observe any restrictions on jewelry, phones, cameras and other objects.
+        Pradera's responsibility for loss or damage will be determined under applicable law and the
+        circumstances of the incident; no absolute exclusion of legal responsibility is intended.</p>
+
+        <h3 id="w9"><span class="n">9.</span> Privacy, photography, and separate permissions</h3>
+        <p>I understand that guest registration, admission records and CCTV may be processed for
+        admission, safety, security, incident response and other lawful purposes under Pradera's
+        Privacy Notice. Any separate promotional or commercial use requiring consent will be
+        addressed under a distinct authorization or another applicable lawful basis.</p>
+
+        <h3 id="w10"><span class="n">10.</span> How this agreement is acknowledged</h3>
+        <p>This Agreement and the Park Terms &amp; Conditions are available through the QR code
+        displayed before entry and through Guest Services. A guest who has been given a fair
+        opportunity to read them and then knowingly taps an RFID wristband and enters the Park
+        acknowledges these posted terms through that conduct, to the extent permitted by law.</p>
+        <p class="fil">Kung may hindi malinaw, magtanong muna sa Guest Services bago pumasok. Huwag
+        i-tap ang RFID at pumasok kung hindi ka sang-ayon sa mga tuntunin; assistance regarding
+        ticket remedies is available under the Park Terms &amp; Conditions and applicable law.</p>
+
+        <h3 id="w11"><span class="n">11.</span> Relationship to other rules; governing law</h3>
+        <p>This Agreement should be read with the Park General Terms &amp; Conditions of Admission,
+        Park Rules, Safety Requirements and Assumption of Risk and current attraction signs. If a
+        mandatory law gives a guest greater protection, that law prevails. If any part is held
+        invalid, the remainder continues to apply to the extent lawful. Philippine law governs this
+        Agreement.</p>
+
+        <h3 id="w12"><span class="n">12.</span> Contact and availability of a copy</h3>
+        <p>Questions or requests for a copy may be directed to Guest Services at the Park, or by
+        email to <a href="mailto:sales@praderaislands.com">sales@praderaislands.com</a>. Document
+        version: 1.0. Effective date: 10 November 2026.</p>
+
+        <a class="top" href="#top">↑ Back to contents</a>
       </section>
 
       <p class="meta">
         Pradera Islands Waterpark · Prado Siongco, Lubao, Pampanga<br />
+        Operated by LPM Management &amp; Marketing Corporation<br />
         <a class="home" href="/">Back to the waterpark</a>
       </p>
     </main>

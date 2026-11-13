@@ -83,7 +83,7 @@ const characters = [
 const SOCIALS = [
 { name: "Facebook", url: "https://www.facebook.com/people/Pradera-Islands-Waterpark/61576524087915/", accent: "#1877F2", path: <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" /> },
 { name: "Instagram", url: "https://www.instagram.com/praderaislandswaterpark/", accent: "#E1306C", path: (<><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.72 3.72 0 01-.9 1.38c-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.43-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63A5.92 5.92 0 002 2.01 5.92 5.92 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91a5.92 5.92 0 001.38 2.14 5.92 5.92 0 002.14 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56a6.17 6.17 0 003.52-3.52c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91a5.92 5.92 0 00-1.38-2.14A5.92 5.92 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" /><path d="M12 5.84A6.16 6.16 0 1018.16 12 6.17 6.17 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4z" /><circle cx="18.41" cy="5.59" r="1.44" /></>) },
-{ name: "TikTok", url: "https://www.tiktok.com/@praderaislandswaterpark", accent: "#25F4EE", path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" /> },
+{ name: "TikTok", url: "https://www.tiktok.com/@praderawaterpark_", accent: "#25F4EE", path: <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005.58 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.62-.1z" /> },
 ];
 
 /* Online ticket sales run through Klook for now. */
@@ -178,6 +178,11 @@ export default function PraderaIslands() {
     const v = e.target.value;
     if (!v) { setVisitDateWarn(""); setForm({ ...form, visitDate: "" }); return; }
     const day = new Date(v + "T00:00:00").getDay();
+    if (v < OPENS_FROM) {
+      setVisitDateWarn("The park opens on 15 November 2026. Please pick a date from then on.");
+      setForm({ ...form, visitDate: "" });
+      return;
+    }
     // A holiday opening beats the weekday rule — turning away a guest who
     // picked a day we are open would be the worst kind of wrong.
     if (!HOLIDAYS_OPEN.has(v) && !OPEN_WEEKDAYS.has(day)) {
@@ -1185,8 +1190,14 @@ export default function PraderaIslands() {
                 </div>
               </div>
 
+              {/* Section 2 of the Terms promises they are reachable "before
+                  purchase", so a footer link alone would only half-keep that
+                  promise — it waits to be looked for. This sits in the path of
+                  someone about to buy. Klook carries most sales, so the same
+                  link belongs on that listing too; that one is Marketing's. */}
               <p className="body" style={{ fontSize: 13, color: "rgba(255,255,255,0.42)", marginTop: 22, textAlign: "center", lineHeight: 1.6 }}>
-                Senior citizen and PWD rates require a valid ID at the gate. Rates may change without prior notice.
+                Senior citizen and PWD rates require a valid ID at the gate. Rates may change without prior notice.<br />
+                By buying a ticket you agree to the <a href="/terms/" style={{ color: "rgba(255,255,255,0.72)", textDecoration: "underline", textUnderlineOffset: 3 }}>Guest Terms &amp; Waiver</a>.
               </p>
             </>
           ) : (
@@ -1741,7 +1752,7 @@ export default function PraderaIslands() {
           {/* A real address, not a scroll — the gate tarpaulin's QR points at
               the same page, so it has to exist as its own URL. */}
           <span style={{ margin: "0 8px" }}>·</span>
-          <a href="/terms/" style={{ color: "rgba(255,255,255,0.55)", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.22)" }}>Admission &amp; Safety Terms</a>
+          <a href="/terms/" style={{ color: "rgba(255,255,255,0.55)", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.22)" }}>Guest Terms &amp; Waiver</a>
         </div>
         <div style={{ display: "flex", gap: 14 }}>
           {SOCIALS.map(({ name, url, accent, path }) => {
@@ -1817,6 +1828,13 @@ const OPEN_WEEKDAYS = new Set([4, 5, 6, 0]); // Thu, Fri, Sat, Sun (JS getDay)
    dates in index.html's structured data in step, or Google will go on
    telling people we are closed. */
 const HOLIDAYS_OPEN = new Set(["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"]);
+
+/* The park's first operating day. Every date before it is closed whatever the
+   weekday says — the weekly pattern only starts applying from here. Delete
+   this and the two guards below once opening week is well behind us; until
+   then it is the difference between a guest planning a Saturday that exists
+   and one that does not. */
+const OPENS_FROM = "2026-11-15";
 const isoDate = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 function OpenDaysCalendar() {
   const today = new Date();
@@ -1839,8 +1857,9 @@ function OpenDaysCalendar() {
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => <div key={d} className="cal-dow">{d}</div>)}
         {cells.map((d, i) => {
           if (d === null) return <div key={`e${i}`} />;
-          const holiday = HOLIDAYS_OPEN.has(isoDate(year, month, d));
-          const open = holiday || OPEN_WEEKDAYS.has(new Date(year, month, d).getDay());
+          const key = isoDate(year, month, d);
+          const holiday = HOLIDAYS_OPEN.has(key);
+          const open = key >= OPENS_FROM && (holiday || OPEN_WEEKDAYS.has(new Date(year, month, d).getDay()));
           return (
             <div key={d} className={`cal-day${open ? " open" : ""}${isPast(d) ? " past" : ""}${isToday(d) ? " today" : ""}`}
               title={holiday ? "Holiday — open, 9 AM to 5 PM" : undefined}
