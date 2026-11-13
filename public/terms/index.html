@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#00237B" />
+
+    <title>Admission &amp; Safety Terms — Pradera Islands Waterpark</title>
+    <meta name="description" content="The admission and safety terms for Pradera Islands Waterpark in Lubao, Pampanga. Please read before entering the park." />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Admission &amp; Safety Terms" />
+    <meta property="og:description" content="Please read before entering Pradera Islands Waterpark." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- This page is the destination of the QR code on the gate tarpaulin, so
+         its address must not move. Served from /terms by sitting in its own
+         folder — no redirect rule to forget, no .html in the printed URL.
+         Deliberately a plain static page rather than part of the React app:
+         a guest scanning this is standing at the gate on park wi-fi or mobile
+         data with a queue behind them. Nothing here needs JavaScript, so the
+         page is readable the moment the HTML lands. -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=Montserrat:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap');
+
+      :root {
+        --orange: #FF8E00;
+        --dagat: #0021E8;
+        --hiraya: #00237B;
+        --lakandanum: #0EB0C0;
+        --ink: #1b2340;
+        --muted: #55566a;
+      }
+
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: #f4f6fb;
+        color: var(--ink);
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+      }
+
+      .masthead {
+        background: linear-gradient(160deg, #0021E8 0%, #00237B 100%);
+        padding: 28px 20px 34px;
+        text-align: center;
+      }
+      /* The same lockup the site nav uses: emblem beside the name, with
+         WATERPARK set underneath in azure. Rebuilt in markup rather than
+         pulled in as one image, so it stays sharp and reads correctly to a
+         screen reader. */
+      .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+      .brand img { height: 46px; width: auto; display: block; }
+      .brand-name { display: flex; flex-direction: column; line-height: 1; text-align: left; }
+      .brand-name b {
+        font-family: 'Kanit', sans-serif; font-weight: 800; font-size: 15px;
+        letter-spacing: 1.5px; color: #fff;
+      }
+      .brand-name span {
+        font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 10px;
+        letter-spacing: 4px; color: #3AE1B4; margin-top: 2px;
+      }
+      .kicker {
+        margin: 18px 0 0;
+        font-family: 'Kanit', sans-serif;
+        font-weight: 600;
+        font-size: 11px;
+        letter-spacing: 3.4px;
+        text-transform: uppercase;
+        color: var(--orange);
+      }
+      .masthead h1 {
+        margin: 8px 0 0;
+        font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
+        font-weight: 800;
+        font-size: clamp(26px, 7vw, 40px);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        color: #fff;
+        text-transform: uppercase;
+      }
+      .masthead p {
+        margin: 10px auto 0;
+        max-width: 40ch;
+        font-size: 14px;
+        color: rgba(255,255,255,0.75);
+        /* Keeps the last word off a line of its own. */
+        text-wrap: balance;
+      }
+      .masthead h1 { text-wrap: balance; }
+
+      main {
+        max-width: 720px;
+        margin: -18px auto 0;
+        padding: 0 16px 64px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e3e7f2;
+        border-radius: 14px;
+        padding: 26px 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 10px 30px rgba(0,35,123,0.06);
+      }
+      .card h2 {
+        margin: 0 0 14px;
+        font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
+        font-weight: 800;
+        font-size: 19px;
+        letter-spacing: -0.01em;
+        color: var(--hiraya);
+      }
+      .card p { margin: 0 0 14px; }
+      .card p:last-child { margin-bottom: 0; }
+      .lede { font-size: 16.5px; }
+      strong { font-weight: 700; color: var(--hiraya); }
+
+      ul.rules { margin: 0; padding: 0; list-style: none; }
+      ul.rules li {
+        position: relative;
+        padding: 0 0 15px 26px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eef1f8;
+      }
+      ul.rules li:last-child { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+      /* A dot rather than a bullet glyph: it sits on the first line at any
+         text size, where a list-style marker drifts. */
+      ul.rules li::before {
+        content: "";
+        position: absolute;
+        left: 2px;
+        top: 11px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--lakandanum);
+      }
+
+      .tap {
+        background: linear-gradient(135deg, #FF8E00 0%, #DC22AE 100%);
+        border: 0;
+        color: #fff;
+      }
+      .tap h2 { color: #fff; }
+      .tap p { color: rgba(255,255,255,0.93); }
+
+      .meta {
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+        padding: 0 8px;
+      }
+      .meta a { color: var(--dagat); font-weight: 600; }
+      .meta a:hover { color: var(--orange); }
+      .home {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 13px 30px;
+        border-radius: 6px;
+        background: var(--orange);
+        color: #fff;
+        text-decoration: none;
+        font-family: 'Kanit', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+      .home:hover { color: #fff; filter: brightness(1.06); }
+
+      @media (max-width: 420px) {
+        .card { padding: 22px 18px; }
+        body { font-size: 15.5px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="brand" href="/">
+        <img src="/brand/emblem-full.webp" alt="" />
+        <span class="brand-name">
+          <b>PRADERA ISLANDS</b>
+          <span>WATERPARK</span>
+        </span>
+      </a>
+      <p class="kicker">Please read before entering</p>
+      <h1>Important Admission &amp; Safety Terms</h1>
+      <p>Your safety and enjoyment are important to us.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <p class="lede">
+          Admission to <strong>Pradera Islands Waterpark</strong> is subject to the park's
+          <strong>General Terms and Conditions of Admission, Park Rules, Safety Requirements
+          and Assumption of Risk.</strong>
+        </p>
+        <p>
+          By purchasing or accepting admission, using your RFID or wristband, and entering the
+          waterpark, you acknowledge that you have been given the opportunity to review and
+          agree to comply with these terms.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Please remember</h2>
+        <ul class="rules">
+          <li>Waterpark activities involve inherent risks, including wet and slippery surfaces, moving water, changes in speed and direction, loss of balance, and contact with other guests or surfaces.</li>
+          <li>Follow all posted attraction rules, health warnings, weight and age requirements, and the instructions of lifeguards and park personnel.</li>
+          <li>Do not use an attraction if you have a medical or physical condition for which participation is restricted or may be unsafe.</li>
+          <li>Parents and responsible adults must actively supervise children and minors under their care. Lifeguards do not replace parental supervision.</li>
+          <li>Use only attractions appropriate to your swimming ability, and comply with life-jacket requirements.</li>
+          <li>Dangerous behavior, horseplay, intoxication, entry into restricted areas, and disregard of safety instructions are prohibited.</li>
+          <li>Attractions may be temporarily suspended or closed because of weather, safety inspections, maintenance, emergencies or operational requirements.</li>
+          <li>Guests are responsible for safeguarding their personal belongings.</li>
+          <li>Serious violations of park rules may result in removal from the park.</li>
+        </ul>
+      </section>
+
+      <section class="card tap">
+        <h2>Before you tap</h2>
+        <p>
+          By tapping your RFID card or wristband and entering the waterpark, you confirm that you
+          have had the opportunity to read these terms and agree to comply with them.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Questions?</h2>
+        <p>
+          Please speak with our ticketing personnel before tapping your RFID credential and
+          entering the park. You can also reach us at
+          <a href="mailto:sales@praderaislands.com">sales@praderaislands.com</a>.
+        </p>
+      </section>
+
+      <p class="meta">
+        Pradera Islands Waterpark · Prado Siongco, Lubao, Pampanga<br />
+        <a class="home" href="/">Back to the waterpark</a>
+      </p>
+    </main>
+  </body>
+</html>

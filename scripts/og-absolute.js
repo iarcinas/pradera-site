@@ -63,11 +63,29 @@ if (html === before) {
   console.log(`og-absolute: social tags, canonical and structured data now point at ${origin}`);
 }
 
-/* One page, so the sitemap is one entry — but Search Console asks for a
+/* The terms page is static — CRA copies it through untouched — so its own
+   absolute URLs have to be filled in here too. It is the destination of the
+   QR code on the gate tarpaulin, which makes its address the one thing on
+   this site that must never move. */
+const termsFile = path.join(__dirname, "..", "build", "terms", "index.html");
+if (fs.existsSync(termsFile)) {
+  let terms = fs.readFileSync(termsFile, "utf8");
+  terms = terms.replace(
+    /(<meta\s+property="og:image"\s+content=")\/([^"]+)(")/g,
+    `$1${origin}/$2$3`
+  );
+  if (!/rel="canonical"/.test(terms)) {
+    terms = terms.replace(/(<\/title>)/, `$1<link rel="canonical" href="${origin}/terms/"/>`);
+  }
+  fs.writeFileSync(termsFile, terms);
+  console.log(`og-absolute: terms page pointed at ${origin}`);
+}
+
+/* Two pages now, so two entries — but Search Console asks for a
    sitemap before it will report anything useful, and both files need the
    full address, which only exists at deploy time. Generated rather than
-   committed for that reason. Add a <url> block here when the rates, FAQ or
-   legal pages stop being sections and become their own addresses. */
+   committed for that reason. Add a <url> block here when the rates or FAQ
+   stop being sections and become their own addresses. */
 const build = path.join(__dirname, "..", "build");
 const today = new Date().toISOString().slice(0, 10);
 
@@ -79,6 +97,11 @@ fs.writeFileSync(
     <loc>${origin}/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>${origin}/terms/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
   </url>
 </urlset>
 `

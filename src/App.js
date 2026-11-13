@@ -1736,7 +1736,13 @@ export default function PraderaIslands() {
           </svg>
           <span className="body" style={{ fontSize: 13 }}>Prado Siongco, Lubao, Pampanga</span>
         </a>
-        <div className="body" style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>© 2026 Pradera Islands Waterpark. All rights reserved.</div>
+        <div className="body" style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>
+          © 2026 Pradera Islands Waterpark. All rights reserved.
+          {/* A real address, not a scroll — the gate tarpaulin's QR points at
+              the same page, so it has to exist as its own URL. */}
+          <span style={{ margin: "0 8px" }}>·</span>
+          <a href="/terms/" style={{ color: "rgba(255,255,255,0.55)", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.22)" }}>Admission &amp; Safety Terms</a>
+        </div>
         <div style={{ display: "flex", gap: 14 }}>
           {SOCIALS.map(({ name, url, accent, path }) => {
             const iconStyle = {
