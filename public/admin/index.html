@@ -201,7 +201,10 @@
       .lede { margin: 0 0 20px; color: var(--muted); font-size: 13.5px; line-height: 1.65; }
       .form label { margin-top: 18px; }
       .form > label:first-of-type { margin-top: 0; }
-      textarea, select, input[type="time"], input[type="datetime-local"] {
+      /* input[type="text"] belongs here too. Left out, it falls back to the
+         browser's own box — narrow, hard-bordered, and nothing like the
+         fields above and below it. */
+      textarea, select, input[type="text"], input[type="time"], input[type="datetime-local"] {
         width: 100%; padding: 11px 13px; border: 1px solid var(--line);
         border-radius: 9px; font: inherit; color: var(--ink); background: #fff;
       }
@@ -271,11 +274,43 @@
       .sw.open { background: var(--orange); }
       .sw.changed { background: #f4f6fb; box-shadow: inset 0 0 0 2px var(--hiraya); }
 
-      .editor { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #f8f9fd; }
-      .editor > b { display: block; font-family: 'Kanit', sans-serif; font-size: 14px; margin-bottom: 10px; }
-      .editor .presets { margin-bottom: 4px; }
-      .editor label { margin-top: 14px; }
-      .editor .hint { margin-top: 8px; }
+      /* The date editor. Deliberately reads as one panel hanging off the
+         calendar rather than another stack of form rows. */
+      .editor {
+        margin-top: 12px; padding: 16px 18px 18px;
+        border: 1px solid var(--line); border-left: 3px solid var(--hiraya);
+        border-radius: 12px; background: #f8f9fd;
+      }
+      .editor-head { margin-bottom: 14px; }
+      .editor-head b { display: block; font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 15px; }
+      .editor-head span { display: block; margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+
+      /* One control, three positions — the state is exclusive, and three
+         loose buttons do not say so. */
+      .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+      .seg button {
+        border: none; border-radius: 0; cursor: pointer;
+        padding: 9px 15px; font-size: 13px; background: #fff; color: var(--muted);
+        border-left: 1px solid var(--line);
+      }
+      .seg button:first-child { border-left: none; }
+      .seg button[aria-pressed="true"] { background: var(--hiraya); color: #fff; }
+      .seg button[aria-pressed="true"][data-set="closed"] { background: #b3261e; }
+      .seg button[aria-pressed="true"][data-set="open"] { background: #0f7a3d; }
+
+      .field-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+      .field-head label { margin: 0; }
+      .field-head .counter { margin: 0; }
+      #c-reason-wrap { margin-top: 18px; }
+
+      .preview { margin-top: 12px; padding: 11px 13px; border-radius: 10px; background: #fff; border: 1px solid var(--line); }
+      .preview > span {
+        display: block; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 5px;
+      }
+      .preview p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+      .preview p b { font-weight: 700; }
+      .preview p .none { color: var(--muted); font-style: italic; }
 
       /* ---- Narrow screens. Kept at the end, after the rules they modify. ---- */
       @media (max-width: 760px) {
@@ -389,10 +424,12 @@
 
             <div id="notice-current" class="current" hidden></div>
 
-            <label for="n-message">Message</label>
+            <div class="field-head">
+              <label for="n-message">Message</label>
+              <span class="counter"><span id="n-count">0</span> / 280</span>
+            </div>
             <textarea id="n-message" rows="4" maxlength="280"
               placeholder="Sarado ang park ngayong araw dahil sa bagyo. Babalik sa normal bukas."></textarea>
-            <div class="counter"><span id="n-count">0</span> / 280</div>
 
             <div class="two">
               <div>
@@ -467,15 +504,34 @@
             </div>
 
             <div class="editor" id="c-editor" hidden>
-              <b id="c-editor-date"></b>
-              <div class="presets" role="group" aria-label="Status for this date">
-                <button type="button" class="preset" data-set="default">Follow the pattern</button>
-                <button type="button" class="preset" data-set="open">Open</button>
-                <button type="button" class="preset" data-set="closed">Closed</button>
+              <div class="editor-head">
+                <b id="c-editor-date"></b>
+                <span id="c-editor-hint"></span>
               </div>
-              <label for="c-reason">Reason shown to guests</label>
-              <input type="text" id="c-reason" maxlength="90" placeholder="Masamang panahon" />
-              <p class="hint" id="c-editor-hint"></p>
+
+              <div class="seg" role="group" aria-label="Status for this date">
+                <button type="button" data-set="default">Follow the pattern</button>
+                <button type="button" data-set="open">Open</button>
+                <button type="button" data-set="closed">Closed</button>
+              </div>
+
+              <!-- Hidden while the date follows the pattern: there is nothing
+                   to explain, and an input that does nothing invites typing. -->
+              <div id="c-reason-wrap" hidden>
+                <div class="field-head">
+                  <label for="c-reason">Reason shown to guests</label>
+                  <span class="counter"><span id="c-reason-count">0</span> / 90</span>
+                </div>
+                <input type="text" id="c-reason" maxlength="90" placeholder="Masamang panahon" />
+
+                <!-- Whatever goes in that box is published. Showing the exact
+                     line a guest will read is the cheapest way to stop an
+                     internal note reaching the website. -->
+                <div class="preview">
+                  <span>On the website</span>
+                  <p id="c-preview"></p>
+                </div>
+              </div>
             </div>
 
             <label for="s-opens-from">First operating day</label>

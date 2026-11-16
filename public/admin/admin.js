@@ -753,6 +753,21 @@ function renderCalendar() {
   });
 }
 
+/* The exact line the website will show under its calendar. Staff see it as
+   they type, because whatever goes in that box is published — and an internal
+   note is much easier to catch here than after it is live. */
+function renderPreview() {
+  const o = picked && overrides[picked];
+  if (!o) return;
+  const label = new Date(`${picked}T00:00:00`).toLocaleDateString("en-PH", {
+    weekday: "short", day: "numeric", month: "short",
+  });
+  const reason = (el("c-reason").value || "").trim();
+  el("c-preview").innerHTML =
+    `<b>${esc(label)}</b> — ${o.open ? "open" : "closed"}` +
+    (reason ? `, ${esc(reason.toLowerCase())}` : ` <span class="none">· no reason given</span>`);
+}
+
 function pickDate(key) {
   picked = key;
   const o = overrides[key];
@@ -761,15 +776,20 @@ function pickDate(key) {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
   el("c-reason").value = (o && o.reason) || "";
+  el("c-reason-count").textContent = el("c-reason").value.length;
 
   const state = !o ? "default" : o.open ? "open" : "closed";
   el("c-editor").querySelectorAll("[data-set]").forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.set === state));
   });
 
+  // Nothing to explain while the date just follows the pattern.
+  el("c-reason-wrap").hidden = state === "default";
+  if (state !== "default") renderPreview();
+
   const weekday = new Date(`${key}T00:00:00`).getDay();
   const pattern = selectedDays().includes(weekday) ? "open" : "closed";
-  el("c-editor-hint").textContent = `The weekly pattern says ${pattern} on this day.`;
+  el("c-editor-hint").textContent = `Normally ${pattern} — the weekly pattern above.`;
   renderCalendar();
 }
 
@@ -800,7 +820,11 @@ el("c-editor").querySelectorAll("[data-set]").forEach((b) => {
 });
 
 el("c-reason").addEventListener("input", () => {
-  if (picked && overrides[picked]) overrides[picked].reason = el("c-reason").value.trim() || null;
+  el("c-reason-count").textContent = el("c-reason").value.length;
+  if (picked && overrides[picked]) {
+    overrides[picked].reason = el("c-reason").value.trim() || null;
+    renderPreview();
+  }
 });
 
 function fillSchedule(s) {
