@@ -24,60 +24,16 @@
  * an afternoon. Revisit when more than a handful of people need access.
  */
 
-const crypto = require("crypto");
 const { getStore } = require("@netlify/blobs");
+const { TOKEN_TTL_MS, sameSecret, signToken, verifyToken, json, parseBody } = require("../lib/auth");
 
 const STORE = "analytics";
-
-/* Long enough to cover a working day, short enough that a borrowed laptop
-   stops being a way in by tomorrow. */
-const TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
 
 /* A ceiling on one request. Each day is its own blob, so a two-year range
    would be 700 reads in one invocation — slow, and billed as compute. When the
    history gets long enough for that to bite, the answer is a monthly rollup
    blob written by the snapshot job, not a bigger ceiling here. */
 const MAX_DAYS = 185;
-
-const sha256 = (s) => crypto.createHash("sha256").update(String(s), "utf8").digest();
-
-/* Compare the digests rather than the strings. Digests are always 32 bytes, so
-   timingSafeEqual never throws on a length mismatch — and the time taken stops
-   carrying any hint of how long the real passphrase is. */
-function sameSecret(a, b) {
-  return crypto.timingSafeEqual(sha256(a), sha256(b));
-}
-
-/* The signing key is derived from the passphrase itself, so there is only one
-   secret to set in Netlify and one to rotate. Changing the passphrase
-   invalidates every outstanding token for free. */
-const tokenKey = (secret) => sha256(secret);
-
-function signToken(secret, expiresAt) {
-  const sig = crypto.createHmac("sha256", tokenKey(secret)).update(String(expiresAt)).digest("hex");
-  return `${expiresAt}.${sig}`;
-}
-
-function verifyToken(token, secret) {
-  if (typeof token !== "string") return false;
-  const [expPart, sig] = token.split(".");
-  const expiresAt = Number(expPart);
-  if (!Number.isFinite(expiresAt) || !sig) return false;
-  if (Date.now() > expiresAt) return false;
-  // Re-sign the claimed expiry and see whether it matches. A guest who edits
-  // the expiry to next year cannot produce the signature that goes with it.
-  return sameSecret(sig, crypto.createHmac("sha256", tokenKey(secret)).update(expPart).digest("hex"));
-}
-
-const json = (statusCode, body) => ({
-  statusCode,
-  headers: {
-    "Content-Type": "application/json",
-    // Analytics answers are per-session and must never land in a shared cache.
-    "Cache-Control": "no-store",
-  },
-  body: JSON.stringify(body),
-});
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -114,12 +70,7 @@ exports.handler = async (event) => {
 
   let body;
   try {
-    // Netlify hands the body back base64-encoded in some runtimes. Decoding
-    // unconditionally would corrupt a plain body, so follow the flag.
-    const raw = event.isBase64Encoded
-      ? Buffer.from(event.body || "", "base64").toString("utf8")
-      : event.body || "";
-    body = JSON.parse(raw || "{}");
+    body = parseBody(event);
   } catch {
     return json(400, { error: "Body must be JSON." });
   }

@@ -21,6 +21,7 @@
  */
 
 const ENDPOINT = "/.netlify/functions/analytics";
+const CONFIG_ENDPOINT = "/.netlify/functions/config";
 const STORE_KEY = "pradera-analytics-session";
 
 const el = (id) => document.getElementById(id);
@@ -31,8 +32,8 @@ const state = { token: null, days: [], available: [] };
 
 /* ---------------------------------------------------------------- transport */
 
-async function call(payload) {
-  const res = await fetch(ENDPOINT, {
+async function call(payload, endpoint = ENDPOINT) {
+  const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -130,6 +131,11 @@ async function openDashboard() {
   el("dash").hidden = false;
   el("dash-msg").textContent = "Loading…";
 
+  /* Not awaited: the announcement and schedule editors are independent of the
+     analytics store, and a day when no snapshots exist should still let staff
+     publish a notice. */
+  loadConfig();
+
   try {
     const { dates } = await call({ op: "days", token: state.token });
     state.available = dates;
@@ -183,7 +189,7 @@ function applyPreset(opts) {
   el("from").value = from;
   el("to").value = to;
 
-  document.querySelectorAll(".preset").forEach((b) => {
+  datePresets().forEach((b) => {
     const match =
       (opts.days && b.dataset.days === String(opts.days)) ||
       (opts.preset && b.dataset.preset === opts.preset);
@@ -193,7 +199,13 @@ function applyPreset(opts) {
   load();
 }
 
-document.querySelectorAll(".preset").forEach((b) => {
+/* Scoped to the date filters on purpose. The tabs and the day toggles borrow
+   the same .preset styling, and an unscoped selector here would reach across
+   the page and clear the pressed state on both of them — the open days would
+   come up empty however the schedule was stored. */
+const datePresets = () => document.querySelectorAll(".filters .preset");
+
+datePresets().forEach((b) => {
   b.addEventListener("click", () => {
     applyPreset(b.dataset.days ? { days: Number(b.dataset.days) } : { preset: b.dataset.preset });
   });
@@ -203,7 +215,7 @@ document.querySelectorAll(".preset").forEach((b) => {
    one of the presets, and pretending otherwise misreads the chart. */
 ["from", "to"].forEach((id) => {
   el(id).addEventListener("change", () => {
-    document.querySelectorAll(".preset").forEach((b) => b.setAttribute("aria-pressed", "false"));
+    datePresets().forEach((b) => b.setAttribute("aria-pressed", "false"));
     load();
   });
 });
@@ -555,6 +567,223 @@ window.addEventListener("resize", () => {
     if (state.days.length) renderChart(state.days);
   }, 150);
 });
+
+/* ===================================================================== *
+ *  Announcement and schedule
+ *
+ *  Both live in one stored document each, read and written through the
+ *  config function. The public side of that function is cached at the CDN
+ *  for a minute; this side is not, so what staff see here is always what is
+ *  actually stored, expired or not.
+ * ===================================================================== */
+
+const cfg = (payload) => call({ ...payload, token: state.token }, CONFIG_ENDPOINT);
+
+/* ---- tabs ---- */
+
+document.querySelectorAll(".tab").forEach((b) => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((other) => {
+      const on = other === b;
+      other.setAttribute("aria-pressed", String(on));
+      el(`panel-${other.dataset.panel}`).hidden = !on;
+    });
+  });
+});
+
+/* ---- shared helpers ---- */
+
+function say(id, text, ok) {
+  const node = el(id);
+  node.textContent = text;
+  node.classList.toggle("ok", Boolean(ok));
+}
+
+/* <input type="datetime-local"> speaks local wall-clock time with no zone.
+   Date.parse reads it as local, which is what staff mean, and the stored form
+   is ISO so the website and the function agree on the instant. */
+const localToISO = (v) => (v ? new Date(v).toISOString() : "");
+
+/* And back again, for filling the field from a stored notice. */
+function isoToLocal(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+const prettyWhen = (iso) => new Date(iso).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" });
+
+/* ---- announcement ---- */
+
+el("n-message").addEventListener("input", (e) => {
+  el("n-count").textContent = e.target.value.length;
+});
+
+function renderCurrentNotice(notice) {
+  const box = el("notice-current");
+  if (!notice || !notice.message) {
+    box.hidden = true;
+    return;
+  }
+  const live = Date.parse(notice.expiresAt) > Date.now();
+  box.hidden = false;
+  box.className = `current${live ? " live" : ""}`;
+  box.innerHTML =
+    `<b>${live ? "Showing on the website now" : "Last published — already expired"}</b>` +
+    `${esc(notice.message)}<br><span style="color:var(--muted)">` +
+    `${live ? "Comes down" : "Came down"} ${esc(prettyWhen(notice.expiresAt))}.</span>`;
+}
+
+el("n-publish").addEventListener("click", async () => {
+  const message = el("n-message").value.trim();
+  const expiresAt = localToISO(el("n-expires").value);
+  if (!message) return say("n-msg", "Write the message first.");
+  if (!expiresAt) return say("n-msg", "Set the time it should come down.");
+
+  say("n-msg", "Publishing…");
+  try {
+    const res = await cfg({
+      op: "notice",
+      notice: { message, level: el("n-level").value, expiresAt },
+    });
+    renderCurrentNotice(res.notice);
+    say("n-msg", res.note || "Published.", true);
+  } catch (err) {
+    if (err.status === 401) return handleAuthLoss();
+    say("n-msg", err.message);
+  }
+});
+
+el("n-remove").addEventListener("click", async () => {
+  say("n-msg", "Taking it down…");
+  try {
+    await cfg({ op: "notice", notice: null });
+    renderCurrentNotice(null);
+    el("n-message").value = "";
+    el("n-count").textContent = "0";
+    el("n-expires").value = "";
+    say("n-msg", "Taken down. It disappears from the website within a minute.", true);
+  } catch (err) {
+    if (err.status === 401) return handleAuthLoss();
+    say("n-msg", err.message);
+  }
+});
+
+/* ---- schedule ---- */
+
+const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+// Shown Monday first, the way a roster is read; the values stay JS getDay.
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+let holidays = [];
+
+function renderDays(open) {
+  el("s-days").innerHTML = DAY_ORDER.map(
+    (d) =>
+      `<button type="button" class="preset day" data-day="${d}" aria-pressed="${open.includes(d)}">${DAY_LABELS[d].slice(0, 3)}</button>`
+  ).join("");
+  el("s-days").querySelectorAll(".day").forEach((b) => {
+    b.addEventListener("click", () => {
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    });
+  });
+}
+
+const selectedDays = () =>
+  [...el("s-days").querySelectorAll('.day[aria-pressed="true"]')].map((b) => Number(b.dataset.day));
+
+function renderHolidays() {
+  holidays = [...new Set(holidays)].sort();
+  el("s-holidays").innerHTML = holidays
+    .map(
+      (d) =>
+        `<span class="chip">${esc(new Date(`${d}T00:00:00`).toLocaleDateString("en-PH", { day: "numeric", month: "short", year: "numeric" }))}` +
+        `<button type="button" data-date="${esc(d)}" aria-label="Remove ${esc(d)}">×</button></span>`
+    )
+    .join("");
+  el("s-holidays").querySelectorAll("button").forEach((b) => {
+    b.addEventListener("click", () => {
+      holidays = holidays.filter((d) => d !== b.dataset.date);
+      renderHolidays();
+    });
+  });
+}
+
+el("s-holiday-btn").addEventListener("click", () => {
+  const v = el("s-holiday-add").value;
+  if (!v) return;
+  holidays.push(v);
+  el("s-holiday-add").value = "";
+  renderHolidays();
+  say("s-msg", "Added to the list — not saved until you press Save.", true);
+});
+
+function fillSchedule(s) {
+  renderDays(s.weekdays);
+  el("s-wd-open").value = s.hours.weekday.opens;
+  el("s-wd-close").value = s.hours.weekday.closes;
+  el("s-we-open").value = s.hours.weekend.opens;
+  el("s-we-close").value = s.hours.weekend.closes;
+  el("s-opens-from").value = s.opensFrom || "";
+  holidays = [...s.holidays];
+  renderHolidays();
+}
+
+el("s-save").addEventListener("click", async () => {
+  const days = selectedDays();
+  if (!days.length) {
+    return say("s-msg", "Pick at least one open day. A park open on no days is almost certainly a mistake.");
+  }
+  say("s-msg", "Saving…");
+  try {
+    const res = await cfg({
+      op: "schedule",
+      schedule: {
+        weekdays: days,
+        holidays,
+        hours: {
+          weekday: { opens: el("s-wd-open").value, closes: el("s-wd-close").value },
+          weekend: { opens: el("s-we-open").value, closes: el("s-we-close").value },
+        },
+        opensFrom: el("s-opens-from").value || null,
+      },
+    });
+    fillSchedule(res.schedule);
+    say("s-msg", res.note || "Saved. The website updates within a minute; Google follows after the rebuild.", true);
+  } catch (err) {
+    if (err.status === 401) return handleAuthLoss();
+    say("s-msg", err.message);
+  }
+});
+
+/* What the site ships with, so the editors open on the real schedule rather
+   than on empty fields the first time, before anything has been stored. */
+const FALLBACK_SCHEDULE = {
+  weekdays: [0, 4, 5, 6],
+  holidays: ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"],
+  hours: { weekday: { opens: "10:00", closes: "17:00" }, weekend: { opens: "09:00", closes: "17:00" } },
+  opensFrom: "2026-11-15",
+};
+
+async function loadConfig() {
+  try {
+    const { notice, schedule } = await cfg({ op: "read" });
+    renderCurrentNotice(notice);
+    if (notice) {
+      el("n-message").value = notice.message;
+      el("n-count").textContent = notice.message.length;
+      el("n-level").value = notice.level;
+      el("n-expires").value = isoToLocal(notice.expiresAt);
+    }
+    fillSchedule(schedule || FALLBACK_SCHEDULE);
+  } catch (err) {
+    if (err.status === 401) return handleAuthLoss();
+    say("n-msg", err.message);
+    say("s-msg", err.message);
+    fillSchedule(FALLBACK_SCHEDULE);
+  }
+}
 
 /* Returning to the tab inside the eight-hour window skips the form. */
 const existing = loadSession();

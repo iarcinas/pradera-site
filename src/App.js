@@ -171,22 +171,50 @@ export default function PraderaIslands() {
   // Netlify's own filter sees it too.
   const [botField, setBotField] = useState("");
   const handleFormChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  // Planned visit date: optional, today or later, and only on days the park is open (Thu–Sun).
+  /* The schedule and the announcement, both edited from /admin/ and read back
+     from one cached endpoint. Until that answers — or if it never does — the
+     page runs on DEFAULT_SCHEDULE and shows no announcement. A park whose
+     calendar goes blank because a function had a bad minute would be a worse
+     failure than a stale one. */
+  const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
+  const [notice, setNotice] = useState(null);
+
+  useEffect(() => {
+    let live = true;
+    fetch("/.netlify/functions/config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!live || !data) return;
+        if (data.schedule) setSchedule({ ...DEFAULT_SCHEDULE, ...data.schedule });
+        if (data.notice) setNotice(data.notice);
+      })
+      .catch(() => {
+        /* Offline, blocked, or the function is down. The page is already
+           showing a schedule; leave it alone and say nothing. */
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  // Planned visit date: optional, today or later, and only on days the park is open.
   const todayISO = new Date().toLocaleDateString("en-CA");
   const [visitDateWarn, setVisitDateWarn] = useState("");
   const handleVisitDate = (e) => {
     const v = e.target.value;
     if (!v) { setVisitDateWarn(""); setForm({ ...form, visitDate: "" }); return; }
     const day = new Date(v + "T00:00:00").getDay();
-    if (v < OPENS_FROM) {
-      setVisitDateWarn("The park opens on 15 November 2026. Please pick a date from then on.");
+    if (schedule.opensFrom && v < schedule.opensFrom) {
+      const opening = new Date(`${schedule.opensFrom}T00:00:00`).toLocaleDateString("en-PH", { day: "numeric", month: "long", year: "numeric" });
+      setVisitDateWarn(`The park opens on ${opening}. Please pick a date from then on.`);
       setForm({ ...form, visitDate: "" });
       return;
     }
     // A holiday opening beats the weekday rule — turning away a guest who
     // picked a day we are open would be the worst kind of wrong.
-    if (!HOLIDAYS_OPEN.has(v) && !OPEN_WEEKDAYS.has(day)) {
-      setVisitDateWarn("The park is closed on that day. Please pick a Thursday, Friday, Saturday, Sunday, or a holiday marked open on the calendar.");
+    if (!schedule.holidays.includes(v) && !schedule.weekdays.includes(day)) {
+      const openDays = [...WEEKDAY_BAND, ...WEEKEND_BAND].filter((d) => schedule.weekdays.includes(d)).map((d) => DAY_NAMES[d]);
+      setVisitDateWarn(`The park is closed on that day. Please pick a ${openDays.join(", ")}, or a holiday marked open on the calendar.`);
       setForm({ ...form, visitDate: "" });
       return;
     }
@@ -312,6 +340,10 @@ export default function PraderaIslands() {
 
   return (
     <div style={{ fontFamily: "'Montserrat', 'Proxima Nova', system-ui, sans-serif", background: "#fff", color: "#111", overflowX: "hidden" }}>
+      {/* Only rendered when staff have published something that has not yet
+          expired. No announcement means nothing here at all — no empty bar,
+          no placeholder. */}
+      {notice && <NoticeDialog notice={notice} />}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800;900&family=Montserrat:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1434,9 +1466,11 @@ export default function PraderaIslands() {
             {/* Open-days calendar — separate from the park-hours block in Contact */}
             <div className="reveal guide-card">
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Open Days</div>
-              <OpenDaysCalendar />
+              <OpenDaysCalendar schedule={schedule} />
               <p className="body" style={{ fontSize: 13, color: "#7a819a", margin: "16px 0 0", lineHeight: 1.6 }}>
-                Open Thursday to Sunday, plus the holidays marked above. Thursday and Friday 10:00 AM – 5:00 PM. Saturday, Sunday and holidays 9:00 AM – 5:00 PM.
+                Open {dayListLabel(schedule.weekdays, [...WEEKDAY_BAND, ...WEEKEND_BAND])}, plus the holidays marked above.
+                {dayListLabel(schedule.weekdays, WEEKDAY_BAND) ? ` ${dayListLabel(schedule.weekdays, WEEKDAY_BAND)} ${fmtBand(schedule.hours.weekday)}.` : ""}
+                {dayListLabel(schedule.weekdays, WEEKEND_BAND) ? ` ${dayListLabel(schedule.weekdays, WEEKEND_BAND)} and holidays ${fmtBand(schedule.hours.weekend)}.` : ""}
               </p>
             </div>
 
@@ -1569,9 +1603,18 @@ export default function PraderaIslands() {
               {/* Hours */}
               <div className="findus-hours">
                 <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginBottom: 12 }}>Park Hours</div>
-                <div className="hours-row"><span>Thursday – Friday</span><b>10:00 AM – 5:00 PM</b></div>
-                <div className="hours-row"><span>Saturday – Sunday &amp; Holidays</span><b>9:00 AM – 5:00 PM</b></div>
-                <div className="hours-row muted"><span>Monday – Wednesday</span><b>Closed, except holidays</b></div>
+                {/* Rows are built from the schedule rather than written out,
+                    so changing the open days in /admin/ cannot leave this
+                    block quietly contradicting the calendar below it. */}
+                {dayListLabel(schedule.weekdays, WEEKDAY_BAND) && (
+                  <div className="hours-row"><span>{dayListLabel(schedule.weekdays, WEEKDAY_BAND)}</span><b>{fmtBand(schedule.hours.weekday)}</b></div>
+                )}
+                {dayListLabel(schedule.weekdays, WEEKEND_BAND) && (
+                  <div className="hours-row"><span>{dayListLabel(schedule.weekdays, WEEKEND_BAND)} &amp; Holidays</span><b>{fmtBand(schedule.hours.weekend)}</b></div>
+                )}
+                {dayListLabel([0, 1, 2, 3, 4, 5, 6].filter((d) => !schedule.weekdays.includes(d)), [...WEEKDAY_BAND, ...WEEKEND_BAND]) && (
+                  <div className="hours-row muted"><span>{dayListLabel([0, 1, 2, 3, 4, 5, 6].filter((d) => !schedule.weekdays.includes(d)), [...WEEKDAY_BAND, ...WEEKEND_BAND])}</span><b>Closed, except holidays</b></div>
+                )}
                 <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12.5, margin: "12px 0 0", lineHeight: 1.55 }}>
                   Last entry one hour before closing. Holiday hours may differ — see the <button type="button" onClick={() => scrollTo("guide")} className="promo-link" style={{ color: COLORS.azure }}>open-days calendar</button>.
                 </p>
@@ -1816,27 +1859,207 @@ export default function PraderaIslands() {
   );
 }
 
-/* Month calendar that marks which days the park is open (Thu–Sun). Shows the
-   current month and lets guests step forward. Days before today are dimmed. */
-const OPEN_WEEKDAYS = new Set([4, 5, 6, 0]); // Thu, Fri, Sat, Sun (JS getDay)
+/* The operating schedule.
+ *
+ * Staff edit this from /admin/, which stores it and triggers a rebuild. What
+ * follows is the copy the site ships with: it is what the page shows before
+ * the stored answer arrives, and what it keeps showing if that answer never
+ * comes. Holding a real schedule here rather than an empty one means a failed
+ * request degrades to yesterday's truth instead of to a blank calendar.
+ *
+ * `weekdays` are JS getDay numbers — 0 is Sunday. Holidays are full ISO dates
+ * so next year's calendar cannot inherit this year's by accident. `opensFrom`
+ * closes every date before the park's first operating day whatever the weekday
+ * says; it can be cleared once opening week is well behind us.
+ *
+ * Google does not read this. The opening hours in search and on Maps come from
+ * the structured data in index.html, which scripts/og-absolute.js refreshes
+ * from the stored schedule at build time. That is why saving a schedule asks
+ * for a rebuild: otherwise the page says one thing and the search result
+ * another, which is how a guest ends up at a closed gate.
+ */
+const DEFAULT_SCHEDULE = {
+  weekdays: [0, 4, 5, 6], // Thu, Fri, Sat, Sun
+  holidays: ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"],
+  hours: {
+    weekday: { opens: "10:00", closes: "17:00" },
+    weekend: { opens: "09:00", closes: "17:00" },
+  },
+  opensFrom: "2026-11-15",
+};
 
-/* Holidays the park opens on even though they land Monday to Wednesday.
-   Approved by MPC and sent by Marketing 9 Nov 2026; a holiday keeps the
-   weekend hours, 9 AM to 5 PM. Keyed by full ISO date so next year's
-   calendar cannot inherit this year's dates by accident. Add to this set
-   as each month's operating calendar is approved — and keep the holiday
-   dates in index.html's structured data in step, or Google will go on
-   telling people we are closed. */
-const HOLIDAYS_OPEN = new Set(["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"]);
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const WEEKDAY_BAND = [1, 2, 3, 4, 5];
+const WEEKEND_BAND = [6, 0];
 
-/* The park's first operating day. Every date before it is closed whatever the
-   weekday says — the weekly pattern only starts applying from here. Delete
-   this and the two guards below once opening week is well behind us; until
-   then it is the difference between a guest planning a Saturday that exists
-   and one that does not. */
-const OPENS_FROM = "2026-11-15";
+/* "09:00" becomes "9:00 AM". The stored form is 24-hour because that is what
+   the structured data needs; this is only ever for reading. */
+const fmtTime = (hhmm) => {
+  const [h, m] = String(hhmm).split(":").map(Number);
+  const suffix = h < 12 ? "AM" : "PM";
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
+};
+const fmtBand = (band) => `${fmtTime(band.opens)} – ${fmtTime(band.closes)}`;
+
+/* Name a set of days the way a person would: a run becomes "Thursday – Sunday",
+   anything else is listed. `order` decides what counts as consecutive, so the
+   weekend reads Saturday to Sunday rather than wrapping through the week. */
+function dayListLabel(days, order) {
+  const sel = order.filter((d) => days.includes(d));
+  if (!sel.length) return null;
+  if (sel.length === 1) return DAY_NAMES[sel[0]];
+  const positions = sel.map((d) => order.indexOf(d));
+  const consecutive = positions.every((p, i) => i === 0 || p === positions[i - 1] + 1);
+  return consecutive
+    ? `${DAY_NAMES[sel[0]]} – ${DAY_NAMES[sel[sel.length - 1]]}`
+    : sel.map((d) => DAY_NAMES[d]).join(", ");
+}
+
 const isoDate = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-function OpenDaysCalendar() {
+
+/* The announcement.
+ *
+ * It opens by itself when the page loads, because the thing it exists to say
+ * — the park is shut today, the pools are down — is the one thing a guest
+ * must not have to go looking for.
+ *
+ * Closing it does not throw it away. A slim bar stays behind, and the bar
+ * reopens it. Someone who dismisses a notice on reflex and then wonders what
+ * it said has somewhere to go; without that, the information is simply gone
+ * for the rest of their visit.
+ *
+ * A dismissal is remembered against the notice's own timestamp, so the dialog
+ * does not reopen on every page they visit — but the moment staff publish
+ * something new, the timestamp changes and it opens again. That is deliberate:
+ * a new announcement is new, whatever the visitor did with the last one.
+ */
+const NOTICE_SEEN_KEY = "pradera-notice-seen";
+
+const NOTICE_TONE = {
+  closed: { bg: "#B3261E", chip: "Park closed" },
+  warning: { bg: "#B55F00", chip: "Please note" },
+  info: { bg: COLORS.hiraya, chip: "Announcement" },
+};
+
+function NoticeDialog({ notice }) {
+  const tone = NOTICE_TONE[notice.level] || NOTICE_TONE.info;
+  const [open, setOpen] = useState(false);
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    // Storage can be blocked or throw outright in a private window. A notice
+    // that cannot be remembered should still be shown.
+    let seen = null;
+    try {
+      seen = localStorage.getItem(NOTICE_SEEN_KEY);
+    } catch {
+      seen = null;
+    }
+    setOpen(seen !== notice.updatedAt);
+  }, [notice.updatedAt]);
+
+  const dismiss = () => {
+    setOpen(false);
+    try {
+      localStorage.setItem(NOTICE_SEEN_KEY, notice.updatedAt);
+    } catch {
+      /* Nothing to do; it will simply open again next visit. */
+    }
+  };
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") dismiss();
+    };
+    document.addEventListener("keydown", onKey);
+    // Put the keyboard where the dialog is, or a keyboard user is left
+    // tabbing through a page they cannot see past.
+    closeRef.current?.focus();
+    return () => document.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  return (
+    <>
+      {open && (
+        <div
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) dismiss();
+          }}
+          style={{
+            position: "fixed", inset: 0, zIndex: 3000,
+            background: "rgba(10,16,40,0.62)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 20,
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notice-title"
+            style={{
+              background: "#fff", borderRadius: 18, maxWidth: 440, width: "100%",
+              overflow: "hidden", boxShadow: "0 24px 70px rgba(10,16,40,0.35)",
+            }}
+          >
+            <div style={{ background: tone.bg, padding: "16px 22px" }}>
+              <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", fontWeight: 600 }}>
+                {tone.chip}
+              </div>
+              <h2 id="notice-title" style={{ margin: "6px 0 0", color: "#fff", fontSize: 19, fontWeight: 800, lineHeight: 1.25 }}>
+                Pradera Islands Waterpark
+              </h2>
+            </div>
+            <div style={{ padding: "20px 22px 22px" }}>
+              <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.65, color: "#1b2340", whiteSpace: "pre-wrap" }}>
+                {notice.message}
+              </p>
+              <button
+                type="button"
+                ref={closeRef}
+                onClick={dismiss}
+                style={{
+                  marginTop: 20, width: "100%", padding: "12px", borderRadius: 10,
+                  border: "none", cursor: "pointer", background: COLORS.hiraya,
+                  color: "#fff", fontWeight: 700, fontSize: 14.5, letterSpacing: 0.4,
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stays after the dialog is closed, and opens it again. */}
+      {!open && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          style={{
+            position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 2900,
+            border: "none", cursor: "pointer", background: tone.bg, color: "#fff",
+            padding: "10px 16px", fontSize: 13.5, fontWeight: 600,
+            textAlign: "center", lineHeight: 1.4,
+          }}
+        >
+          {tone.chip} — tap to read
+        </button>
+      )}
+    </>
+  );
+}
+
+/* Month calendar that marks which days the park is open. Shows the current
+   month and lets guests step forward. Days before today are dimmed. */
+function OpenDaysCalendar({ schedule = DEFAULT_SCHEDULE }) {
+  const OPEN_WEEKDAYS = new Set(schedule.weekdays);
+  const HOLIDAYS_OPEN = new Set(schedule.holidays);
+  const OPENS_FROM = schedule.opensFrom || "0000-01-01";
+  const holidayHours = fmtBand(schedule.hours.weekend);
   const today = new Date();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const year = cursor.getFullYear(), month = cursor.getMonth();
@@ -1862,7 +2085,7 @@ function OpenDaysCalendar() {
           const open = key >= OPENS_FROM && (holiday || OPEN_WEEKDAYS.has(new Date(year, month, d).getDay()));
           return (
             <div key={d} className={`cal-day${open ? " open" : ""}${isPast(d) ? " past" : ""}${isToday(d) ? " today" : ""}`}
-              title={holiday ? "Holiday — open, 9 AM to 5 PM" : undefined}
+              title={holiday ? `Holiday — open, ${holidayHours}` : undefined}
               aria-label={`${d} ${label}, ${holiday ? "open for the holiday" : open ? "open" : "closed"}`}>
               {d}
             </div>

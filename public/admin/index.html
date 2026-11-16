@@ -14,7 +14,7 @@
          nothing without the passphrase. -->
     <meta name="robots" content="noindex, nofollow" />
 
-    <title>Visitor Analytics — Pradera Islands (Staff)</title>
+    <title>Park Admin — Pradera Islands (Staff)</title>
 
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 
@@ -192,13 +192,69 @@
 
       .note { margin-top: 22px; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
 
+      /* ---- Tabs and the two editors ---- */
+      .tabbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+      .tab { font-size: 13px; padding: 9px 15px; }
+
+      .form { max-width: 620px; }
+      .form h2 { margin: 0 0 6px; font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 18px; }
+      .lede { margin: 0 0 20px; color: var(--muted); font-size: 13.5px; line-height: 1.65; }
+      .form label { margin-top: 18px; }
+      .form > label:first-of-type { margin-top: 0; }
+      textarea, select, input[type="time"], input[type="datetime-local"] {
+        width: 100%; padding: 11px 13px; border: 1px solid var(--line);
+        border-radius: 9px; font: inherit; color: var(--ink); background: #fff;
+      }
+      textarea { resize: vertical; line-height: 1.6; }
+      .counter { margin-top: 6px; font-size: 12px; color: var(--muted); text-align: right; }
+      .hint { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+      .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .times { display: flex; align-items: center; gap: 8px; }
+      .times span { color: var(--muted); font-size: 13px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+      .btn-primary.inline { width: auto; margin-top: 0; padding: 12px 22px; }
+      .btn-danger {
+        padding: 12px 18px; background: #fff; color: #b3261e;
+        border: 1px solid #f0c9c6; font-size: 14px;
+      }
+      .msg.ok { color: #16713a; }
+
+      /* The published notice, shown as the guest sees it coloured. */
+      .current {
+        margin-bottom: 20px; padding: 13px 15px; border-radius: 11px;
+        font-size: 13.5px; line-height: 1.6; border: 1px solid var(--line); background: #f8f9fd;
+      }
+      .current b { display: block; font-family: 'Kanit', sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+      .current.live { border-color: #f0c9c6; background: #fdf4f3; }
+
+      .days { display: flex; flex-wrap: wrap; gap: 7px; }
+      .day {
+        padding: 9px 13px; font-size: 13px; background: #fff;
+        border: 1px solid var(--line); color: var(--muted);
+      }
+      .day[aria-pressed="true"] { background: var(--hiraya); border-color: var(--hiraya); color: #fff; }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; min-height: 22px; }
+      .chip {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 6px 8px 6px 12px; border-radius: 999px;
+        background: #eef1f8; color: var(--ink); font-size: 12.5px;
+      }
+      .chip button {
+        border: none; background: none; cursor: pointer; color: var(--muted);
+        font-size: 15px; line-height: 1; padding: 0 2px;
+      }
+      .chips:empty::after { content: "None set."; color: var(--muted); font-size: 13px; }
+
       /* ---- Narrow screens. Kept at the end, after the rules they modify. ---- */
       @media (max-width: 760px) {
         .tiles { grid-template-columns: repeat(2, 1fr); }
         .tables { grid-template-columns: 1fr; }
         .filters { gap: 12px; }
         .range div { min-width: 0; flex: 1 1 0; }
-        .spacer { display: none; }
+        .two { grid-template-columns: 1fr; }
+        .tabbar .spacer { display: none; }
+        .filters .spacer { display: none; }
       }
     </style>
   </head>
@@ -212,7 +268,7 @@
         </span>
       </a>
       <p class="kicker">Staff only</p>
-      <h1>Visitor Analytics</h1>
+      <h1>Park Admin</h1>
     </header>
 
     <div class="wrap">
@@ -220,7 +276,7 @@
            and nothing else. -->
       <section class="card signin" id="signin">
         <h2>Sign in</h2>
-        <p>This dashboard is for Pradera staff. Enter the shared passphrase to continue.</p>
+        <p>This page is for Pradera staff. Enter the shared passphrase to continue.</p>
         <form id="signin-form">
           <label for="pass">Passphrase</label>
           <input type="password" id="pass" autocomplete="current-password" required />
@@ -232,6 +288,18 @@
       <!-- Dashboard. Every number inside is written by admin.js from the
            function's answer; nothing is baked into this file. -->
       <main id="dash" hidden>
+        <div class="tabbar">
+          <div class="presets" role="tablist" aria-label="Sections">
+            <button type="button" class="preset tab" data-panel="analytics" aria-pressed="true">Visitors</button>
+            <button type="button" class="preset tab" data-panel="notice" aria-pressed="false">Announcement</button>
+            <button type="button" class="preset tab" data-panel="schedule" aria-pressed="false">Open days</button>
+          </div>
+          <div class="spacer"></div>
+          <button type="button" class="btn-quiet" id="signout">Sign out</button>
+        </div>
+
+        <!-- ============================ Visitors ============================ -->
+        <section id="panel-analytics">
         <div class="filters">
           <div class="presets" role="group" aria-label="Date range presets">
             <button type="button" class="preset" data-days="7">7 days</button>
@@ -250,8 +318,6 @@
               <input type="date" id="to" />
             </div>
           </div>
-          <div class="spacer"></div>
-          <button type="button" class="btn-quiet" id="signout">Sign out</button>
         </div>
 
         <p class="msg" id="dash-msg" role="status" aria-live="polite"></p>
@@ -277,6 +343,97 @@
         <section class="tables" id="tables" aria-label="Breakdowns"></section>
 
         <p class="note" id="note"></p>
+        </section>
+
+        <!-- ========================== Announcement ========================== -->
+        <section id="panel-notice" hidden>
+          <div class="card form">
+            <h2>Announcement</h2>
+            <p class="lede">
+              This opens by itself in front of every visitor to the website, then leaves a bar
+              behind that reopens it. Use it for what someone must know before they set out —
+              the park is closed today, a slide is down. It reaches nobody already on the road,
+              so a closure still belongs on Facebook and at the gate.
+            </p>
+
+            <div id="notice-current" class="current" hidden></div>
+
+            <label for="n-message">Message</label>
+            <textarea id="n-message" rows="4" maxlength="280"
+              placeholder="Sarado ang park ngayong araw dahil sa bagyo. Babalik sa normal bukas."></textarea>
+            <div class="counter"><span id="n-count">0</span> / 280</div>
+
+            <div class="two">
+              <div>
+                <label for="n-level">Kind</label>
+                <select id="n-level">
+                  <option value="closed">Park closed — red</option>
+                  <option value="warning">Please note — amber</option>
+                  <option value="info">Announcement — blue</option>
+                </select>
+              </div>
+              <div>
+                <label for="n-expires">Take it down at</label>
+                <input type="datetime-local" id="n-expires" />
+              </div>
+            </div>
+            <p class="hint">
+              An end time is required. A banner left up after it stops being true does more
+              harm than no banner at all, so this one takes itself down.
+            </p>
+
+            <div class="actions">
+              <button type="button" class="btn-primary inline" id="n-publish">Publish</button>
+              <button type="button" class="btn-danger" id="n-remove">Take down now</button>
+            </div>
+            <p class="msg" id="n-msg" role="status" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <!-- ============================ Open days =========================== -->
+        <section id="panel-schedule" hidden>
+          <div class="card form">
+            <h2>Open days and hours</h2>
+            <p class="lede">
+              This drives the calendar, the hours block and the dates guests may pick in the
+              enquiry form. Saving also asks Netlify to rebuild, which is what updates the
+              hours Google shows in search and on Maps — allow a minute or two for that.
+            </p>
+
+            <label>Open on these days</label>
+            <div class="days" id="s-days" role="group" aria-label="Open days"></div>
+
+            <div class="two">
+              <div>
+                <label for="s-wd-open">Weekday hours</label>
+                <div class="times"><input type="time" id="s-wd-open" /><span>to</span><input type="time" id="s-wd-close" /></div>
+              </div>
+              <div>
+                <label for="s-we-open">Weekend &amp; holiday hours</label>
+                <div class="times"><input type="time" id="s-we-open" /><span>to</span><input type="time" id="s-we-close" /></div>
+              </div>
+            </div>
+
+            <label for="s-holiday-add">Holidays the park opens anyway</label>
+            <p class="hint">
+              Dates that fall on a closed day but are open regardless. They use the weekend hours.
+            </p>
+            <div class="times">
+              <input type="date" id="s-holiday-add" />
+              <button type="button" class="btn-quiet" id="s-holiday-btn">Add</button>
+            </div>
+            <div class="chips" id="s-holidays"></div>
+
+            <label for="s-opens-from">First operating day</label>
+            <p class="hint">Every date before this is closed whatever the weekday says. Leave it empty once opening week is past.</p>
+            <input type="date" id="s-opens-from" />
+
+            <div class="actions">
+              <button type="button" class="btn-primary inline" id="s-save">Save schedule</button>
+            </div>
+            <p class="msg" id="s-msg" role="status" aria-live="polite"></p>
+          </div>
+        </section>
       </main>
     </div>
 

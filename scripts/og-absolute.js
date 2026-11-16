@@ -63,6 +63,88 @@ if (html === before) {
   console.log(`og-absolute: social tags, canonical and structured data now point at ${origin}`);
 }
 
+/* The opening hours Google shows.
+ *
+ * Staff edit the schedule in /admin/, which stores it and asks Netlify to
+ * rebuild. This is the half of that promise which keeps the search result in
+ * step with the page: without it, the calendar would move and Google would go
+ * on telling people the old hours — and a guest reads Google before they read
+ * the site.
+ *
+ * The schedule is read back from the live site rather than from the blob store
+ * directly, because the build environment is not guaranteed to carry blob
+ * credentials while the function certainly can reach them. If that read fails
+ * — first ever deploy, nothing stored yet, function down — the structured data
+ * committed in index.html is left exactly as it is. Stale beats invented.
+ */
+async function applySchedule() {
+  let schedule;
+  try {
+    const res = await fetch(`${origin}/.netlify/functions/config`);
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    ({ schedule } = await res.json());
+  } catch (err) {
+    console.log(`og-absolute: could not read the stored schedule (${err.message}) — leaving opening hours as committed.`);
+    return;
+  }
+  if (!schedule) {
+    console.log("og-absolute: no schedule stored yet — leaving opening hours as committed.");
+    return;
+  }
+
+  const NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const weekdayDays = [1, 2, 3, 4, 5].filter((d) => schedule.weekdays.includes(d));
+  const weekendDays = [6, 0].filter((d) => schedule.weekdays.includes(d));
+
+  const spec = (days, band) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: days.map((d) => NAMES[d]),
+    opens: band.opens,
+    closes: band.closes,
+    ...(schedule.opensFrom ? { validFrom: schedule.opensFrom } : {}),
+  });
+
+  const opening = [];
+  if (weekdayDays.length) opening.push(spec(weekdayDays, schedule.hours.weekday));
+  if (weekendDays.length) opening.push(spec(weekendDays, schedule.hours.weekend));
+
+  /* Each holiday is its own entry rather than a range. Ranges would be shorter
+     but would also claim the days in between, and those are ordinary closed
+     Mondays. */
+  const special = schedule.holidays.map((date) => ({
+    "@type": "OpeningHoursSpecification",
+    opens: schedule.hours.weekend.opens,
+    closes: schedule.hours.weekend.closes,
+    validFrom: date,
+    validThrough: date,
+  }));
+
+  let out = fs.readFileSync(file, "utf8");
+  const before = out;
+  // Replace the two arrays in place. The rest of the block — address, price
+  // band, social links — is hand-maintained and must not be touched.
+  out = out.replace(
+    /"openingHoursSpecification":\s*\[[\s\S]*?\n(\s*)\],/,
+    `"openingHoursSpecification": ${JSON.stringify(opening)},`
+  );
+  out = out.replace(
+    /"specialOpeningHoursSpecification":\s*\[[\s\S]*?\n(\s*)\],/,
+    `"specialOpeningHoursSpecification": ${JSON.stringify(special)},`
+  );
+
+  if (out === before) {
+    console.log("og-absolute: opening-hours block not found — structured data left alone.");
+    return;
+  }
+  // Fail loudly rather than ship a page whose structured data will not parse.
+  const json = out.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  JSON.parse(json[1]);
+  fs.writeFileSync(file, out);
+  console.log(
+    `og-absolute: opening hours updated from the stored schedule (${opening.length} band(s), ${special.length} holiday date(s)).`
+  );
+}
+
 /* The terms page is static — CRA copies it through untouched — so its own
    absolute URLs have to be filled in here too. It is the destination of the
    QR code on the gate tarpaulin, which makes its address the one thing on
@@ -112,3 +194,11 @@ let txt = fs.readFileSync(robots, "utf8").replace(/^Sitemap:.*$/gm, "").trimEnd(
 fs.writeFileSync(robots, `${txt}\n\nSitemap: ${origin}/sitemap.xml\n`);
 
 console.log(`og-absolute: sitemap.xml written and pointed at from robots.txt`);
+
+/* Last, because it re-reads the file the steps above have just written.
+   Its own failures are already handled inside; this catch is only for the
+   unexpected, and it must not fail the deploy — a build that dies here would
+   take the whole site down over a schedule refresh. */
+applySchedule().catch((err) => {
+  console.log(`og-absolute: opening-hours refresh skipped (${err.message}).`);
+});
