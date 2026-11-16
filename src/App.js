@@ -1436,7 +1436,7 @@ export default function PraderaIslands() {
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Open Days</div>
               <OpenDaysCalendar />
               <p className="body" style={{ fontSize: 13, color: "#7a819a", margin: "16px 0 0", lineHeight: 1.6 }}>
-                Open Thursday to Sunday, plus the holidays marked above. Thursday and Friday 10:00 AM – 4:00 PM. Saturday, Sunday and holidays 9:00 AM – 5:00 PM.
+                Open Thursday to Sunday, plus the holidays marked above. Thursday and Friday 10:00 AM – 5:00 PM. Saturday, Sunday and holidays 9:00 AM – 5:00 PM.
               </p>
             </div>
 
@@ -1569,7 +1569,7 @@ export default function PraderaIslands() {
               {/* Hours */}
               <div className="findus-hours">
                 <div className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginBottom: 12 }}>Park Hours</div>
-                <div className="hours-row"><span>Thursday – Friday</span><b>10:00 AM – 4:00 PM</b></div>
+                <div className="hours-row"><span>Thursday – Friday</span><b>10:00 AM – 5:00 PM</b></div>
                 <div className="hours-row"><span>Saturday – Sunday &amp; Holidays</span><b>9:00 AM – 5:00 PM</b></div>
                 <div className="hours-row muted"><span>Monday – Wednesday</span><b>Closed, except holidays</b></div>
                 <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12.5, margin: "12px 0 0", lineHeight: 1.55 }}>

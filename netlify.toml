@@ -51,3 +51,19 @@
   for = "/brand/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# The staff dashboard. Not secret — the security is that /admin/ ships no
+# figures at all and the function behind it answers nothing without the
+# passphrase — but there is no reason for it to be indexed or cached.
+# robots.txt says the same thing, and scripts/og-absolute.js deliberately
+# leaves this page out of the generated sitemap.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+# Netlify's default anyway, but stated so that moving the folder is a visible
+# change rather than a silent 404 on the dashboard's only data source.
+[functions]
+  directory = "netlify/functions"

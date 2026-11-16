@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#00237B" />
+
+    <!-- Nobody outside the park should ever find this in a search result. The
+         robots meta is the polite request; robots.txt and the X-Robots-Tag in
+         netlify.toml say the same thing in the two other places crawlers look,
+         and the generated sitemap deliberately omits this page. None of that
+         is the security — the security is that this file contains no numbers.
+         Every figure on the page arrives from the function, which answers
+         nothing without the passphrase. -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <title>Visitor Analytics — Pradera Islands (Staff)</title>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@600;700&family=Montserrat:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap');
+
+      :root {
+        --orange: #FF8E00;
+        --dagat: #0021E8;
+        --hiraya: #00237B;
+        --ink: #1b2340;
+        --muted: #55566a;
+        --line: #e3e7f2;
+        --surface: #ffffff;
+
+        /* The two chart hues. Both passed the full colourblind and contrast
+           check against this page's background; brand orange #FF8E00 did not
+           (2.24:1, too faint for a 2px line), so the series uses a darker step
+           of the same hue. Do not swap these back to the brand hex without
+           re-running the check — the line goes invisible to some readers. */
+        --series-views: #0021E8;
+        --series-visitors: #C96A00;
+      }
+
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: #f4f6fb;
+        color: var(--ink);
+        font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      [hidden] { display: none !important; }
+
+      /* ---- Masthead: the same lockup as the front page and the terms ---- */
+      .masthead {
+        background: linear-gradient(160deg, #0021E8 0%, #00237B 100%);
+        padding: 24px 20px 30px;
+        text-align: center;
+      }
+      .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+      .brand img { height: 42px; width: auto; display: block; }
+      .brand-name { display: flex; flex-direction: column; line-height: 1; text-align: left; }
+      .brand-name b {
+        font-family: 'Kanit', sans-serif; font-weight: 800; font-size: 14px;
+        letter-spacing: 1.5px; color: #fff;
+      }
+      .brand-name span {
+        font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 9px;
+        letter-spacing: 4px; color: #3AE1B4; margin-top: 2px;
+      }
+      .kicker {
+        margin: 18px 0 0;
+        font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 10px;
+        letter-spacing: 3.4px; text-transform: uppercase; color: var(--orange);
+      }
+      .masthead h1 {
+        margin: 6px 0 0;
+        font-family: 'Bricolage Grotesque', 'Kanit', sans-serif;
+        font-weight: 800;
+        font-size: clamp(22px, 5.5vw, 32px);
+        line-height: 1.12;
+        letter-spacing: -0.02em;
+        color: #fff;
+        text-transform: uppercase;
+      }
+
+      .wrap { max-width: 1040px; margin: 0 auto; padding: 24px 16px 56px; }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 20px;
+      }
+
+      /* ---- Sign in ---- */
+      .signin { max-width: 420px; margin: 40px auto; }
+      .signin h2 {
+        margin: 0 0 6px;
+        font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 18px;
+      }
+      .signin p { margin: 0 0 18px; color: var(--muted); font-size: 13.5px; }
+      label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+      input[type="password"], input[type="date"] {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        font: inherit;
+        color: var(--ink);
+        background: #fff;
+      }
+      input:focus-visible, button:focus-visible { outline: 2px solid var(--dagat); outline-offset: 2px; }
+      button {
+        font-family: 'Kanit', sans-serif; font-weight: 600;
+        border-radius: 9px; border: 1px solid transparent; cursor: pointer;
+      }
+      .btn-primary {
+        width: 100%; margin-top: 14px; padding: 12px;
+        background: var(--dagat); color: #fff; font-size: 14px; letter-spacing: 0.6px;
+      }
+      .btn-primary:disabled { opacity: 0.55; cursor: progress; }
+      .msg { margin-top: 14px; font-size: 13.5px; color: #b3261e; min-height: 1.2em; }
+
+      /* ---- Filter row ---- */
+      .filters {
+        display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+        margin-bottom: 18px;
+      }
+      .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+      .preset {
+        padding: 8px 13px; font-size: 12.5px;
+        background: #fff; border: 1px solid var(--line); color: var(--muted);
+      }
+      .preset[aria-pressed="true"] { background: var(--hiraya); border-color: var(--hiraya); color: #fff; }
+      .range { display: flex; gap: 8px; }
+      .range div { min-width: 140px; }
+      .spacer { flex: 1 1 auto; }
+      .btn-quiet {
+        padding: 8px 13px; font-size: 12.5px;
+        background: #fff; border: 1px solid var(--line); color: var(--muted);
+      }
+
+      /* ---- Stat tiles ---- */
+      .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+      .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+      .tile .k { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+      .tile .v {
+        margin-top: 6px;
+        font-family: 'Bricolage Grotesque', 'Kanit', sans-serif; font-weight: 800;
+        font-size: clamp(22px, 4vw, 30px); line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+      }
+      .tile .v.small { font-size: 16px; font-weight: 700; word-break: break-word; }
+
+      /* ---- Chart ---- */
+      .chart-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; margin-bottom: 4px; }
+      .chart-head h2 { margin: 0; font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 16px; }
+      .legend { display: flex; gap: 14px; font-size: 12.5px; color: var(--muted); }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+      .chart-wrap { position: relative; margin-top: 10px; }
+      svg.chart { display: block; width: 100%; height: auto; touch-action: pan-y; }
+      .grid-line { stroke: var(--line); stroke-width: 1; }
+      .axis-text { fill: var(--muted); font-size: 11px; font-family: 'Montserrat', sans-serif; }
+      .series-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .crosshair { stroke: #9aa3bd; stroke-width: 1; stroke-dasharray: 3 3; }
+      .dot { stroke: #fff; stroke-width: 2; }
+      .tip {
+        position: absolute; pointer-events: none;
+        background: #fff; border: 1px solid var(--line); border-radius: 10px;
+        padding: 9px 11px; font-size: 12.5px; min-width: 132px;
+        box-shadow: 0 6px 20px rgba(27,35,64,0.12);
+      }
+      .tip b { display: block; font-family: 'Kanit', sans-serif; font-size: 12px; margin-bottom: 5px; }
+      .tip div { display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+      .tip em { font-style: normal; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+      .tip strong { font-variant-numeric: tabular-nums; }
+
+      /* ---- Tables ---- */
+      table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+      caption {
+        text-align: left; font-family: 'Kanit', sans-serif; font-weight: 700;
+        font-size: 14px; padding-bottom: 8px;
+      }
+      th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+      th { font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+      td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+      .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+      .scroll { overflow-x: auto; }
+      .empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
+
+      .note { margin-top: 22px; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
+
+      /* ---- Narrow screens. Kept at the end, after the rules they modify. ---- */
+      @media (max-width: 760px) {
+        .tiles { grid-template-columns: repeat(2, 1fr); }
+        .tables { grid-template-columns: 1fr; }
+        .filters { gap: 12px; }
+        .range div { min-width: 0; flex: 1 1 0; }
+        .spacer { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="brand" href="/">
+        <img src="/brand/emblem-full.webp" alt="" />
+        <span class="brand-name">
+          <b>PRADERA ISLANDS</b>
+          <span>WATERPARK</span>
+        </span>
+      </a>
+      <p class="kicker">Staff only</p>
+      <h1>Visitor Analytics</h1>
+    </header>
+
+    <div class="wrap">
+      <!-- Sign in. Holds no data, so an unauthorised visitor sees exactly this
+           and nothing else. -->
+      <section class="card signin" id="signin">
+        <h2>Sign in</h2>
+        <p>This dashboard is for Pradera staff. Enter the shared passphrase to continue.</p>
+        <form id="signin-form">
+          <label for="pass">Passphrase</label>
+          <input type="password" id="pass" autocomplete="current-password" required />
+          <button type="submit" class="btn-primary" id="signin-btn">Sign in</button>
+        </form>
+        <p class="msg" id="signin-msg" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- Dashboard. Every number inside is written by admin.js from the
+           function's answer; nothing is baked into this file. -->
+      <main id="dash" hidden>
+        <div class="filters">
+          <div class="presets" role="group" aria-label="Date range presets">
+            <button type="button" class="preset" data-days="7">7 days</button>
+            <button type="button" class="preset" data-days="30">30 days</button>
+            <button type="button" class="preset" data-days="90">90 days</button>
+            <button type="button" class="preset" data-preset="month">This month</button>
+            <button type="button" class="preset" data-preset="all">All</button>
+          </div>
+          <div class="range">
+            <div>
+              <label for="from">From</label>
+              <input type="date" id="from" />
+            </div>
+            <div>
+              <label for="to">To</label>
+              <input type="date" id="to" />
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <button type="button" class="btn-quiet" id="signout">Sign out</button>
+        </div>
+
+        <p class="msg" id="dash-msg" role="status" aria-live="polite"></p>
+
+        <section class="tiles" id="tiles" aria-label="Totals for the selected range"></section>
+
+        <section class="card">
+          <div class="chart-head">
+            <h2 id="chart-title">Daily traffic</h2>
+            <!-- Two series, so a legend is always present: identity is never
+                 carried by colour alone. -->
+            <div class="legend" aria-hidden="true">
+              <span><i class="swatch" style="background: var(--series-views)"></i> Pageviews</span>
+              <span><i class="swatch" style="background: var(--series-visitors)"></i> Visitors</span>
+            </div>
+            <div class="spacer"></div>
+            <button type="button" class="btn-quiet" id="toggle-table" aria-expanded="false">Show as table</button>
+          </div>
+          <div class="chart-wrap" id="chart-wrap"></div>
+          <div class="scroll" id="chart-table" hidden></div>
+        </section>
+
+        <section class="tables" id="tables" aria-label="Breakdowns"></section>
+
+        <p class="note" id="note"></p>
+      </main>
+    </div>
+
+    <!-- External, not inline: the site's CSP sets script-src 'self' with no
+         'unsafe-inline', so an inline <script> here would be blocked silently
+         and the page would simply sit there doing nothing. -->
+    <script src="/admin/admin.js"></script>
+  </body>
+</html>

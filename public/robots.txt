@@ -1,3 +1,6 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /admin/
+
+# The sitemap line is appended at deploy time by scripts/og-absolute.js, which
+# is the only place that knows the site's real address.
