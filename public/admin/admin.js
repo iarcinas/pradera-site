@@ -676,7 +676,12 @@ const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Fri
 // Shown Monday first, the way a roster is read; the values stay JS getDay.
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-let holidays = [];
+/* Dated changes, keyed by ISO date: { open: boolean, reason: string|null }.
+   Held here while the editor is open and written whole on Save, so a misclick
+   is undone by navigating away rather than by hunting for an undo. */
+let overrides = {};
+let picked = null;
+let calCursor = new Date();
 
 function renderDays(open) {
   el("s-days").innerHTML = DAY_ORDER.map(
@@ -686,6 +691,10 @@ function renderDays(open) {
   el("s-days").querySelectorAll(".day").forEach((b) => {
     b.addEventListener("click", () => {
       b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+      // The calendar below colours itself from this pattern, so it has to
+      // follow immediately — otherwise it shows the previous week's answer.
+      renderCalendar();
+      if (picked) pickDate(picked);
     });
   });
 }
@@ -693,30 +702,105 @@ function renderDays(open) {
 const selectedDays = () =>
   [...el("s-days").querySelectorAll('.day[aria-pressed="true"]')].map((b) => Number(b.dataset.day));
 
-function renderHolidays() {
-  holidays = [...new Set(holidays)].sort();
-  el("s-holidays").innerHTML = holidays
-    .map(
-      (d) =>
-        `<span class="chip">${esc(new Date(`${d}T00:00:00`).toLocaleDateString("en-PH", { day: "numeric", month: "short", year: "numeric" }))}` +
-        `<button type="button" data-date="${esc(d)}" aria-label="Remove ${esc(d)}">×</button></span>`
-    )
+const isoYMD = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+const todayKey = () => {
+  const n = new Date();
+  return isoYMD(n.getFullYear(), n.getMonth(), n.getDate());
+};
+
+/* The same decision the website makes, kept deliberately identical: an
+   override wins, otherwise the weekly pattern decides. If these two ever
+   disagree, staff are editing one calendar and guests are reading another. */
+function isOpenOn(key, weekday) {
+  const o = overrides[key];
+  if (o) return o.open;
+  return selectedDays().includes(weekday);
+}
+
+function renderCalendar() {
+  const year = calCursor.getFullYear();
+  const month = calCursor.getMonth();
+  el("c-title").textContent = calCursor.toLocaleDateString("en-PH", { month: "long", year: "numeric" });
+
+  const first = new Date(year, month, 1).getDay();
+  const count = new Date(year, month + 1, 0).getDate();
+  const today = todayKey();
+
+  const head = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+    .map((d) => `<div class="edcal-dow">${d}</div>`)
     .join("");
-  el("s-holidays").querySelectorAll("button").forEach((b) => {
-    b.addEventListener("click", () => {
-      holidays = holidays.filter((d) => d !== b.dataset.date);
-      renderHolidays();
-    });
+  const blanks = Array(first).fill('<div></div>').join("");
+  const days = Array.from({ length: count }, (_, i) => {
+    const d = i + 1;
+    const key = isoYMD(year, month, d);
+    const open = isOpenOn(key, new Date(year, month, d).getDay());
+    const changed = Boolean(overrides[key]);
+    const cls = [
+      "edcal-day",
+      open ? "open" : "",
+      changed ? "changed" : "",
+      key === picked ? "picked" : "",
+      key < today ? "past" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    return `<button type="button" class="${cls}" data-key="${key}" aria-pressed="${key === picked}">${d}</button>`;
+  }).join("");
+
+  el("c-grid").innerHTML = head + blanks + days;
+  el("c-grid").querySelectorAll(".edcal-day").forEach((b) => {
+    b.addEventListener("click", () => pickDate(b.dataset.key));
   });
 }
 
-el("s-holiday-btn").addEventListener("click", () => {
-  const v = el("s-holiday-add").value;
-  if (!v) return;
-  holidays.push(v);
-  el("s-holiday-add").value = "";
-  renderHolidays();
-  say("s-msg", "Added to the list — not saved until you press Save.", true);
+function pickDate(key) {
+  picked = key;
+  const o = overrides[key];
+  el("c-editor").hidden = false;
+  el("c-editor-date").textContent = new Date(`${key}T00:00:00`).toLocaleDateString("en-PH", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
+  el("c-reason").value = (o && o.reason) || "";
+
+  const state = !o ? "default" : o.open ? "open" : "closed";
+  el("c-editor").querySelectorAll("[data-set]").forEach((b) => {
+    b.setAttribute("aria-pressed", String(b.dataset.set === state));
+  });
+
+  const weekday = new Date(`${key}T00:00:00`).getDay();
+  const pattern = selectedDays().includes(weekday) ? "open" : "closed";
+  el("c-editor-hint").textContent = `The weekly pattern says ${pattern} on this day.`;
+  renderCalendar();
+}
+
+el("c-prev").addEventListener("click", () => {
+  calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() - 1, 1);
+  renderCalendar();
+});
+el("c-next").addEventListener("click", () => {
+  calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 1);
+  renderCalendar();
+});
+
+el("c-editor").querySelectorAll("[data-set]").forEach((b) => {
+  b.addEventListener("click", () => {
+    if (!picked) return;
+    if (b.dataset.set === "default") {
+      delete overrides[picked];
+      el("c-reason").value = "";
+    } else {
+      overrides[picked] = {
+        open: b.dataset.set === "open",
+        reason: el("c-reason").value.trim() || null,
+      };
+    }
+    pickDate(picked);
+    say("s-msg", "Changed here only — press Save schedule to publish it.", true);
+  });
+});
+
+el("c-reason").addEventListener("input", () => {
+  if (picked && overrides[picked]) overrides[picked].reason = el("c-reason").value.trim() || null;
 });
 
 function fillSchedule(s) {
@@ -726,8 +810,65 @@ function fillSchedule(s) {
   el("s-we-open").value = s.hours.weekend.opens;
   el("s-we-close").value = s.hours.weekend.closes;
   el("s-opens-from").value = s.opensFrom || "";
-  holidays = [...s.holidays];
-  renderHolidays();
+  overrides = JSON.parse(JSON.stringify(s.overrides || {}));
+  savedOverrides = JSON.parse(JSON.stringify(s.overrides || {}));
+  picked = null;
+  el("c-editor").hidden = true;
+  calCursor = new Date();
+  renderCalendar();
+}
+
+/* What the schedule looked like when it was last loaded or saved. The offer
+   below is judged against this, so it can ask about the closure just made
+   rather than about one dealt with last week. */
+let savedOverrides = {};
+
+/* The soonest closure added in this sitting that has not already passed.
+   Only closures: an opening nobody hears about costs nobody anything, and an
+   announcement on the morning of an opening is too late to change a plan.
+   Returns nothing when the edit added no closure, so saving a change to the
+   weekly pattern — or reopening a day — asks nothing. */
+function newlyClosed() {
+  const today = todayKey();
+  return Object.keys(overrides)
+    .filter((k) => k >= today && !overrides[k].open)
+    .filter((k) => !savedOverrides[k] || savedOverrides[k].open)
+    .sort()[0];
+}
+
+function offerAnnouncement(key) {
+  const box = el("s-followup");
+  if (!key) {
+    box.hidden = true;
+    return;
+  }
+  const when = new Date(`${key}T00:00:00`);
+  const isToday = key === todayKey();
+  const pretty = when.toLocaleDateString("en-PH", { weekday: "long", day: "numeric", month: "long" });
+  const reason = overrides[key].reason;
+
+  box.hidden = false;
+  el("s-followup-text").textContent = isToday
+    ? "The park is closed today. Guests only see that if they scroll to the calendar — an announcement opens in front of them."
+    : `The park is closed on ${pretty}. An announcement would tell people before they plan around it.`;
+
+  el("s-followup-yes").onclick = () => {
+    document.querySelector('.tab[data-panel="notice"]').click();
+    el("n-message").value = isToday
+      ? `Sarado ang park ngayong araw${reason ? ` — ${reason.toLowerCase()}` : ""}.`
+      : `Sarado ang park sa ${pretty}${reason ? ` — ${reason.toLowerCase()}` : ""}.`;
+    el("n-message").dispatchEvent(new Event("input"));
+    el("n-level").value = "closed";
+    // Run it until the end of the day being closed; past that it is history.
+    const end = new Date(when.getFullYear(), when.getMonth(), when.getDate(), 23, 59);
+    const pad = (n) => String(n).padStart(2, "0");
+    el("n-expires").value = `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}T23:59`;
+    say("n-msg", "Drafted from the calendar — check the wording, then Publish.", true);
+    box.hidden = true;
+  };
+  el("s-followup-no").onclick = () => {
+    box.hidden = true;
+  };
 }
 
 el("s-save").addEventListener("click", async () => {
@@ -736,12 +877,13 @@ el("s-save").addEventListener("click", async () => {
     return say("s-msg", "Pick at least one open day. A park open on no days is almost certainly a mistake.");
   }
   say("s-msg", "Saving…");
+  el("s-followup").hidden = true;
   try {
     const res = await cfg({
       op: "schedule",
       schedule: {
         weekdays: days,
-        holidays,
+        overrides,
         hours: {
           weekday: { opens: el("s-wd-open").value, closes: el("s-wd-close").value },
           weekend: { opens: el("s-we-open").value, closes: el("s-we-close").value },
@@ -749,8 +891,11 @@ el("s-save").addEventListener("click", async () => {
         opensFrom: el("s-opens-from").value || null,
       },
     });
+    // Worked out before fillSchedule, which resets the baseline it compares to.
+    const justClosed = newlyClosed();
     fillSchedule(res.schedule);
     say("s-msg", res.note || "Saved. The website updates within a minute; Google follows after the rebuild.", true);
+    offerAnnouncement(justClosed);
   } catch (err) {
     if (err.status === 401) return handleAuthLoss();
     say("s-msg", err.message);
@@ -761,7 +906,12 @@ el("s-save").addEventListener("click", async () => {
    than on empty fields the first time, before anything has been stored. */
 const FALLBACK_SCHEDULE = {
   weekdays: [0, 4, 5, 6],
-  holidays: ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"],
+  overrides: {
+    "2026-11-16": { open: true, reason: "Holiday" },
+    "2026-11-17": { open: true, reason: "Holiday" },
+    "2026-11-18": { open: true, reason: "Holiday" },
+    "2026-11-30": { open: true, reason: "Holiday" },
+  },
   hours: { weekday: { opens: "10:00", closes: "17:00" }, weekend: { opens: "09:00", closes: "17:00" } },
   opensFrom: "2026-11-15",
 };

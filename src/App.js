@@ -210,11 +210,19 @@ export default function PraderaIslands() {
       setForm({ ...form, visitDate: "" });
       return;
     }
-    // A holiday opening beats the weekday rule — turning away a guest who
-    // picked a day we are open would be the worst kind of wrong.
-    if (!schedule.holidays.includes(v) && !schedule.weekdays.includes(day)) {
+    /* One function decides this for the calendar and for the form, so the two
+       can never disagree — and a dated opening beats the weekly pattern, since
+       turning away a guest who picked a day we are open is the worst kind of
+       wrong. Where a reason was given, say it: "closed" invites an argument,
+       "closed, scheduled maintenance" does not. */
+    const { open, override } = dayStatus(v, day, schedule);
+    if (!open) {
       const openDays = [...WEEKDAY_BAND, ...WEEKEND_BAND].filter((d) => schedule.weekdays.includes(d)).map((d) => DAY_NAMES[d]);
-      setVisitDateWarn(`The park is closed on that day. Please pick a ${openDays.join(", ")}, or a holiday marked open on the calendar.`);
+      setVisitDateWarn(
+        override && override.reason
+          ? `The park is closed that day — ${override.reason.toLowerCase()}. Please pick another date.`
+          : `The park is closed on that day. Please pick a ${openDays.join(", ")}, or a date marked open on the calendar.`
+      );
       setForm({ ...form, visitDate: "" });
       return;
     }
@@ -628,7 +636,24 @@ export default function PraderaIslands() {
         .cal-day.open { background: ${COLORS.orange}; color: #fff; }
         .cal-day.past { opacity: 0.38; }
         .cal-day.today { box-shadow: inset 0 0 0 2px ${COLORS.hiraya}; }
-        .cal-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #55566a; }
+        /* A day shut against the weekly pattern. Hatched rather than simply
+           grey, so it reads as "something changed here" at a glance and is
+           still distinguishable in print or for a colourblind reader, who
+           would otherwise see two identical grey squares. */
+        .cal-day.shut {
+          background: repeating-linear-gradient(135deg, #f4f6fb, #f4f6fb 3px, #e0e4ef 3px, #e0e4ef 6px);
+          color: #8d93a6;
+          box-shadow: inset 0 0 0 1px #d4d9e6;
+        }
+        .cal-changes { list-style: none; margin: 12px 0 0; padding: 0; font-size: 12.5px; color: #55566a; line-height: 1.7; }
+        .cal-changes li { padding-left: 14px; position: relative; }
+        .cal-changes li::before { content: "·"; position: absolute; left: 4px; }
+        .cal-changes b { color: #1b2340; }
+        .cal-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #55566a; flex-wrap: wrap; }
+        .cal-legend .cal-swatch.shut {
+          background: repeating-linear-gradient(135deg, #f4f6fb, #f4f6fb 3px, #e0e4ef 3px, #e0e4ef 6px);
+          box-shadow: inset 0 0 0 1px #d4d9e6;
+        }
         .cal-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: #f4f6fb; border: 1px solid #e5e7eb; }
         .cal-swatch.open { background: ${COLORS.orange}; border-color: ${COLORS.orange}; }
         .cal-legend .cal-swatch:not(:first-child) { margin-left: 10px; }
@@ -1880,7 +1905,18 @@ export default function PraderaIslands() {
  */
 const DEFAULT_SCHEDULE = {
   weekdays: [0, 4, 5, 6], // Thu, Fri, Sat, Sun
-  holidays: ["2026-11-16", "2026-11-17", "2026-11-18", "2026-11-30"],
+  /* Single dates that depart from the weekly pattern, in either direction.
+     `open: true` opens a day the pattern would close — a holiday. `open: false`
+     closes one it would open — weather, maintenance, a private booking. The
+     reason is shown to guests: a calendar that says a Saturday is shut without
+     saying why reads like a mistake, and a guest who thinks it is a mistake
+     drives out anyway. */
+  overrides: {
+    "2026-11-16": { open: true, reason: "Holiday" },
+    "2026-11-17": { open: true, reason: "Holiday" },
+    "2026-11-18": { open: true, reason: "Holiday" },
+    "2026-11-30": { open: true, reason: "Holiday" },
+  },
   hours: {
     weekday: { opens: "10:00", closes: "17:00" },
     weekend: { opens: "09:00", closes: "17:00" },
@@ -2055,11 +2091,20 @@ function NoticeDialog({ notice }) {
 
 /* Month calendar that marks which days the park is open. Shows the current
    month and lets guests step forward. Days before today are dimmed. */
+/* Is the park open on this date, and why is that not the usual answer?
+   One place decides it, so the calendar, the sentence beneath it and the
+   enquiry form can never disagree about a Saturday. */
+function dayStatus(key, weekday, schedule) {
+  if (schedule.opensFrom && key < schedule.opensFrom) {
+    return { open: false, override: null };
+  }
+  const override = (schedule.overrides || {})[key];
+  if (override) return { open: override.open, override };
+  return { open: schedule.weekdays.includes(weekday), override: null };
+}
+
 function OpenDaysCalendar({ schedule = DEFAULT_SCHEDULE }) {
-  const OPEN_WEEKDAYS = new Set(schedule.weekdays);
-  const HOLIDAYS_OPEN = new Set(schedule.holidays);
-  const OPENS_FROM = schedule.opensFrom || "0000-01-01";
-  const holidayHours = fmtBand(schedule.hours.weekend);
+  const openHours = fmtBand(schedule.hours.weekend);
   const today = new Date();
   const [cursor, setCursor] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const year = cursor.getFullYear(), month = cursor.getMonth();
@@ -2069,6 +2114,21 @@ function OpenDaysCalendar({ schedule = DEFAULT_SCHEDULE }) {
   const label = cursor.toLocaleDateString("en-PH", { month: "long", year: "numeric" });
   const isPast = (d) => new Date(year, month, d) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const isToday = (d) => d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+
+  /* The dated changes that fall in the month on screen, listed under the grid.
+     Past dates are dropped — a guest planning a visit does not need to be told
+     we were shut last Tuesday, and the list stays short enough to read. */
+  const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+  const todayKey = isoDate(today.getFullYear(), today.getMonth(), today.getDate());
+  const changes = Object.keys(schedule.overrides || {})
+    .filter((key) => key.startsWith(monthPrefix) && key >= todayKey)
+    .sort()
+    .map((key) => ({
+      key,
+      open: schedule.overrides[key].open,
+      reason: schedule.overrides[key].reason,
+      label: new Date(`${key}T00:00:00`).toLocaleDateString("en-PH", { weekday: "short", day: "numeric", month: "short" }),
+    }));
   return (
     <div className="cal">
       <div className="cal-head">
@@ -2081,18 +2141,39 @@ function OpenDaysCalendar({ schedule = DEFAULT_SCHEDULE }) {
         {cells.map((d, i) => {
           if (d === null) return <div key={`e${i}`} />;
           const key = isoDate(year, month, d);
-          const holiday = HOLIDAYS_OPEN.has(key);
-          const open = key >= OPENS_FROM && (holiday || OPEN_WEEKDAYS.has(new Date(year, month, d).getDay()));
+          const { open, override } = dayStatus(key, new Date(year, month, d).getDay(), schedule);
+          /* A day shut when the week says it should be open gets its own mark.
+             Left looking like an ordinary closed Monday, it reads as a mistake,
+             and a guest who thinks the site is wrong sets out anyway. */
+          const shut = Boolean(override) && !override.open;
+          const reason = override && override.reason;
           return (
-            <div key={d} className={`cal-day${open ? " open" : ""}${isPast(d) ? " past" : ""}${isToday(d) ? " today" : ""}`}
-              title={holiday ? `Holiday — open, ${holidayHours}` : undefined}
-              aria-label={`${d} ${label}, ${holiday ? "open for the holiday" : open ? "open" : "closed"}`}>
+            <div key={d} className={`cal-day${open ? " open" : ""}${shut ? " shut" : ""}${isPast(d) ? " past" : ""}${isToday(d) ? " today" : ""}`}
+              title={reason || (open ? `Open, ${openHours}` : undefined)}
+              aria-label={`${d} ${label}, ${open ? "open" : "closed"}${reason ? `, ${reason}` : ""}`}>
               {d}
             </div>
           );
         })}
       </div>
-      <div className="cal-legend"><span className="cal-swatch open" /> Open <span className="cal-swatch" /> Closed</div>
+      <div className="cal-legend">
+        <span className="cal-swatch open" /> Open <span className="cal-swatch" /> Closed
+        {changes.length > 0 && <><span className="cal-swatch shut" /> Changed</>}
+      </div>
+
+      {/* Spelled out, not left to a tooltip. Half the guests are on a phone,
+          where there is no hover at all, and the reason is the part that stops
+          someone setting out on a day we are shut. */}
+      {changes.length > 0 && (
+        <ul className="cal-changes">
+          {changes.map((c) => (
+            <li key={c.key}>
+              <b>{c.label}</b> — {c.open ? "open" : "closed"}
+              {c.reason ? `, ${c.reason.toLowerCase()}` : ""}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

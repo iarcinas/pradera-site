@@ -246,6 +246,37 @@
       }
       .chips:empty::after { content: "None set."; color: var(--muted); font-size: 13px; }
 
+      /* ---- The date editor's own calendar ---- */
+      .edcal { margin-top: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fff; }
+      .edcal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+      .edcal-title { font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 14px; }
+      .edcal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+      .edcal-dow { text-align: center; font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+      .edcal-day {
+        aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+        border: none; border-radius: 7px; cursor: pointer;
+        font: inherit; font-size: 13px; font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        background: #f4f6fb; color: #b4bacb;
+      }
+      .edcal-day.open { background: var(--orange); color: #fff; }
+      /* Hatched, not just grey: "changed by hand" has to be visible at a glance
+         and still tell apart from an ordinary closed day in greyscale. */
+      .edcal-day.changed { box-shadow: inset 0 0 0 2px var(--hiraya); }
+      .edcal-day.picked { outline: 2px solid var(--dagat); outline-offset: 1px; }
+      .edcal-day.past { opacity: 0.4; }
+      .edcal-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12px; color: var(--muted); }
+      .edcal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .sw { width: 11px; height: 11px; border-radius: 3px; background: #f4f6fb; display: inline-block; }
+      .sw.open { background: var(--orange); }
+      .sw.changed { background: #f4f6fb; box-shadow: inset 0 0 0 2px var(--hiraya); }
+
+      .editor { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #f8f9fd; }
+      .editor > b { display: block; font-family: 'Kanit', sans-serif; font-size: 14px; margin-bottom: 10px; }
+      .editor .presets { margin-bottom: 4px; }
+      .editor label { margin-top: 14px; }
+      .editor .hint { margin-top: 8px; }
+
       /* ---- Narrow screens. Kept at the end, after the rules they modify. ---- */
       @media (max-width: 760px) {
         .tiles { grid-template-columns: repeat(2, 1fr); }
@@ -414,15 +445,38 @@
               </div>
             </div>
 
-            <label for="s-holiday-add">Holidays the park opens anyway</label>
+            <label>Changes to single dates</label>
             <p class="hint">
-              Dates that fall on a closed day but are open regardless. They use the weekend hours.
+              Click a date to open or close it against the pattern above — a holiday you
+              open, a Saturday the weather takes away. Give a reason: guests see it under
+              the calendar on the website, and a day shut without one reads as a mistake.
             </p>
-            <div class="times">
-              <input type="date" id="s-holiday-add" />
-              <button type="button" class="btn-quiet" id="s-holiday-btn">Add</button>
+
+            <div class="edcal">
+              <div class="edcal-head">
+                <button type="button" class="btn-quiet" id="c-prev" aria-label="Previous month">‹</button>
+                <div class="edcal-title" id="c-title"></div>
+                <button type="button" class="btn-quiet" id="c-next" aria-label="Next month">›</button>
+              </div>
+              <div class="edcal-grid" id="c-grid"></div>
+              <div class="edcal-legend">
+                <span><i class="sw open"></i> Open</span>
+                <span><i class="sw"></i> Closed</span>
+                <span><i class="sw changed"></i> Changed by hand</span>
+              </div>
             </div>
-            <div class="chips" id="s-holidays"></div>
+
+            <div class="editor" id="c-editor" hidden>
+              <b id="c-editor-date"></b>
+              <div class="presets" role="group" aria-label="Status for this date">
+                <button type="button" class="preset" data-set="default">Follow the pattern</button>
+                <button type="button" class="preset" data-set="open">Open</button>
+                <button type="button" class="preset" data-set="closed">Closed</button>
+              </div>
+              <label for="c-reason">Reason shown to guests</label>
+              <input type="text" id="c-reason" maxlength="90" placeholder="Masamang panahon" />
+              <p class="hint" id="c-editor-hint"></p>
+            </div>
 
             <label for="s-opens-from">First operating day</label>
             <p class="hint">Every date before this is closed whatever the weekday says. Leave it empty once opening week is past.</p>
@@ -432,6 +486,18 @@
               <button type="button" class="btn-primary inline" id="s-save">Save schedule</button>
             </div>
             <p class="msg" id="s-msg" role="status" aria-live="polite"></p>
+
+            <!-- Offered only after a date is closed, and only for one that has
+                 not passed. Closing a day is the half guests get hurt by; an
+                 opening harms nobody who misses it. -->
+            <div class="editor" id="s-followup" hidden>
+              <b>One more thing</b>
+              <p class="hint" id="s-followup-text"></p>
+              <div class="actions">
+                <button type="button" class="btn-primary inline" id="s-followup-yes">Write the announcement</button>
+                <button type="button" class="btn-quiet" id="s-followup-no">No need</button>
+              </div>
+            </div>
           </div>
         </section>
       </main>

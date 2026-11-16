@@ -108,16 +108,22 @@ async function applySchedule() {
   if (weekdayDays.length) opening.push(spec(weekdayDays, schedule.hours.weekday));
   if (weekendDays.length) opening.push(spec(weekendDays, schedule.hours.weekend));
 
-  /* Each holiday is its own entry rather than a range. Ranges would be shorter
-     but would also claim the days in between, and those are ordinary closed
-     Mondays. */
-  const special = schedule.holidays.map((date) => ({
-    "@type": "OpeningHoursSpecification",
-    opens: schedule.hours.weekend.opens,
-    closes: schedule.hours.weekend.closes,
-    validFrom: date,
-    validThrough: date,
-  }));
+  /* Each dated change is its own entry rather than a range: a range would also
+     claim the days in between, and those are ordinary closed Mondays.
+     A closure is expressed as opens and closes both at 00:00, which is how
+     schema.org says "shut on this date" — without it Google keeps quoting the
+     weekly hours for a day we have taken away, which is the one error that
+     actually sends someone to a locked gate. */
+  const special = Object.keys(schedule.overrides || {}).sort().map((date) => {
+    const o = schedule.overrides[date];
+    return {
+      "@type": "OpeningHoursSpecification",
+      opens: o.open ? schedule.hours.weekend.opens : "00:00",
+      closes: o.open ? schedule.hours.weekend.closes : "00:00",
+      validFrom: date,
+      validThrough: date,
+    };
+  });
 
   let out = fs.readFileSync(file, "utf8");
   const before = out;

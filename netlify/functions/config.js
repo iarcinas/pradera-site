@@ -57,6 +57,22 @@ const readDoc = async (store, key) => {
   }
 };
 
+/* Schedules stored before dated overrides existed carry a `holidays` list,
+   which could only open a day and carried no reason. Convert on the way out so
+   that everything downstream — the website, the admin, the build step — deals
+   with one shape only. The stored document is left as it is; it gets rewritten
+   in the new shape the first time staff save. */
+function normaliseSchedule(s) {
+  if (!s) return null;
+  if (s.overrides) return s;
+  const overrides = {};
+  (s.holidays || []).forEach((date) => {
+    overrides[date] = { open: true, reason: "Holiday" };
+  });
+  const { holidays, ...rest } = s;
+  return { ...rest, overrides };
+}
+
 /* Drop a notice whose time has passed. This runs on read, so even a notice
    that was never cleared by hand simply stops being served. */
 const liveNotice = (notice) => {
@@ -79,15 +95,43 @@ function validateNotice(n) {
   return null;
 }
 
+/* A reason shows as a line under the guest calendar, so it has to fit on one. */
+const MAX_REASON = 90;
+const MAX_OVERRIDES = 150;
+
+/* Single dates that depart from the weekly pattern, each way:
+     { "2026-11-21": { open: false, reason: "Masamang panahon" },
+       "2026-11-30": { open: true,  reason: "Holiday" } }
+   This replaces the old `holidays` list, which could only ever open a day and
+   could not say why. Schedules stored in the old shape are converted on read
+   rather than migrated in place — see normaliseSchedule. */
+function validateOverrides(o) {
+  if (o === undefined) return null;
+  if (typeof o !== "object" || o === null || Array.isArray(o)) {
+    return "overrides must be an object keyed by date.";
+  }
+  const keys = Object.keys(o);
+  if (keys.length > MAX_OVERRIDES) return `That is more than ${MAX_OVERRIDES} dated changes.`;
+  for (const date of keys) {
+    if (!DATE_RE.test(date)) return `"${date}" is not a YYYY-MM-DD date.`;
+    const v = o[date];
+    if (typeof v !== "object" || v === null) return `The entry for ${date} is malformed.`;
+    if (typeof v.open !== "boolean") return `The entry for ${date} must say open true or false.`;
+    if (v.reason !== undefined && v.reason !== null) {
+      if (typeof v.reason !== "string") return `The reason for ${date} must be text.`;
+      if (v.reason.length > MAX_REASON) return `Keep the reason for ${date} under ${MAX_REASON} characters.`;
+    }
+  }
+  return null;
+}
+
 function validateSchedule(s) {
   if (typeof s !== "object" || s === null) return "Schedule must be an object.";
   if (!Array.isArray(s.weekdays) || s.weekdays.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) {
     return "weekdays must be a list of day numbers from 0 to 6.";
   }
-  if (!Array.isArray(s.holidays) || s.holidays.some((d) => !DATE_RE.test(d))) {
-    return "holidays must be a list of YYYY-MM-DD dates.";
-  }
-  if (s.holidays.length > 60) return "That is more holidays than a year has.";
+  const badOverrides = validateOverrides(s.overrides);
+  if (badOverrides) return badOverrides;
   for (const band of ["weekday", "weekend"]) {
     const h = s.hours && s.hours[band];
     if (!h || !TIME_RE.test(h.opens || "") || !TIME_RE.test(h.closes || "")) {
@@ -132,7 +176,7 @@ exports.handler = async (event) => {
       return json(200, { notice: null, schedule: null }, PUBLIC_CACHE_SECONDS);
     }
     const [notice, schedule] = await Promise.all([readDoc(store, "notice"), readDoc(store, "schedule")]);
-    return json(200, { notice: liveNotice(notice), schedule: schedule || null }, PUBLIC_CACHE_SECONDS);
+    return json(200, { notice: liveNotice(notice), schedule: normaliseSchedule(schedule) }, PUBLIC_CACHE_SECONDS);
   }
 
   if (event.httpMethod !== "POST") return json(405, { error: "Use GET or POST." });
@@ -157,7 +201,7 @@ exports.handler = async (event) => {
   // instead of an empty box that looks like nothing was ever set.
   if (body.op === "read") {
     const [notice, schedule] = await Promise.all([readDoc(store, "notice"), readDoc(store, "schedule")]);
-    return json(200, { notice: notice || null, schedule: schedule || null });
+    return json(200, { notice: notice || null, schedule: normaliseSchedule(schedule) });
   }
 
   if (body.op === "notice") {
@@ -184,9 +228,22 @@ exports.handler = async (event) => {
     const bad = validateSchedule(body.schedule);
     if (bad) return json(400, { error: bad });
 
+    // Rebuilt rather than spread, so a stray field cannot ride in and sit in
+    // the store forever pretending to mean something.
+    const overrides = {};
+    Object.keys(body.schedule.overrides || {})
+      .sort()
+      .forEach((date) => {
+        const v = body.schedule.overrides[date];
+        overrides[date] = {
+          open: v.open,
+          reason: (v.reason || "").trim() || null,
+        };
+      });
+
     const schedule = {
       weekdays: [...new Set(body.schedule.weekdays)].sort(),
-      holidays: [...new Set(body.schedule.holidays)].sort(),
+      overrides,
       hours: {
         weekday: { opens: body.schedule.hours.weekday.opens, closes: body.schedule.hours.weekday.closes },
         weekend: { opens: body.schedule.hours.weekend.opens, closes: body.schedule.hours.weekend.closes },
