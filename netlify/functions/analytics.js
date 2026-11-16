@@ -24,7 +24,7 @@
  * an afternoon. Revisit when more than a handful of people need access.
  */
 
-const { getStore } = require("@netlify/blobs");
+const { getStore, connectLambda } = require("@netlify/blobs");
 const { TOKEN_TTL_MS, sameSecret, signToken, verifyToken, json, parseBody } = require("../lib/auth");
 
 const STORE = "analytics";
@@ -56,6 +56,13 @@ async function readDays(store, dates) {
 }
 
 exports.handler = async (event) => {
+  /* A v1 (Lambda-compatible) handler does not wire the blobs client up on its
+     own: the credentials ride in on the event and have to be handed over
+     before the first getStore call, or every read fails complaining that the
+     environment is not configured. The guard is for the tests, which call the
+     handler with a plain event carrying no blobs context. */
+  if (event.blobs) connectLambda(event);
+
   if (event.httpMethod !== "POST") {
     return json(405, { error: "Use POST." });
   }

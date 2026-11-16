@@ -22,7 +22,7 @@
  * page would otherwise say one thing and the search result another.
  */
 
-const { getStore } = require("@netlify/blobs");
+const { getStore, connectLambda } = require("@netlify/blobs");
 const { sameSecret, verifyToken, json, parseBody } = require("../lib/auth");
 
 const STORE = "site-config";
@@ -114,6 +114,15 @@ async function triggerBuild() {
 }
 
 exports.handler = async (event) => {
+  /* This is a v1 (Lambda-compatible) handler, and in that shape the blobs
+     client does not find its credentials by itself — they arrive on the event
+     and have to be handed over before the first getStore call. Without this,
+     every read and write fails with "the environment has not been configured",
+     which reads like a misconfigured site rather than a missing line.
+     The guard is for the tests, which call the handler with a plain event
+     that carries no blobs context. */
+  if (event.blobs) connectLambda(event);
+
   const store = openStore();
 
   if (event.httpMethod === "GET") {
