@@ -387,8 +387,12 @@ const CHART = { w: 900, h: 300, left: 52, right: 18, top: 18, bottom: 30 };
 function niceScale(v) {
   const target = Math.max(1, v) / 4;
   const mag = 10 ** Math.floor(Math.log10(target));
-  const candidates = (mag >= 10 ? [1, 2, 2.5, 5, 10] : [1, 2, 5, 10]).map((c) => c * mag);
-  const step = Math.max(1, Math.round(candidates.find((c) => c >= target) || 10 * mag));
+  /* A coarse ladder overshoots badly: with only 1, 2, 5 to choose from, a
+     busiest day of 503 lands on a step of 200 and a top of 800, so the lines
+     sit in the bottom half and the top half of the card is empty. That is the
+     chart reading as a large white box. The finer rungs put 503 under 600. */
+  const ladder = mag >= 10 ? [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10] : [1, 2, 3, 4, 5, 10];
+  const step = Math.max(1, Math.round((ladder.find((c) => c * mag >= target) || 10) * mag));
   return step * 4;
 }
 
@@ -904,7 +908,10 @@ function pickDate(key) {
 
   const weekday = new Date(`${key}T00:00:00`).getDay();
   const pattern = selectedDays().includes(weekday) ? "open" : "closed";
-  el("c-editor-hint").textContent = `Normally ${pattern} — the weekly pattern above.`;
+  /* No "above" or "beside": the weekly pattern sits above this on a phone and
+     to the right of it on a desktop, and copy that names a direction is wrong
+     in one of the two. */
+  el("c-editor-hint").textContent = `Normally ${pattern}, by the weekly pattern.`;
   renderCalendar();
 }
 

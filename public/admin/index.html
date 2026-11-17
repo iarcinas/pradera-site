@@ -186,7 +186,11 @@
       th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
       th { font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
       td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-      .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+      /* align-items: start, or the grid stretches every card to the height of
+         the tallest. "Top pages" with two rows then carries the empty height of
+         "Sources" with five, and the 404 card — usually empty — becomes the
+         biggest box on the page. Each card should be as tall as what is in it. */
+      .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; align-items: start; }
       .scroll { overflow-x: auto; }
       .empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
 
@@ -312,6 +316,40 @@
       .preview p b { font-weight: 700; }
       .preview p .none { color: var(--muted); font-style: italic; }
 
+      /* ---- Wide screens. Kept at the end, after the rules they modify. ----
+         Below this width every panel stays the single column it has always
+         been; .panel-cols is an ordinary block and the markup reads top to
+         bottom in the order it is written. */
+      @media (min-width: 1000px) {
+        /* The form panels were capped at 620px and left-aligned inside a
+           1040px page, which stranded them against the left edge with 400px of
+           nothing beside them — the thing that read as broken on a desktop. */
+        #panel-notice .form, #panel-schedule .form { max-width: none; }
+        /* The card may fill the page; a paragraph may not. At 1000px wide the
+           lede runs past 130 characters a line, which is past the point where
+           the eye loses its place returning to the left margin. */
+        #panel-notice .lede, #panel-schedule .lede { max-width: 72ch; }
+        .panel-cols {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 340px;
+          gap: 26px;
+          align-items: start;
+        }
+        /* Placed explicitly so the markup can keep its natural reading order —
+           the weekly pattern is described before the dated exceptions that are
+           read against it — while the calendar still gets the wider column. */
+        .panel-main { grid-column: 1; grid-row: 1; }
+        .panel-side { grid-column: 2; grid-row: 1; position: sticky; top: 16px; }
+        /* Two time fields side by side inside a 340px column is a squeeze. */
+        .panel-side .two { grid-template-columns: 1fr; }
+        /* The date range belongs at the far end of the filter row. Left-packed,
+           it floats in the middle of a wide screen with a gap either side. */
+        .filters .range { margin-left: auto; }
+        /* A staff tool does not need 180px of blue above the first control. */
+        .masthead { padding: 18px 20px 22px; }
+        .masthead .kicker { margin-top: 12px; }
+      }
+
       /* ---- Narrow screens. Kept at the end, after the rules they modify. ---- */
       @media (max-width: 760px) {
         .tiles { grid-template-columns: repeat(2, 1fr); }
@@ -427,7 +465,8 @@
               so a closure still belongs on Facebook and at the gate.
             </p>
 
-            <div id="notice-current" class="current" hidden></div>
+            <div class="panel-cols">
+            <div class="panel-main">
 
             <div class="field-head">
               <label for="n-message">Message</label>
@@ -460,6 +499,15 @@
               <button type="button" class="btn-danger" id="n-remove">Take down now</button>
             </div>
             <p class="msg" id="n-msg" role="status" aria-live="polite"></p>
+
+            </div><!-- /panel-main -->
+
+            <!-- What is live right now, beside the box that changes it. On a
+                 narrow screen this falls back above the form, where it was. -->
+            <aside class="panel-side">
+              <div id="notice-current" class="current" hidden></div>
+            </aside>
+            </div><!-- /panel-cols -->
           </div>
         </section>
 
@@ -473,6 +521,12 @@
               hours Google shows in search and on Maps — allow a minute or two for that.
             </p>
 
+            <div class="panel-cols">
+
+            <!-- The weekly pattern is small, rarely touched and the base the
+                 calendar is read against, so on a wide screen it sits beside
+                 the calendar rather than pushing it a screen further down. -->
+            <aside class="panel-side">
             <label>Open on these days</label>
             <div class="days" id="s-days" role="group" aria-label="Open days"></div>
 
@@ -487,9 +541,15 @@
               </div>
             </div>
 
+            <label for="s-opens-from">First operating day</label>
+            <p class="hint">Every date before this is closed whatever the weekday says. Leave it empty once opening week is past.</p>
+            <input type="date" id="s-opens-from" />
+            </aside><!-- /panel-side -->
+
+            <div class="panel-main">
             <label>Changes to single dates</label>
             <p class="hint">
-              Click a date to open or close it against the pattern above — a holiday you
+              Click a date to open or close it against the weekly pattern — a holiday you
               open, a Saturday the weather takes away. Give a reason: guests see it under
               the calendar on the website, and a day shut without one reads as a mistake.
             </p>
@@ -539,9 +599,8 @@
               </div>
             </div>
 
-            <label for="s-opens-from">First operating day</label>
-            <p class="hint">Every date before this is closed whatever the weekday says. Leave it empty once opening week is past.</p>
-            <input type="date" id="s-opens-from" />
+            </div><!-- /panel-main -->
+            </div><!-- /panel-cols -->
 
             <div class="actions">
               <button type="button" class="btn-primary inline" id="s-save">Save schedule</button>
