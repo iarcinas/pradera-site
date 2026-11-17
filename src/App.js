@@ -197,6 +197,45 @@ export default function PraderaIslands() {
     };
   }, []);
 
+  /* Count this page load.
+   *
+   * Our own counter, on our own origin — no Google Analytics, no third-party
+   * script, so the CSP stays script-src 'self' and there is no cookie banner
+   * to show. The function behind it stores a path, a daily-rotating hash and
+   * an hour; see netlify/lib/counter.js for why that is a statistic and not a
+   * record about anyone.
+   *
+   * sendBeacon rather than fetch: it hands the request to the browser to send
+   * on its own time, so it cannot hold up the page and still goes out if the
+   * visitor closes the tab in the same second. Older Safari lacks it, hence
+   * the keepalive fetch behind it — same reason: the request has to survive
+   * the page going away.
+   *
+   * Every failure path here is silent and empty. A counter that logs to the
+   * console of a real guest's browser, or that can throw during render, has
+   * cost more than it measures. */
+  useEffect(() => {
+    if (window.location.pathname.startsWith("/admin")) return;
+    const url = "/.netlify/functions/hit";
+    const body = JSON.stringify({
+      p: window.location.pathname,
+      r: document.referrer || "",
+    });
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: "application/json" }))) {
+        return;
+      }
+    } catch {
+      /* Blocked by an extension, or the queue is full. Fall through. */
+    }
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
+
   // Planned visit date: optional, today or later, and only on days the park is open.
   const todayISO = new Date().toLocaleDateString("en-CA");
   const [visitDateWarn, setVisitDateWarn] = useState("");

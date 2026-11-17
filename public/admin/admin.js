@@ -10,14 +10,16 @@
  * Adding a library to the bundle would work, but a two-series line chart is
  * not worth 60 KB and a dependency to keep patched.
  *
- * Day records come from our own snapshot job, in our own shape:
+ * Day records come from our own hourly job, in our own shape:
  *   { date, pageviews, visitors,
+ *     hours: [{ hour, pageviews, visitors }] x24,
  *     pages: [{ path, views }], sources: [{ source, views }],
  *     countries: [{ country, views }], notFound: [{ path, views }],
  *     fetchedAt, source }
- * The job normalises whatever Netlify's endpoint returns into that shape, so
- * if the endpoint changes its field names, only the job changes — not this.
- * A day the job never wrote comes back as { date, missing: true }.
+ * The counting happens in netlify/lib/counter.js; this file only draws. A day
+ * the job never wrote comes back as { date, missing: true }, and a record
+ * written before the hourly breakdown existed has no `hours` — both are
+ * handled rather than assumed away.
  */
 
 const ENDPOINT = "/.netlify/functions/analytics";
@@ -28,7 +30,7 @@ const el = (id) => document.getElementById(id);
 const fmt = (n) => (typeof n === "number" ? n.toLocaleString("en-PH") : "—");
 const iso = (d) => d.toISOString().slice(0, 10);
 
-const state = { token: null, days: [], available: [] };
+const state = { token: null, days: [], available: [], chart: null };
 
 /* ---------------------------------------------------------------- transport */
 
@@ -144,9 +146,11 @@ async function openDashboard() {
       // Honest empty state. This is what staff will see until the first
       // snapshot runs, and it should say so rather than show four zeros.
       el("dash-msg").textContent =
-        "No snapshots have been saved yet. The nightly job writes one record per day; the dashboard fills in from there.";
+        "Nothing counted yet. Page loads are counted as they happen and rolled up every hour, so the first day appears within an hour of the first visit.";
       el("tiles").innerHTML = "";
       el("chart-wrap").innerHTML = "";
+      el("chart-table").innerHTML = "";
+      state.chart = null;
       el("tables").innerHTML = "";
       el("note").textContent = "";
       return;
@@ -248,8 +252,16 @@ function render() {
   const present = days.filter((d) => !d.missing);
 
   renderTiles(present);
-  renderChart(days);
-  renderChartTable(days);
+
+  /* One day selected draws the hours instead. A single day on the daily chart
+     is one dot with nothing to compare it to; the same day by hour is the
+     question Operations actually has — is anyone here before noon.
+     A record saved before the hourly breakdown existed has no `hours`, so it
+     falls back to the dot rather than drawing twenty-four zeroes. */
+  const hourly = days.length === 1 && !days[0].missing && Array.isArray(days[0].hours);
+  if (hourly) renderHourly(days[0]);
+  else renderDaily(days);
+
   renderTables(present);
 
   const gaps = days.length - present.length;
@@ -257,11 +269,57 @@ function render() {
   el("note").textContent = [
     `${present.length} ${present.length === 1 ? "day" : "days"} of records in this range.`,
     gaps ? `${gaps} ${gaps === 1 ? "day has" : "days have"} no record — the chart leaves those gaps open rather than joining the line across them.` : "",
-    fetched ? `Last snapshot taken ${new Date(fetched).toLocaleString("en-PH")}.` : "",
-    "Figures are Netlify's own server-side request counts: no cookie, no tracker, and no personal data about guests.",
+    /* Said plainly because it looks like an error otherwise. Someone who
+       arrives at 10am and comes back at 3pm is one visitor that day and a
+       visitor in each of two hours, so the hourly column adds up to more than
+       the daily figure. Both numbers are right. */
+    hourly ? "Hourly visitor counts add up to more than the day's total: a guest who comes back later in the day is counted in each hour they appear, but once for the day." : "",
+    fetched ? `Counted up to ${new Date(fetched).toLocaleString("en-PH")}.` : "",
+    "Our own count, taken on this site: one tally per page load, no cookie, no third-party tracker, and nothing stored that identifies a guest. Obvious bots are left out, so these run lower than Netlify's figures — and closer to the truth.",
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+/* The two views. Each sets the heading, draws the chart and fills the table
+   beneath it, so the table is never describing the other chart. */
+function renderDaily(days) {
+  el("chart-title").textContent = "Daily traffic";
+  drawChart(days);
+  el("chart-table").innerHTML = chartTable("Daily figures", "Date", days, (d) => esc(d.date));
+}
+
+const HOUR_SHORT = (h) => `${h % 12 === 0 ? 12 : h % 12}${h < 12 ? "a" : "p"}`;
+const HOUR_RANGE = (h) => {
+  const name = (n) => `${n % 12 === 0 ? 12 : n % 12} ${n < 12 || n === 24 ? "AM" : "PM"}`;
+  return `${name(h)} – ${name(h + 1)}`;
+};
+
+function renderHourly(day) {
+  const title = new Date(`${day.date}T00:00:00`).toLocaleDateString("en-PH", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+  el("chart-title").textContent = `By the hour — ${title}`;
+
+  const rows = day.hours.map((h) => ({
+    date: day.date,
+    hour: h.hour,
+    pageviews: h.pageviews || 0,
+    visitors: h.visitors || 0,
+  }));
+
+  drawChart(rows, {
+    xLabel: (r) => HOUR_SHORT(r.hour),
+    tipTitle: (r) => HOUR_RANGE(r.hour),
+    // Label the busiest hour, not the last one: at 11pm the last point is
+    // almost always zero, and a "0" floating at the end of the chart is the
+    // least useful number on it.
+    labelPeak: true,
+  });
+
+  el("chart-table").innerHTML = chartTable("Hourly figures", "Hour", rows, (r) => esc(HOUR_RANGE(r.hour)));
 }
 
 function sumBy(rows, key) {
@@ -334,7 +392,24 @@ function niceScale(v) {
   return step * 4;
 }
 
-function renderChart(days) {
+/* One chart, two views. `rows` only has to carry pageviews, visitors and
+   enough to label itself; `opts` supplies the labelling, so the daily and
+   hourly views share every pixel of the drawing, the gap handling, the
+   tooltip and the crosshair rather than being two charts that drift apart. */
+function drawChart(days, opts = {}) {
+  const xLabel = opts.xLabel || ((d) => d.date.slice(5));
+  const tipTitle =
+    opts.tipTitle ||
+    ((d) =>
+      new Date(`${d.date}T00:00:00`).toLocaleDateString("en-PH", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      }));
+
+  // Kept so a window resize can redraw the view that is actually on screen.
+  state.chart = { days, opts };
+
   const wrap = el("chart-wrap");
   wrap.innerHTML = "";
   if (!days.length) return;
@@ -388,7 +463,7 @@ function renderChart(days) {
       ${days
         .map((d, i) =>
           i % tickEvery === 0 || i === days.length - 1
-            ? `<text class="axis-text" x="${x(i).toFixed(1)}" y="${h - 10}" text-anchor="middle">${d.date.slice(5)}</text>`
+            ? `<text class="axis-text" x="${x(i).toFixed(1)}" y="${h - 10}" text-anchor="middle">${esc(xLabel(d, i))}</text>`
             : ""
         )
         .join("")}
@@ -407,17 +482,25 @@ function renderChart(days) {
         .join("")}
       ${series
         .map((s) => {
-          // One direct label per series, on its last real point — enough to
-          // identify the lines without a number on every point.
-          for (let i = days.length - 1; i >= 0; i -= 1) {
-            const d = days[i];
-            if (!d.missing && typeof d[s.key] === "number") {
-              const anchor = i === days.length - 1 ? "end" : "middle";
-              return `<text class="axis-text" x="${x(i).toFixed(1)}" y="${(y(d[s.key]) - 9).toFixed(1)}"
-                        text-anchor="${anchor}" style="font-weight:600">${fmt(d[s.key])}</text>`;
+          // One direct label per series — enough to identify the lines without
+          // a number on every point. Normally its last real value; the hourly
+          // view asks for the peak instead, because its last hour is usually
+          // empty and a 0 there names nothing worth knowing.
+          const real = (i) => !days[i].missing && typeof days[i][s.key] === "number";
+          let at = -1;
+          if (opts.labelPeak) {
+            days.forEach((_, i) => {
+              if (real(i) && (at < 0 || days[i][s.key] > days[at][s.key])) at = i;
+            });
+          } else {
+            for (let i = days.length - 1; i >= 0; i -= 1) {
+              if (real(i)) { at = i; break; }
             }
           }
-          return "";
+          if (at < 0) return "";
+          const anchor = at === days.length - 1 ? "end" : "middle";
+          return `<text class="axis-text" x="${x(at).toFixed(1)}" y="${(y(days[at][s.key]) - 9).toFixed(1)}"
+                    text-anchor="${anchor}" style="font-weight:600">${fmt(days[at][s.key])}</text>`;
         })
         .join("")}
       <g id="hover-layer"></g>
@@ -425,13 +508,13 @@ function renderChart(days) {
     <div class="tip" id="tip" hidden></div>`;
 
   wrap.innerHTML = svg;
-  attachHover(wrap, days, x, y, series);
+  attachHover(wrap, days, x, y, series, tipTitle);
 }
 
 /* An SVG chart in a browser is interactive whether or not we plan for it, so
    it ships with a crosshair and a tooltip. The hit target is the whole plot
    height at that day's column, not the 9px dot. */
-function attachHover(wrap, days, x, y, series) {
+function attachHover(wrap, days, x, y, series, tipTitle) {
   const svg = wrap.querySelector("svg");
   const layer = wrap.querySelector("#hover-layer");
   const tip = wrap.querySelector("#tip");
@@ -472,7 +555,7 @@ function attachHover(wrap, days, x, y, series) {
         .join("");
 
     tip.innerHTML =
-      `<b>${esc(new Date(`${day.date}T00:00:00`).toLocaleDateString("en-PH", { weekday: "short", day: "numeric", month: "short" }))}</b>` +
+      `<b>${esc(tipTitle(day))}</b>` +
       (day.missing
         ? `<div><em>No record for this day</em></div>`
         : series
@@ -509,16 +592,19 @@ el("toggle-table").addEventListener("click", () => {
   btn.textContent = showing ? "Show as table" : "Hide table";
 });
 
-function renderChartTable(days) {
-  el("chart-table").innerHTML = `
+/* The same table markup for either view; only the first column differs.
+   `firstCell` is given already escaped by its caller, which is also where the
+   heading above it is chosen — the two cannot disagree. */
+function chartTable(caption, head, rows, firstCell) {
+  return `
     <table>
-      <caption>Daily figures</caption>
-      <thead><tr><th>Date</th><th class="num">Pageviews</th><th class="num">Visitors</th></tr></thead>
+      <caption>${esc(caption)}</caption>
+      <thead><tr><th>${esc(head)}</th><th class="num">Pageviews</th><th class="num">Visitors</th></tr></thead>
       <tbody>
-        ${days
+        ${rows
           .map(
             (d) =>
-              `<tr><td>${esc(d.date)}</td>` +
+              `<tr><td>${firstCell(d)}</td>` +
               (d.missing
                 ? `<td class="num">—</td><td class="num">—</td>`
                 : `<td class="num">${fmt(d.pageviews)}</td><td class="num">${fmt(d.visitors)}</td>`) +
@@ -529,11 +615,38 @@ function renderChartTable(days) {
     </table>`;
 }
 
+/* Our counter stores a two-letter country code — it is what the edge gives us
+   and it keeps the blob key short. "PH" is not what anyone wants to read in a
+   report, though, so turn it back into a name here rather than storing the
+   long form a hundred thousand times.
+   Intl.DisplayNames rather than a hand-written table: it covers every code
+   including the ones we have never seen, and it is already in the browser.
+   Anything that is not a bare code is passed through untouched, which is what
+   keeps the days backfilled from Netlify — where the label is already a full
+   country name — reading correctly in the same table. */
+const REGION_NAMES = (() => {
+  try {
+    return new Intl.DisplayNames(["en"], { type: "region" });
+  } catch {
+    return null;
+  }
+})();
+
+function countryName(label) {
+  if (label === "--") return "Unknown";
+  if (!/^[A-Z]{2}$/.test(label)) return label;
+  try {
+    return (REGION_NAMES && REGION_NAMES.of(label)) || label;
+  } catch {
+    return label;
+  }
+}
+
 function renderTables(present) {
   const blocks = [
     { title: "Top pages", head: "Page", rows: mergeBreakdown(present.map((d) => d.pages), "path") },
     { title: "Sources", head: "Referrer", rows: mergeBreakdown(present.map((d) => d.sources), "source") },
-    { title: "Locations", head: "Country", rows: mergeBreakdown(present.map((d) => d.countries), "country") },
+    { title: "Locations", head: "Country", rows: mergeBreakdown(present.map((d) => d.countries), "country"), label: countryName },
     { title: "Not found (404)", head: "Path", rows: mergeBreakdown(present.map((d) => d.notFound), "path") },
   ];
 
@@ -548,7 +661,7 @@ function renderTables(present) {
               ? `<thead><tr><th>${esc(b.head)}</th><th class="num">Views</th></tr></thead>
                  <tbody>${b.rows
                    .slice(0, 12)
-                   .map((r) => `<tr><td>${esc(r.label)}</td><td class="num">${fmt(r.views)}</td></tr>`)
+                   .map((r) => `<tr><td>${esc(b.label ? b.label(r.label) : r.label)}</td><td class="num">${fmt(r.views)}</td></tr>`)
                    .join("")}</tbody>`
               : `<tbody><tr><td class="empty">Nothing recorded for this range.</td></tr></tbody>`
           }
@@ -564,7 +677,9 @@ let resizeTimer;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    if (state.days.length) renderChart(state.days);
+    // Redraw whichever view is up, not always the daily one — resizing the
+    // window while looking at the hours used to replace the chart underneath.
+    if (state.chart && state.chart.days.length) drawChart(state.chart.days, state.chart.opts);
   }, 150);
 });
 
