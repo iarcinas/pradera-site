@@ -103,7 +103,7 @@ const TICKET_RATES = [
   { name: "Regular",        weekday: 1080, weekend: 1180 },
   { name: "Junior",         note: "Ages 4 to 11", weekday: 880, weekend: 980 },
   { name: "Senior / PWD",   note: "20% off Regular with valid ID", weekday: 864, weekend: 944 },
-  { name: "Infant",         note: "Under 3 years old", free: true },
+  { name: "Infant",         note: "Under 3 years old and 3 ft and below", free: true },
 ];
 
 
@@ -722,7 +722,7 @@ export default function PraderaIslands() {
             margin-left: 0; gap: 0; padding: 6px 0 40px;
             background-image:
               linear-gradient(180deg, rgba(0,22,66,0.90) 0%, rgba(0,14,42,0.96) 55%, rgba(0,10,32,0.99) 100%),
-              url('/photos/park-golden.webp');
+              url('/photos/hero-aerial.webp');
             background-size: cover;
             background-position: center;
             border-top: 1px solid rgba(255,255,255,0.12);
