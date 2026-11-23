@@ -21,6 +21,74 @@ const GRADIENTS = {
   deep: `linear-gradient(160deg, ${COLORS.dagat} 0%, ${COLORS.hiraya} 100%)`,
 };
 
+/* A little Christmas, and only at Christmas.
+ *
+ * The season switches itself on and off against Philippine dates, so nobody
+ * has to remember to take the snow down in January — the one maintenance job
+ * a seasonal decoration reliably fails at. `?xmas=1` forces it on and
+ * `?xmas=0` forces it off, which is how staff and anyone reviewing a change
+ * can see it in June.
+ */
+const HOLIDAY_FROM = "12-01";
+const HOLIDAY_TO = "01-06";
+function isHolidaySeason(now = new Date()) {
+  if (typeof window !== "undefined") {
+    const forced = new URLSearchParams(window.location.search).get("xmas");
+    if (forced === "1") return true;
+    if (forced === "0") return false;
+  }
+  /* Manila time: the park's own calendar, not the visitor's. Shifting the
+     clock and reading UTC fields avoids depending on a timezone database. */
+  const manila = new Date(now.getTime() + 8 * 3600000).toISOString();
+  const md = manila.slice(5, 10);
+  return md >= HOLIDAY_FROM || md <= HOLIDAY_TO;
+}
+
+/* Fixed rather than random, so every visitor gets the same quiet snowfall and
+   a re-render never reshuffles it mid-fall. Drift is how far a flake slides
+   sideways on the way down; without it they fall like rain. `y` is used
+   only when motion is turned off, to scatter the stilled flakes. */
+const SNOWFLAKES = [
+  { left: "3%",  size: 14, dur: 17, delay: 0.0,  drift: 34,  fade: 0.60, y: "12%" },
+  { left: "7%",  size: 26, dur: 22, delay: 6.5,  drift: -20, fade: 0.80, y: "58%" },
+  { left: "11%", size: 18, dur: 13, delay: 4.2,  drift: -28, fade: 0.75, y: "34%" },
+  { left: "16%", size: 11, dur: 21, delay: 1.6,  drift: 44,  fade: 0.50, y: "81%" },
+  { left: "21%", size: 30, dur: 25, delay: 9.0,  drift: 30,  fade: 0.85, y: "22%" },
+  { left: "26%", size: 15, dur: 15, delay: 7.8,  drift: -18, fade: 0.68, y: "70%" },
+  { left: "31%", size: 12, dur: 19, delay: 2.9,  drift: 26,  fade: 0.52, y: "8%" },
+  { left: "36%", size: 22, dur: 18, delay: 12.4, drift: -34, fade: 0.78, y: "47%" },
+  { left: "41%", size: 16, dur: 12, delay: 9.4,  drift: -38, fade: 0.72, y: "90%" },
+  { left: "46%", size: 11, dur: 20, delay: 5.1,  drift: 30,  fade: 0.50, y: "16%" },
+  { left: "51%", size: 20, dur: 16, delay: 0.8,  drift: 18,  fade: 0.74, y: "76%" },
+  { left: "56%", size: 12, dur: 22, delay: 11.3, drift: -22, fade: 0.48, y: "38%" },
+  { left: "61%", size: 28, dur: 24, delay: 3.4,  drift: 40,  fade: 0.82, y: "6%" },
+  { left: "66%", size: 14, dur: 14, delay: 8.0,  drift: -26, fade: 0.66, y: "62%" },
+  { left: "71%", size: 11, dur: 20, delay: 8.6,  drift: -32, fade: 0.50, y: "28%" },
+  { left: "76%", size: 19, dur: 13, delay: 6.0,  drift: 20,  fade: 0.74, y: "84%" },
+  { left: "81%", size: 24, dur: 23, delay: 13.1, drift: -30, fade: 0.80, y: "44%" },
+  { left: "86%", size: 12, dur: 18, delay: 1.1,  drift: -42, fade: 0.52, y: "14%" },
+  { left: "91%", size: 17, dur: 16, delay: 10.2, drift: 24,  fade: 0.70, y: "68%" },
+  { left: "95%", size: 27, dur: 21, delay: 4.7,  drift: -26, fade: 0.82, y: "32%" },
+  { left: "98%", size: 11, dur: 19, delay: 7.2,  drift: -16, fade: 0.48, y: "88%" },
+];
+
+/* Gold sparkles that hold still and twinkle, as on the holiday artwork. */
+const SPARKLES = [
+  { left: "9%",  top: "24%", size: 18, delay: 0.0 },
+  { left: "19%", top: "62%", size: 12, delay: 1.4 },
+  { left: "29%", top: "17%", size: 14, delay: 2.6 },
+  { left: "71%", top: "20%", size: 20, delay: 0.7 },
+  { left: "83%", top: "55%", size: 13, delay: 2.0 },
+  { left: "92%", top: "27%", size: 16, delay: 3.1 },
+  { left: "77%", top: "80%", size: 11, delay: 1.0 },
+  { left: "13%", top: "83%", size: 15, delay: 2.3 },
+];
+
+/* The string of lights: one sagging wire per 200 units, three bulbs on each. */
+const LIGHT_COLORS = ["#FF8E00", "#FFD23F", "#0AD2F0", "#3AE1B4", "#FFFFFF"];
+const LIGHT_SPANS = Array.from({ length: 10 }, (_, i) => i * 200);
+const GOLD = "#FFD23F";
+
 /* Marker positions as % of the cropped park map (park-map.jpg, 1560x832).
    Derived from the badge centres on the source primer page. */
 const mapPins = [
@@ -177,6 +245,9 @@ export default function PraderaIslands() {
      calendar goes blank because a function had a bad minute would be a worse
      failure than a stale one. */
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE);
+  /* Read once. The season cannot turn over while someone is looking at the
+     page, and re-reading it on every render would restart the snowfall. */
+  const [holiday] = useState(isHolidaySeason);
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
@@ -259,7 +330,7 @@ export default function PraderaIslands() {
       const openDays = [...WEEKDAY_BAND, ...WEEKEND_BAND].filter((d) => schedule.weekdays.includes(d)).map((d) => DAY_NAMES[d]);
       setVisitDateWarn(
         override && override.reason
-          ? `The park is closed that day — ${override.reason.toLowerCase()}. Please pick another date.`
+          ? `The park is closed that day — ${override.reason}. Please pick another date.`
           : `The park is closed on that day. Please pick a ${openDays.join(", ")}, or a date marked open on the calendar.`
       );
       setForm({ ...form, visitDate: "" });
@@ -798,7 +869,86 @@ export default function PraderaIslands() {
            row of statistics rather than a row of links. */
         .stat-link:hover .stat-label { text-decoration: underline; text-underline-offset: 4px; }
         .stat-link:focus-visible { outline: 3px solid ${COLORS.orange}; outline-offset: 6px; border-radius: 4px; }
+
+        /* ---- The seasonal layer ---- */
+        /* Decoration only, and it says so: the snow is aria-hidden and sits
+           behind the hero copy, where it can never swallow a tap meant for
+           the buttons. */
+        .snow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+        .flake { position: absolute; top: -40px; display: block; color: #fff;
+          animation: snowfall var(--dur) linear var(--delay) infinite;
+          will-change: transform, opacity; }
+        .flake:nth-child(3n) { color: ${COLORS.janjan}; }
+        .flake:nth-child(5n) { color: ${COLORS.azure}; }
+        /* The hero is 100vh but never shorter than 640px, so the fall has to
+           clear whichever of the two is taller or flakes pile up mid-screen. */
+        @keyframes snowfall {
+          0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+          8%   { opacity: var(--fade); }
+          88%  { opacity: var(--fade); }
+          100% { transform: translate3d(var(--drift), max(112vh, 760px), 0) rotate(300deg); opacity: 0; }
+        }
+        .sparkle { position: absolute; color: ${GOLD}; animation: twinkle 3.2s ease-in-out infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.25; transform: scale(0.7) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(18deg); } }
+        .garland { position: absolute; top: 62px; left: 0; width: 100%; height: 64px; z-index: 1; pointer-events: none; }
+        .bulb { animation: bulb-glow 2.4s ease-in-out infinite; }
+        .bulb:nth-of-type(2n) { animation-delay: 0.8s; }
+        .bulb:nth-of-type(3n) { animation-delay: 1.6s; }
+        @keyframes bulb-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+        .xmas-script { font-family: 'Kaushan Script', 'Brush Script MT', cursive; font-weight: 400; line-height: 1; }
+        .xmas-hello { display: inline-flex; align-items: center; gap: 14px; margin: 0 auto 6px;
+          font-size: clamp(30px, 3.9vw, 56px); color: ${GOLD}; transform: rotate(-3deg);
+          text-shadow: 0 4px 0 rgba(0,16,50,0.35), 0 10px 30px rgba(0,10,40,0.6); }
+        .xmas-hello svg { color: ${COLORS.janjan}; flex: 0 0 auto; filter: drop-shadow(0 2px 6px rgba(0,10,40,0.5)); }
+
+        /* ---- The holiday band: the season's artwork, rebuilt for a screen ---- */
+        .xmas-band { position: relative; overflow: hidden; background: #0B1A6E; color: #fff;
+          padding: clamp(56px, 7vw, 96px) 6% clamp(130px, 15vw, 190px); }
+        .xmas-band::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+          background-image: radial-gradient(rgba(255,255,255,0.14) 2px, transparent 3px), radial-gradient(rgba(255,255,255,0.08) 4px, transparent 5px);
+          background-size: 170px 190px, 310px 270px; background-position: 30px 40px, 120px 150px; }
+        .xmas-band-inner { position: relative; z-index: 2; max-width: 1180px; margin: 0 auto;
+          display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 40px; align-items: center; }
+        .xmas-happy { display: block; font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: clamp(20px, 2.6vw, 38px);
+          letter-spacing: 3px; color: ${COLORS.orange}; text-align: right; margin: 0 8% -0.35em 0; }
+        .xmas-title { margin: 0 0 26px; transform: rotate(-4deg); transform-origin: left center; display: inline-block; }
+        .xmas-title .xmas-script { display: block; font-size: clamp(76px, 11.5vw, 176px); color: ${COLORS.orange};
+          letter-spacing: 0; text-shadow: 0 6px 0 rgba(0,0,0,0.12); padding-right: 0.12em; }
+        .xmas-band h3 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; text-transform: uppercase;
+          font-size: clamp(20px, 2.3vw, 30px); letter-spacing: 0; margin: 0; }
+        .xmas-band h3 { white-space: nowrap; font-size: clamp(17px, calc(2.2vw - 1px), 29px); }
+        .xmas-rule { width: 150px; height: 2px; background: ${COLORS.orange}; margin: 16px 0 18px; border: 0; }
+        .xmas-band p { font-family: 'Montserrat', sans-serif; font-style: italic; font-weight: 600;
+          font-size: clamp(15px, 1.35vw, 18px); line-height: 1.65; margin: 0 0 22px; max-width: 520px; color: rgba(255,255,255,0.92); }
+        .xmas-band p { margin-bottom: 14px; }
+        .xmas-band p.xmas-lead { font-style: normal; font-weight: 800; font-size: clamp(17px, 1.6vw, 22px); color: #fff; margin-bottom: 8px; }
+        .xmas-band p:last-of-type { margin-bottom: 24px; }
+        .xmas-days { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; padding: 0; max-width: 560px; }
+        .xmas-days li { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 12.5px; letter-spacing: 0.4px;
+          padding: 7px 13px; border-radius: 999px; background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.2); }
+        .xmas-days b { color: ${GOLD}; font-weight: 700; margin-right: 6px; }
+        .xmas-art { position: relative; justify-self: center; width: min(100%, 440px); aspect-ratio: 44 / 52; }
+        .xmas-tree { position: absolute; right: 0; top: 0; width: 72%; height: auto; }
+        .xmas-mascot { position: absolute; left: -8%; bottom: -2%; width: 76%; height: auto;
+          filter: drop-shadow(0 14px 22px rgba(0,0,40,0.45)); animation: float 5s ease-in-out infinite; }
+        .xmas-flake-deco { position: absolute; color: ${COLORS.lakandanum}; z-index: 1; }
+        .xmas-waves { position: absolute; left: 0; right: 0; bottom: -2px; width: 100%; height: clamp(120px, 15vw, 210px); z-index: 1; display: block; }
         @media (prefers-reduced-motion: reduce) { .stat-num, .stat-label { transition: none; } }
+        /* Falling snow is exactly the kind of drifting motion that makes some
+           people ill. Asked for stillness, we keep the flakes and drop the
+           fall: the hero still reads as Christmas, nothing moves. */
+        @media (prefers-reduced-motion: reduce) {
+          .flake { animation: none; top: var(--y); opacity: var(--fade);
+            transform: none; }
+          .sparkle, .bulb, .xmas-mascot { animation: none; }
+        }
+        @media (max-width: 860px) {
+          .xmas-band-inner { grid-template-columns: 1fr; gap: 12px; }
+          .xmas-art { width: min(78%, 320px); order: -1; }
+          .xmas-flake-deco.wide-only { display: none; }
+          .xmas-band h3 { font-size: min(22px, 3.9vw); }
+          .garland { top: 58px; height: 48px; }
+        }
       `}</style>
 
       {/* INTRO SPLASH — a pool of water that drains to reveal the park */}
@@ -918,8 +1068,73 @@ export default function PraderaIslands() {
           background: "radial-gradient(ellipse 60% 55% at 50% 46%, rgba(0,16,50,0.52) 0%, rgba(0,16,50,0.22) 55%, transparent 78%)",
         }} />
 
+        {/* A quiet snowfall over the photo, December to Twelfth Night. */}
+        {holiday && (
+          <div className="snow" aria-hidden="true">
+            <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true" focusable="false">
+              <defs>
+                {/* One spoke, drawn three times at sixty degrees. */}
+                <g id="xmas-flake" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                  {[0, 60, 120].map((deg) => (
+                    <g key={deg} transform={`rotate(${deg} 12 12)`}>
+                      <path d="M12 2.5V21.5" />
+                      <path d="M9.6 3.8 12 6.2 14.4 3.8" />
+                      <path d="M9.6 20.2 12 17.8 14.4 20.2" />
+                    </g>
+                  ))}
+                </g>
+              </defs>
+            </svg>
+            {SPARKLES.map((k) => (
+              <svg key={k.left} className="sparkle" viewBox="0 0 24 24" width={k.size} height={k.size}
+                style={{ left: k.left, top: k.top, animationDelay: `${k.delay}s` }}>
+                <path fill="currentColor" d="M12 0C13 8 16 11 24 12 16 13 13 16 12 24 11 16 8 13 0 12 8 11 11 8 12 0Z" />
+              </svg>
+            ))}
+            {SNOWFLAKES.map((f) => (
+              <span key={f.left} className="flake" style={{
+                left: f.left,
+                "--dur": `${f.dur}s`,
+                "--delay": `${f.delay}s`,
+                "--drift": `${f.drift}px`,
+                "--fade": f.fade,
+                "--y": f.y,
+              }}>
+                <svg viewBox="0 0 24 24" width={f.size} height={f.size} aria-hidden="true" focusable="false">
+                  <use href="#xmas-flake" />
+                </svg>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* A string of lights under the navigation. Sliced, not stretched, so
+            the bulbs stay round at every width. */}
+        {holiday && (
+          <svg className="garland" viewBox="0 0 2000 64" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
+            <path d={`M0 8 ${LIGHT_SPANS.map((x) => `Q${x + 100} 46 ${x + 200} 8`).join(" ")}`} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1.6" />
+            {LIGHT_SPANS.flatMap((x, i) => [[40, 20.2], [100, 27], [160, 20.2]].map(([dx, y], j) => {
+              const c = LIGHT_COLORS[(i * 3 + j) % LIGHT_COLORS.length];
+              return (
+                <g key={`${x}-${dx}`} className="bulb">
+                  <rect x={x + dx - 2.5} y={y} width="5" height="5" rx="1" fill="#0B1A4A" />
+                  <ellipse cx={x + dx} cy={y + 12} rx="5.5" ry="8" fill={c} style={{ filter: `drop-shadow(0 0 7px ${c})` }} />
+                </g>
+              );
+            }))}
+          </svg>
+        )}
+
         {/* Hero content */}
         <div className="hero-copy" style={{ textAlign: "center", position: "relative", zIndex: 2, padding: "72px 6% 48px", maxWidth: 1100 }}>
+
+          {holiday && (
+            <div className="xmas-hello xmas-script">
+              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false"><use href="#xmas-flake" /></svg>
+              Happy Holidays!
+              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false"><use href="#xmas-flake" /></svg>
+            </div>
+          )}
 
           <h1 style={{ margin: "0 auto 10px", lineHeight: 0 }}>
             <img
@@ -975,6 +1190,8 @@ export default function PraderaIslands() {
         </div>
 
       </section>
+
+      {holiday && <HolidayBand schedule={schedule} onSeeDays={() => scrollTo("visit")} />}
 
       {/* BRAND STORY */}
       <section className="section-pad" style={{ background: "#fff", position: "relative", overflow: "hidden" }}>
@@ -1954,7 +2171,20 @@ const DEFAULT_SCHEDULE = {
     "2026-11-16": { open: true, reason: "Holiday" },
     "2026-11-17": { open: true, reason: "Holiday" },
     "2026-11-18": { open: true, reason: "Holiday" },
-    "2026-11-30": { open: true, reason: "Holiday" },
+    "2026-11-30": { open: true, reason: "Bonifacio Day" },
+    /* December. Two of these fall on days the weekly pattern shuts — the 8th
+       is a Tuesday, the 30th a Wednesday — and without a dated opening the
+       calendar would turn guests away on a holiday. The rest already fall on
+       open days and are named anyway: "are you open on Christmas?" is the
+       question the whole month is asked, and a guest should be able to read
+       the answer off the calendar instead of writing in. */
+    "2026-12-08": { open: true, reason: "Feast of the Immaculate Conception" },
+    "2026-12-11": { open: true, reason: "Pampanga Day" },
+    "2026-12-24": { open: true, reason: "Christmas Eve" },
+    "2026-12-25": { open: true, reason: "Christmas Day" },
+    "2026-12-30": { open: true, reason: "Rizal Day" },
+    "2026-12-31": { open: true, reason: "New Year's Eve" },
+    "2027-01-01": { open: true, reason: "New Year's Day" },
   },
   hours: {
     weekday: { opens: "10:00", closes: "17:00" },
@@ -2128,6 +2358,108 @@ function NoticeDialog({ notice }) {
   );
 }
 
+/* The holiday band. The season's poster, rebuilt for a screen: the same navy,
+   the same orange script, the tree, the snow and the waves — but the copy is
+   live, so the dates it promises are read from the schedule and can never
+   drift from the calendar further down the page. */
+function HolidayBand({ schedule, onSeeDays }) {
+  const now = new Date();
+  const todayKey = isoDate(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = Object.keys(schedule.overrides || {})
+    .filter((key) => key >= todayKey && schedule.overrides[key].open && schedule.overrides[key].reason
+      && (key.slice(5, 7) === "12" || key.slice(5) <= HOLIDAY_TO))
+    .sort()
+    .slice(0, 8)
+    .map((key) => ({
+      key,
+      reason: schedule.overrides[key].reason,
+      label: new Date(`${key}T00:00:00`).toLocaleDateString("en-PH", { month: "short", day: "numeric" }),
+    }));
+  const flake = (size, style, extra = "") => (
+    <svg className={`xmas-flake-deco${extra}`} viewBox="0 0 24 24" width={size} height={size} style={style} aria-hidden="true" focusable="false">
+      <use href="#xmas-flake" />
+    </svg>
+  );
+  return (
+    <section className="xmas-band" aria-label="Happy Holidays from Pradera Islands">
+      {/* The script face is only fetched while the season is on. */}
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap');`}</style>
+      {flake(44, { left: "4%", top: "9%" })}
+      {flake(26, { left: "31%", top: "6%" })}
+      {flake(34, { left: "52%", top: "16%" })}
+      {flake(22, { left: "47%", top: "58%" }, " wide-only")}
+      {flake(38, { right: "3%", top: "8%" })}
+      {flake(24, { left: "2%", top: "70%" }, " wide-only")}
+
+      <div className="xmas-band-inner">
+        <div>
+          <h2 className="xmas-title">
+            <span className="xmas-happy">HAPPY</span>
+            <span className="xmas-script">Holidays!</span>
+          </h2>
+          <h3>Your holiday escape starts here.</h3>
+          <hr className="xmas-rule" />
+          <p className="xmas-lead">Make this season one to remember.</p>
+          <p>
+            Gather the whole family for waves of fun, thrilling slides, and
+            unforgettable moments together.
+          </p>
+          <p>
+            We’re open throughout Christmas and New Year, ready to make your
+            holiday celebrations extra special.
+          </p>
+          {days.length > 0 && (
+            <ul className="xmas-days" aria-label="Holiday dates the park is open">
+              {days.map((d) => <li key={d.key}><b>{d.label}</b>{d.reason}</li>)}
+            </ul>
+          )}
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+            <a className="btn-primary" href={TICKETS_URL} target="_blank" rel="noopener noreferrer" style={{ background: COLORS.orange, textDecoration: "none", display: "inline-block" }}>Buy Tickets</a>
+            <button className="btn-ghost" onClick={onSeeDays}>See open days</button>
+          </div>
+        </div>
+
+        <div className="xmas-art" aria-hidden="true">
+          <svg className="xmas-tree" viewBox="0 0 300 440">
+            <polygon points="150,46 286,440 14,440" fill="#2F8F83" />
+            <polygon points="150,46 286,440 150,440" fill="#267A73" />
+            {/* strings of pearls */}
+            {[150, 205, 262, 322, 384].map((y) => {
+              const half = ((y - 46) / 394) * 136 - 6;
+              return (
+                <path key={y} d={`M${150 - half} ${y} Q150 ${y + 36} ${150 + half} ${y}`}
+                  fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeDasharray="0.1 17" opacity="0.9" />
+              );
+            })}
+            {[[118, 150, 15, "#FF8E00"], [196, 132, 13, "#FFD23F"], [92, 262, 16, "#FFD23F"], [214, 250, 15, "#FF8E00"], [150, 330, 17, "#FF8E00"], [70, 376, 14, "#FF8E00"], [236, 372, 15, "#FFD23F"]].map(([x, y, r, c]) => (
+              <circle key={`${x}-${y}`} cx={x} cy={y} r={r} fill={c} />
+            ))}
+            {/* the star, tilted the way a hand-placed one always is */}
+            <g transform="translate(150 40) rotate(-14)">
+              <polygon points="0,-40 11,-13 40,-12 17,6 25,34 0,18 -25,34 -17,6 -40,-12 -11,-13" fill="#F6B25A" />
+              <polygon points="0,-40 11,-13 40,-12 17,6 25,34 0,18" fill="#F0703C" />
+            </g>
+          </svg>
+          <img className="xmas-mascot" src="/brand/characters/janjan.webp" alt="" loading="lazy" />
+        </div>
+      </div>
+
+      {/* Brushed waves with gold flecks, closing the band into the page. */}
+      <svg className="xmas-waves" viewBox="0 0 1440 200" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M0 96 C160 30 300 150 470 92 C640 34 760 150 940 96 C1110 44 1260 140 1440 82 L1440 200 L0 200Z" fill="#0021E8" />
+        <path d="M0 96 C160 30 300 150 470 92 C640 34 760 150 940 96 C1110 44 1260 140 1440 82" fill="none" stroke="#5FA8FF" strokeWidth="5" strokeLinecap="round" opacity="0.8" />
+        <path d="M0 132 C200 80 330 180 540 128 C740 78 900 178 1100 130 C1240 96 1350 150 1440 124 L1440 200 L0 200Z" fill="#2A63F5" />
+        <path d="M0 132 C200 80 330 180 540 128 C740 78 900 178 1100 130 C1240 96 1350 150 1440 124" fill="none" stroke="#9CCBFF" strokeWidth="4" strokeLinecap="round" opacity="0.75" />
+        <path d="M0 168 C220 128 400 196 640 160 C860 128 1040 196 1240 162 C1330 148 1400 166 1440 158 L1440 200 L0 200Z" fill="#fff" />
+        {[[120, 70], [380, 118], [610, 62], [830, 128], [1010, 72], [1290, 104], [1400, 60], [250, 150]].map(([x, y], i) => (
+          <path key={x} transform={`translate(${x} ${y}) scale(${i % 2 ? 0.55 : 0.8})`} fill="#FFD23F"
+            d="M12 0C13 8 16 11 24 12 16 13 13 16 12 24 11 16 8 13 0 12 8 11 11 8 12 0Z" />
+        ))}
+      </svg>
+    </section>
+  );
+}
+
 /* Month calendar that marks which days the park is open. Shows the current
    month and lets guests step forward. Days before today are dimmed. */
 /* Is the park open on this date, and why is that not the usual answer?
@@ -2208,7 +2540,7 @@ function OpenDaysCalendar({ schedule = DEFAULT_SCHEDULE }) {
           {changes.map((c) => (
             <li key={c.key}>
               <b>{c.label}</b> — {c.open ? "open" : "closed"}
-              {c.reason ? `, ${c.reason.toLowerCase()}` : ""}
+              {c.reason ? `, ${c.reason}` : ""}
             </li>
           ))}
         </ul>
