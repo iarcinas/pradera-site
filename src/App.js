@@ -29,7 +29,7 @@ const GRADIENTS = {
  * `?xmas=0` forces it off, which is how staff and anyone reviewing a change
  * can see it in June.
  */
-const HOLIDAY_FROM = "12-01";
+const HOLIDAY_FROM = "11-23";
 const HOLIDAY_TO = "01-06";
 function isHolidaySeason(now = new Date()) {
   if (typeof window !== "undefined") {
