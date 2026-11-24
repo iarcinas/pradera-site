@@ -1191,7 +1191,7 @@ export default function PraderaIslands() {
 
       </section>
 
-      {holiday && <HolidayBand schedule={schedule} onSeeDays={() => scrollTo("visit")} />}
+      {holiday && <HolidayBand schedule={schedule} onSeeDays={() => scrollTo("guide")} />}
 
       {/* BRAND STORY */}
       <section className="section-pad" style={{ background: "#fff", position: "relative", overflow: "hidden" }}>
@@ -1749,7 +1749,7 @@ export default function PraderaIslands() {
               <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Open Days</div>
               <OpenDaysCalendar schedule={schedule} />
               <p className="body" style={{ fontSize: 13, color: "#7a819a", margin: "16px 0 0", lineHeight: 1.6 }}>
-                Open {dayListLabel(schedule.weekdays, [...WEEKDAY_BAND, ...WEEKEND_BAND])}, plus the holidays marked above.
+                Open {dayListLabel(schedule.weekdays, [...WEEKDAY_BAND, ...WEEKEND_BAND])}, plus the holidays and extra dates shown above.
                 {dayListLabel(schedule.weekdays, WEEKDAY_BAND) ? ` ${dayListLabel(schedule.weekdays, WEEKDAY_BAND)} ${fmtBand(schedule.hours.weekday)}.` : ""}
                 {dayListLabel(schedule.weekdays, WEEKEND_BAND) ? ` ${dayListLabel(schedule.weekdays, WEEKEND_BAND)} and holidays ${fmtBand(schedule.hours.weekend)}.` : ""}
               </p>
@@ -2172,13 +2172,22 @@ const DEFAULT_SCHEDULE = {
     "2026-11-17": { open: true, reason: "Holiday" },
     "2026-11-18": { open: true, reason: "Holiday" },
     "2026-11-30": { open: true, reason: "Bonifacio Day" },
-    /* December. Two of these fall on days the weekly pattern shuts — the 8th
-       is a Tuesday, the 30th a Wednesday — and without a dated opening the
-       calendar would turn guests away on a holiday. The rest already fall on
-       open days and are named anyway: "are you open on Christmas?" is the
-       question the whole month is asked, and a guest should be able to read
-       the answer off the calendar instead of writing in. */
+    /* December, per the operating-days calendar Management approved for the
+       month. Holidays are named: "are you open on Christmas?" is the question
+       the whole month is asked. The extra weekdays below carry no reason on
+       purpose: they show as ordinary open days on the grid instead of
+       crowding the list of holidays under it. Mon Dec 1, 7 and 14 stay shut
+       by the weekly pattern. */
+    "2026-12-02": { open: true },
     "2026-12-08": { open: true, reason: "Feast of the Immaculate Conception" },
+    "2026-12-09": { open: true },
+    "2026-12-15": { open: true },
+    "2026-12-16": { open: true },
+    "2026-12-21": { open: true },
+    "2026-12-22": { open: true },
+    "2026-12-23": { open: true },
+    "2026-12-28": { open: true },
+    "2026-12-29": { open: true },
     "2026-12-11": { open: true, reason: "Pampanga Day" },
     "2026-12-24": { open: true, reason: "Christmas Eve" },
     "2026-12-25": { open: true, reason: "Christmas Day" },
@@ -2492,7 +2501,8 @@ function OpenDaysCalendar({ schedule = DEFAULT_SCHEDULE }) {
   const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
   const todayKey = isoDate(today.getFullYear(), today.getMonth(), today.getDate());
   const changes = Object.keys(schedule.overrides || {})
-    .filter((key) => key.startsWith(monthPrefix) && key >= todayKey)
+    .filter((key) => key.startsWith(monthPrefix) && key >= todayKey
+      && (!schedule.overrides[key].open || schedule.overrides[key].reason))
     .sort()
     .map((key) => ({
       key,
