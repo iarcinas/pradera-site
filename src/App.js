@@ -110,7 +110,7 @@ const mapPins = [
 ];
 
 const attractions = [
-  { name: "Amihan Spinner", desc: "Feel the winds of the Northeast Monsoon in this spinning vortex slide — fast, furious, and unstoppable.", theme: "Wind & Storm", color: COLORS.dagat, logo: "/attractions/amihan-spinner.webp", image: "/photos/amihan-spinner.webp" },
+  { name: "Amihan Spinner", desc: "Feel the winds of the Northeast Monsoon in this spinning vortex slide — fast, furious, and unstoppable.", theme: "Wind & Storm", color: COLORS.dagat, logo: "/attractions/amihan-spinner.webp" },
   { name: "Habagat Rush", desc: "Ride the Southwest Monsoon's force down a high-speed plunge slide that leaves you breathless.", theme: "Thrill Slide", color: COLORS.orange, logo: "/attractions/habagat-rush.webp" },
   { name: "Danum 360", desc: "A triple-twisting serpentine slide inspired by the bakunawa — spiral through water in pure flow.", theme: "Twister", color: COLORS.azure, logo: "/attractions/danum-360.webp" },
   { name: "Lunar Speedway", desc: "Six lanes racing side by side under the lunar cycle — moon-inspired, tidal speed.", theme: "Race Slides", color: COLORS.lakandanum, logo: "/attractions/lunar-speedway.webp" },
@@ -166,6 +166,10 @@ const RATES_PUBLISHED = true;
 const FAQ_PUBLISHED = false;    // Marketing + Customer Service
 const LEGAL_PUBLISHED = false;  // Legal: Privacy Policy and Terms of Service
 const CS_EMAIL = null;          // Legal/Admin: customer service address, e.g. "info@praderaislands.com"
+/* Guest line, staffed during park hours only. Written the way guests dial it;
+   the tel: link is derived. null hides every place the number appears. */
+const CONTACT_PHONE = "0977 810 0808";
+const telHref = (n) => `tel:+63${n.replace(/\D/g, "").replace(/^0/, "")}`;
 
 const TICKET_RATES = [
   { name: "Regular",        weekday: 1080, weekend: 1180 },
@@ -1025,6 +1029,12 @@ export default function PraderaIslands() {
                 <p style={{ color: "#fff", fontSize: 13, margin: "6px 0 0", lineHeight: 1.5 }}>
                   Prado Siongco, Lubao<br />Pampanga
                 </p>
+                {CONTACT_PHONE && (
+                  <a href={telHref(CONTACT_PHONE)} style={{ display: "inline-block", color: "#fff", fontSize: 13, fontWeight: 600, margin: "10px 0 0", textDecoration: "none" }}>
+                    {CONTACT_PHONE}
+                    <span style={{ display: "block", color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 400 }}>During park hours</span>
+                  </a>
+                )}
               </div>
               <img src="/brand/emblem-full.webp" alt="" style={{ width: 46, height: 46, opacity: 0.85 }} />
             </div>
@@ -1907,6 +1917,13 @@ export default function PraderaIslands() {
                   <span className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, display: "block", marginBottom: 4 }}>Email</span>
                   {CS_EMAIL || "sales@praderaislands.com"}
                 </a>
+                {CONTACT_PHONE && (
+                  <a href={telHref(CONTACT_PHONE)} className="findus-email">
+                    <span className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, display: "block", marginBottom: 4 }}>Call or Text</span>
+                    {CONTACT_PHONE}
+                    <span style={{ display: "block", color: "rgba(255,255,255,0.45)", fontSize: 12, fontWeight: 400, marginTop: 4 }}>Available during park hours</span>
+                  </a>
+                )}
                 <div>
                   <span className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, display: "block", marginBottom: 8 }}>Follow Us</span>
                   <div style={{ display: "flex", gap: 10 }}>
