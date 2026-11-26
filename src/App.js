@@ -171,12 +171,131 @@ const CS_EMAIL = null;          // Legal/Admin: customer service address, e.g. "
 const CONTACT_PHONE = "0977 810 0808";
 const telHref = (n) => `tel:+63${n.replace(/\D/g, "").replace(/^0/, "")}`;
 
-const TICKET_RATES = [
-  { name: "Regular",        weekday: 1080, weekend: 1180 },
-  { name: "Junior",         note: "Ages 4 to 11", weekday: 880, weekend: 980 },
-  { name: "Senior / PWD",   note: "20% off Regular with valid ID", weekday: 864, weekend: 944 },
-  { name: "Infant",         note: "Under 3 years old and 3 ft and below", free: true },
+/* Not allowed inside the park — from Operations' Prohibited Items poster
+   (20 Nov 2026). Labels are the poster's own words; keep them that way, the
+   same list is printed at the gate. */
+/* Icons are drawn here rather than taken from emoji: a jar or a ring buoy is
+   a recent emoji, and on an older phone it renders as an empty box. */
+const PROHIBITED_ITEMS = [
+  { label: "Outside food and drinks", icon: <><path d="M4 11a8 5 0 0 1 16 0z" /><path d="M3 14h18" /><path d="M4 17h16v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" /></> },
+  { label: "Glass containers", icon: <><path d="M8 3h8v3H8z" /><path d="M7 6h10a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a1 1 0 0 1 1-1z" /><path d="M9.5 10v6" /></> },
+  { label: "Smoking and vaping", icon: <><path d="M2 14h15v4H2z" /><path d="M13 14v4" /><path d="M20 14v4" /><path d="M18 11c0-2 2-2 2-4s-2-2-2-4" /></> },
+  { label: "Illegal substances", icon: <g transform="rotate(-45 12 12)"><rect x="3" y="8.5" width="18" height="7" rx="3.5" /><path d="M12 8.5v7" /></g> },
+  { label: "Alcohol", icon: <><path d="M7 3h10l-1 6a4 4 0 0 1-8 0z" /><path d="M12 13v7" /><path d="M8 20h8" /></> },
+  { label: "Coolers", icon: <><path d="M3 9h18v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" /><path d="M3 9l1-3h16l1 3" /><path d="M9 6V4h6v2" /><path d="M3 13h18" /></> },
+  { label: "Pets", icon: <><ellipse cx="12" cy="16" rx="4" ry="3.5" /><circle cx="5.5" cy="10.5" r="1.8" /><circle cx="9.5" cy="6.5" r="1.8" /><circle cx="14.5" cy="6.5" r="1.8" /><circle cx="18.5" cy="10.5" r="1.8" /></> },
+  { label: "Weapons and dangerous objects", icon: <><path d="M20 3L9 14l2 2c5-3 9-8 9-13z" /><path d="M9 14l-5 5a1.4 1.4 0 0 0 2 2l5-5" /></> },
+  { label: "Wheeled equipment and drones", icon: <><circle cx="6" cy="18" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.5 18H15l3.5-13" /><path d="M16 5h5" /></> },
+  { label: "Improper swimwear and swimwear with metal hardware", icon: <><path d="M5 3l1 6a3 3 0 0 0 6 0 3 3 0 0 0 6 0l1-6" /><path d="M5 14h14l-4.5 6h-5z" /></> },
+  { label: "Unapproved floatation devices", icon: <><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4" /><path d="M6 6l3.2 3.2M18 6l-3.2 3.2M6 18l3.2-3.2M18 18l-3.2-3.2" /></> },
+  { label: "Action cameras and extension poles", icon: <><rect x="4" y="7" width="16" height="11" rx="2" /><circle cx="12" cy="12.5" r="3" /><path d="M8 7l1.5-2.5h5L16 7" /><path d="M12 18v4" /></> },
 ];
+
+/* Rates and promos. Staff edit these in /admin/ (Rates & promos); the page
+   reads them from the config function on load. What is written here is what
+   the page shows until that answers, or if it never does — so keep it equal
+   to what is stored, the same way DEFAULT_SCHEDULE is kept.
+
+   Two seasons, from Sales' Retail Admission Rate Schedule: Peak runs
+   peakFrom to peakTo (MM-DD, inclusive) and everything else is Off-Peak.
+   weekday/weekend are the Off-Peak prices; peakWeekday/peakWeekend the Peak.
+
+   A "discount" row is a percentage off the first row, worked out here rather
+   than typed, so PWD & Senior follows the Adult pass whenever it changes. A
+   promo "deal" is worked out the same way, from the first row's weekday rate
+   in the season on screen.
+   In a promo's text, [words in brackets] become the "get in touch" link. */
+const DEFAULT_PRICING = {
+  season: { peakFrom: "04-01", peakTo: "08-15" },
+  rates: [
+    { name: "Adult Day Pass", note: "4 ft / 48\" and beyond, regardless of age", kind: "price", weekday: 1080, weekend: 1180, peakWeekday: 1280, peakWeekend: 1380 },
+    { name: "Junior Day Pass", note: "Above 3 ft / 36\" and below 4 ft / 48\"", kind: "price", weekday: 880, weekend: 980, peakWeekday: 1080, peakWeekend: 1180 },
+    { name: "Infant", note: "3 ft / 36\" and below", kind: "free" },
+    { name: "PWD & Senior Citizen", note: "Valid OSCA / PWD ID; includes the 20% discount by law", kind: "discount", percent: 20 },
+  ],
+  promos: [
+    {
+      enabled: true,
+      title: "10 for 10 — ten tickets, ten percent off",
+      text: "Planning a corporate outing, school field trip, or tour group? [Get in touch] with your date and group size and we will send a quote.",
+      badge: "10%",
+      badgeSub: "off",
+      startsOn: null,
+      endsOn: null,
+      deal: { qty: 10, percent: 10 },
+    },
+  ],
+};
+
+const pctOff = (amount, percent) => Math.round((amount * (100 - percent)) / 100);
+const peso = (n) => `₱${n.toLocaleString("en-PH")}`;
+
+/* A row's two prices for one season. A row stored before seasons existed
+   has no peak prices; it shows its one price in both rather than nothing. */
+const seasonPrices = (r, which) =>
+  which === "peak"
+    ? { weekday: r.peakWeekday ?? r.weekday, weekend: r.peakWeekend ?? r.weekend }
+    : { weekday: r.weekday, weekend: r.weekend };
+
+/* Every row as the page shows it for one season: a discount row gets real
+   prices, and a row that cannot be priced (no base, bad numbers) is dropped
+   rather than shown as "₱NaN". */
+function resolveRates(rates, which) {
+  const base = rates[0] && rates[0].kind === "price" ? seasonPrices(rates[0], which) : null;
+  return rates
+    .map((r) => {
+      if (r.kind === "free") return { ...r, free: true };
+      if (r.kind === "discount") {
+        if (!base) return null;
+        return { ...r, weekday: pctOff(base.weekday, r.percent), weekend: pctOff(base.weekend, r.percent) };
+      }
+      const p = seasonPrices(r, which);
+      return Number.isFinite(p.weekday) && Number.isFinite(p.weekend) ? { ...r, ...p } : null;
+    })
+    .filter(Boolean);
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const mdLabel = (md) => `${MONTHS[Number(md.slice(0, 2)) - 1]} ${Number(md.slice(3))}`;
+/* The day before / after an MM-DD, in a non-leap year — the season edges are
+   calendar dates, and Feb 29 is never one of them. */
+const mdShift = (md, by) => {
+  const d = new Date(Date.UTC(2025, Number(md.slice(0, 2)) - 1, Number(md.slice(3)) + by));
+  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+};
+
+/* Which season a YYYY-MM-DD falls in. Peak may wrap the new year. */
+function seasonOn(date, season) {
+  if (!season) return "offpeak";
+  const md = date.slice(5);
+  const { peakFrom, peakTo } = season;
+  const inPeak = peakFrom <= peakTo ? md >= peakFrom && md <= peakTo : md >= peakFrom || md <= peakTo;
+  return inPeak ? "peak" : "offpeak";
+}
+
+const seasonRanges = (season) => ({
+  peak: `${mdLabel(season.peakFrom)} – ${mdLabel(season.peakTo)}`,
+  offpeak: `${mdLabel(mdShift(season.peakTo, 1))} – ${mdLabel(mdShift(season.peakFrom, -1))}`,
+});
+
+/* Today in Manila, as YYYY-MM-DD. A promo's dates are the park's dates, not
+   the dates of wherever the guest's phone thinks it is. */
+const manilaToday = (now = new Date()) => new Date(now.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+
+const promoIsLive = (x, today) =>
+  x.enabled !== false && (!x.startsOn || x.startsOn <= today) && (!x.endsOn || x.endsOn >= today);
+
+const COUNT_WORDS = { 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve" };
+
+/* The worked-out sentence for a group deal, from the base weekday rate of
+   the season on screen. */
+function dealLine(deal, rates, which) {
+  const base = rates[0];
+  if (!deal || !base || base.kind !== "price") return null;
+  const was = seasonPrices(base, which).weekday;
+  const each = pctOff(was, deal.percent);
+  return { qty: deal.qty, total: each * deal.qty, each, was };
+}
 
 
 /* Rest state for the social icons: a quiet tint of the brand colour; solid on hover. */
@@ -253,6 +372,10 @@ export default function PraderaIslands() {
      page, and re-reading it on every render would restart the snowfall. */
   const [holiday] = useState(isHolidaySeason);
   const [notice, setNotice] = useState(null);
+  const [pricing, setPricing] = useState(DEFAULT_PRICING);
+  /* The season the rate cards show. Starts on today's (Manila) and can be
+     switched by the guest to plan a visit in the other one. null = today's. */
+  const [seasonPick, setSeasonPick] = useState(null);
 
   useEffect(() => {
     let live = true;
@@ -262,6 +385,9 @@ export default function PraderaIslands() {
         if (!live || !data) return;
         if (data.schedule) setSchedule({ ...DEFAULT_SCHEDULE, ...data.schedule });
         if (data.notice) setNotice(data.notice);
+        if (data.pricing && Array.isArray(data.pricing.rates) && data.pricing.rates.length) {
+          setPricing({ season: data.pricing.season || DEFAULT_PRICING.season, rates: data.pricing.rates, promos: data.pricing.promos || [] });
+        }
       })
       .catch(() => {
         /* Offline, blocked, or the function is down. The page is already
@@ -659,7 +785,30 @@ export default function PraderaIslands() {
         .grid-cards--center { grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); justify-content: center; }
 
         /* ---- Rates: ticket cards ---- */
+        .avp-band { background: #050d1f; line-height: 0; }
+        .avp-frame { position: relative; margin: 0 auto; overflow: hidden; background: #050d1f; }
+        .avp-landscape .avp-frame { width: 100%; aspect-ratio: 16 / 9; max-height: 92vh; }
+        /* Upright: the whole 9:16 frame on a phone; on an upright tablet, as
+           tall as the screen allows and centred. */
+        .avp-portrait .avp-frame { width: min(100%, calc(100svh * 9 / 16)); aspect-ratio: 9 / 16; }
+        .avp-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* Bottom-left: the bottom-right corner belongs to the back-to-top button. */
+        .avp-toggle { position: absolute; left: 16px; bottom: 16px; width: 42px; height: 42px; border-radius: 50%; border: 0; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; color: #fff; background: rgba(5,13,31,0.55);
+          backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: 0 0 0 1px rgba(255,255,255,0.25); transition: background .2s; }
+        .avp-toggle:hover { background: rgba(5,13,31,0.8); }
+        .avp-toggle:focus-visible { outline: 2px solid ${COLORS.orange}; outline-offset: 3px; }
         .ticket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .season-switch { display: flex; justify-content: center; gap: 0; width: max-content; max-width: 100%; margin: -16px auto 26px;
+          padding: 5px; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+        .season-switch button { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 168px; padding: 9px 22px 10px;
+          border: 0; border-radius: 999px; background: transparent; color: rgba(255,255,255,0.62); cursor: pointer; font: inherit; transition: background .2s, color .2s; }
+        .season-switch button:hover { color: #fff; }
+        .season-switch button[aria-pressed="true"] { background: ${COLORS.orange}; color: #fff; }
+        .season-name { display: inline-flex; align-items: center; gap: 7px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 16px; }
+        .season-now { font-family: 'Kanit', sans-serif; font-size: 9.5px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
+          padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,0.16); }
+        .season-dates { font-family: 'Kanit', sans-serif; font-size: 11px; letter-spacing: 0.6px; opacity: 0.85; }
         .ticket { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px 24px 22px;
           display: flex; flex-direction: column; gap: 20px; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), border-color 0.3s, background 0.3s; }
         .ticket:hover { transform: translateY(-6px); border-color: ${COLORS.orange}88; background: rgba(255,255,255,0.08); }
@@ -681,7 +830,8 @@ export default function PraderaIslands() {
         .promo-text { margin: 0; font-size: 14px; color: rgba(255,255,255,0.68); line-height: 1.65; }
         .promo-link { background: none; border: 0; padding: 0; font: inherit; color: ${COLORS.orange}; font-weight: 700; cursor: pointer; text-decoration: underline; margin: 0 4px; }
         @media (max-width: 960px) { .ticket-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 520px) { .ticket-grid { grid-template-columns: 1fr; } .promo-callout { flex-direction: column; align-items: flex-start; } }
+        @media (max-width: 520px) { .season-switch { width: 100%; } .season-switch button { flex: 1 1 0; min-width: 0; padding: 9px 8px 10px; }
+          .ticket-grid { grid-template-columns: 1fr; } .promo-callout { flex-direction: column; align-items: flex-start; } }
 
         /* ---- Find Us: address card, hours, contact ---- */
         .findus-map { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 12px; text-decoration: none;
@@ -729,6 +879,20 @@ export default function PraderaIslands() {
         /* ---- Guide + open-days calendar ---- */
         .guide-grid { display: grid; grid-template-columns: minmax(300px, 420px) 1fr; gap: 24px; align-items: start; }
         .guide-card { background: #f4f7ff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 28px; }
+        .rules-card { margin-top: 24px; }
+        .rules-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .rule { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; }
+        /* A red "no" ring over the icon, drawn in CSS so the twelve icons stay
+           plain emoji and need no image files. */
+        .rule-icon { position: relative; flex: 0 0 46px; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #d62828;
+          display: flex; align-items: center; justify-content: center; background: #fff5f5; color: ${COLORS.hiraya}; }
+        .rule-icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 3px; height: 100%; background: #d62828;
+          border-radius: 2px; transform: translate(-50%, -50%) rotate(-45deg); }
+        .rule-label { font-family: 'Montserrat', sans-serif; font-size: 13.5px; font-weight: 600; color: ${COLORS.hiraya}; line-height: 1.35; }
+        .rules-bring { display: flex; align-items: center; gap: 12px; margin: 20px 0 0; padding: 14px 18px; border-radius: 10px;
+          background: ${COLORS.orange}14; border: 1px solid ${COLORS.orange}40; font-family: 'Montserrat', sans-serif;
+          font-size: 14px; font-weight: 600; font-style: italic; color: #7a3d00; line-height: 1.5; }
+        .rules-bring > svg { flex: 0 0 22px; color: ${COLORS.orange}; }
         .route-list { display: grid; gap: 18px; }
         .route { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
         .route-icon { width: 40px; height: 40px; border-radius: 10px; background: #fff; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 18px; }
@@ -772,6 +936,9 @@ export default function PraderaIslands() {
         .cal-swatch.open { background: ${COLORS.orange}; border-color: ${COLORS.orange}; }
         .cal-legend .cal-swatch:not(:first-child) { margin-left: 10px; }
         @media (max-width: 820px) { .guide-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1000px) { .rules-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        @media (max-width: 720px) { .rules-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 420px) { .rules-grid { gap: 8px; } .rule { flex-direction: column; text-align: center; gap: 10px; padding: 14px 10px; } .rule-label { font-size: 12.5px; } }
 
         .carousel-3d-wrap { position: relative; perspective: 1600px; padding: 0; }
         .carousel-3d-stage { position: relative; height: clamp(380px, 44vw, 500px); transform-style: preserve-3d; display: flex; align-items: center; justify-content: center; }
@@ -1201,6 +1368,10 @@ export default function PraderaIslands() {
 
       </section>
 
+      {/* The AVP sits directly under the hero: the first scroll shows the park
+          moving, and on a phone it is one screen down rather than five. */}
+      <AvpBand />
+
       {holiday && <HolidayBand schedule={schedule} onSeeDays={() => scrollTo("guide")} />}
 
       {/* BRAND STORY */}
@@ -1466,15 +1637,31 @@ export default function PraderaIslands() {
             <h2 className="display" style={{ fontSize: "clamp(38px, 6vw, 68px)", fontWeight: 900, lineHeight: 0.95, textTransform: "uppercase", color: "#fff", margin: 0 }}>
               Admission <span style={{ color: COLORS.orange }}>Rates</span>
             </h2>
-            <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", maxWidth: 560, margin: "18px auto 0" }}>
+            <p className="body" style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", maxWidth: 680, margin: "18px auto 0" }}>
               Full-day access to every attraction. Rates are per guest in Philippine pesos.
             </p>
           </div>
 
-          {RATES_PUBLISHED ? (
+          {RATES_PUBLISHED ? (() => {
+            const season = pricing.season || DEFAULT_PRICING.season;
+            const nowSeason = seasonOn(manilaToday(), season);
+            const shown = seasonPick || nowSeason;
+            const ranges = seasonRanges(season);
+            return (
             <>
+              {/* Two seasons, one set of cards. The switch opens on today's
+                  season, so the first prices a guest sees are the ones they
+                  would pay this week. */}
+              <div className="season-switch reveal" role="group" aria-label="Season">
+                {[["offpeak", "Off-Peak"], ["peak", "Peak"]].map(([key, label]) => (
+                  <button key={key} type="button" aria-pressed={shown === key} onClick={() => setSeasonPick(key)}>
+                    <span className="season-name">{label}{key === nowSeason && <span className="season-now">Now</span>}</span>
+                    <span className="season-dates">{ranges[key]}</span>
+                  </button>
+                ))}
+              </div>
               <div className="ticket-grid">
-                {TICKET_RATES.map((r, i) => (
+                {resolveRates(pricing.rates, shown).map((r, i) => (
                   <div key={r.name} className="ticket reveal" data-reveal-delay={i * 90}>
                     <div className="ticket-top">
                       <div className="ticket-name">{r.name}</div>
@@ -1489,11 +1676,11 @@ export default function PraderaIslands() {
                       <div className="ticket-prices">
                         <div>
                           <span className="ticket-when">Weekday</span>
-                          <span className="ticket-price">₱{r.weekday.toLocaleString()}</span>
+                          <span className="ticket-price">{peso(r.weekday)}</span>
                         </div>
                         <div>
-                          <span className="ticket-when">Weekend</span>
-                          <span className="ticket-price">₱{r.weekend.toLocaleString()}</span>
+                          <span className="ticket-when">Weekend / Holiday</span>
+                          <span className="ticket-price">{peso(r.weekend)}</span>
                         </div>
                       </div>
                     )}
@@ -1501,17 +1688,34 @@ export default function PraderaIslands() {
                 ))}
               </div>
 
-              <div className="promo-callout reveal">
-                <div className="promo-badge">10%<span className="promo-badge-sub">off</span></div>
-                <div>
-                  <div className="promo-title">10 for 10 — ten tickets, ten percent off</div>
-                  <p className="promo-text">
-                    Book ten admissions together for <strong style={{ color: "#fff" }}>₱9,720</strong> — that's ₱972 each instead of ₱1,080.
-                    Planning a corporate outing, school field trip, or tour group?
-                    <button type="button" onClick={() => scrollTo("visit")} className="promo-link">Get in touch</button> with your date and group size and we will send a quote.
-                  </p>
-                </div>
-              </div>
+              {(pricing.promos || []).filter((x) => promoIsLive(x, manilaToday())).map((x, i) => {
+                const deal = dealLine(x.deal, pricing.rates, shown);
+                return (
+                  <div key={`${x.title}-${i}`} className="promo-callout reveal">
+                    <div className="promo-badge">{x.badge}{x.badgeSub && <span className="promo-badge-sub">{x.badgeSub}</span>}</div>
+                    <div>
+                      <div className="promo-title">{x.title}</div>
+                      <p className="promo-text">
+                        {deal && (
+                          <>
+                            Book {COUNT_WORDS[deal.qty] || deal.qty} admissions together for <strong style={{ color: "#fff" }}>{peso(deal.total)}</strong> — that's {peso(deal.each)} each instead of {peso(deal.was)}.{" "}
+                          </>
+                        )}
+                        {/* [words] become the link to the enquiry form. Split
+                            on the brackets so the text stays plain text — no
+                            HTML from the store ever reaches the page. */}
+                        {(x.text || "").split(/(\[[^\]]{1,40}\])/).map((part, j) =>
+                          /^\[[^\]]+\]$/.test(part) ? (
+                            <button key={j} type="button" onClick={() => scrollTo("visit")} className="promo-link">{part.slice(1, -1)}</button>
+                          ) : (
+                            part
+                          )
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
 
               {/* Section 2 of the Terms promises they are reachable "before
                   purchase", so a footer link alone would only half-keep that
@@ -1519,11 +1723,13 @@ export default function PraderaIslands() {
                   someone about to buy. Klook carries most sales, so the same
                   link belongs on that listing too; that one is Marketing's. */}
               <p className="body" style={{ fontSize: 13, color: "rgba(255,255,255,0.42)", marginTop: 22, textAlign: "center", lineHeight: 1.6 }}>
-                Senior citizen and PWD rates require a valid ID at the gate. Rates may change without prior notice.<br />
+                Regular and special non-working holidays follow the weekend / holiday rate. Senior citizen and PWD rates require a valid OSCA or PWD ID at the gate.
+                Rates may change without prior notice.<br />
                 By buying a ticket you agree to the <a href="/terms/" style={{ color: "rgba(255,255,255,0.72)", textDecoration: "underline", textUnderlineOffset: 3 }}>Guest Terms &amp; Waiver</a>.
               </p>
             </>
-          ) : (
+            );
+          })() : (
             <div className="reveal" style={{ background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: 36, border: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
               <p className="body" style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", margin: 0 }}>
                 Admission, cabana and group rates will be published here once finalized by the Sales team.
@@ -1814,6 +2020,30 @@ export default function PraderaIslands() {
               </a>
             </div>
           </div>
+
+          {/* Before you go — the gate's prohibited-items list. Text, not the
+              poster image: the poster's lettering is unreadable at phone width,
+              and a picture of a list cannot be searched or read aloud. */}
+          <div className="reveal guide-card rules-card" id="not-allowed">
+            <div className="eyebrow" style={{ color: COLORS.orange, marginBottom: 14 }}>Before You Go</div>
+            <h3 className="display" style={{ fontSize: "clamp(20px, 2.4vw, 26px)", fontWeight: 800, color: COLORS.hiraya, margin: "0 0 22px", lineHeight: 1.25 }}>
+              The following items are <span style={{ color: "#d62828" }}>not allowed</span> inside Pradera Islands Waterpark:
+            </h3>
+            <ul className="rules-grid">
+              {PROHIBITED_ITEMS.map((item) => (
+                <li key={item.label} className="rule">
+                  <span className="rule-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{item.icon}</svg>
+                  </span>
+                  <span className="rule-label">{item.label}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="rules-bring">
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9.5" /><path d="M12 7.5v5.5" /><path d="M12 16.5h.01" /></svg>
+              Don't forget to bring your swimwear, towel, sunscreen, and a change of clothes for a fun day at the park!
+            </p>
+          </div>
         </div>
       </section>
 
@@ -1904,7 +2134,7 @@ export default function PraderaIslands() {
                   <div className="hours-row"><span>{dayListLabel(schedule.weekdays, WEEKEND_BAND)} &amp; Holidays</span><b>{fmtBand(schedule.hours.weekend)}</b></div>
                 )}
                 {dayListLabel([0, 1, 2, 3, 4, 5, 6].filter((d) => !schedule.weekdays.includes(d)), [...WEEKDAY_BAND, ...WEEKEND_BAND]) && (
-                  <div className="hours-row muted"><span>{dayListLabel([0, 1, 2, 3, 4, 5, 6].filter((d) => !schedule.weekdays.includes(d)), [...WEEKDAY_BAND, ...WEEKEND_BAND])}</span><b>Closed, except holidays</b></div>
+                  <div className="hours-row muted"><span>{dayListLabel([0, 1, 2, 3, 4, 5, 6].filter((d) => !schedule.weekdays.includes(d)), [...WEEKDAY_BAND, ...WEEKEND_BAND])}</span><b>Closed, except holidays &amp; select dates</b></div>
                 )}
                 <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12.5, margin: "12px 0 0", lineHeight: 1.55 }}>
                   Last entry one hour before closing. Holiday hours may differ — see the <button type="button" onClick={() => scrollTo("guide")} className="promo-link" style={{ color: COLORS.azure }}>open-days calendar</button>.
@@ -1967,7 +2197,7 @@ export default function PraderaIslands() {
                     <input name="email" type="email" placeholder="Email address" required autoComplete="email" value={form.email} onChange={handleFormChange} className="inq-input" />
                   </div>
                   <label className="inq-label">
-                    <span>Planned visit date <em>(optional — park is open Thursday to Sunday and on holidays)</em></span>
+                    <span>Planned visit date <em>(optional — park is open Thursday to Sunday, on holidays and on select dates)</em></span>
                     <input name="visitDate" type="date" min={todayISO} value={form.visitDate} onChange={handleVisitDate} className="inq-input" />
                     {visitDateWarn && <span className="inq-warn">{visitDateWarn}</span>}
                   </label>
@@ -2190,22 +2420,14 @@ const DEFAULT_SCHEDULE = {
     "2026-11-18": { open: true, reason: "Holiday" },
     "2026-11-30": { open: true, reason: "Bonifacio Day" },
     /* December, per the operating-days calendar Management approved for the
-       month. Holidays are named: "are you open on Christmas?" is the question
-       the whole month is asked. The extra weekdays below carry no reason on
-       purpose: they show as ordinary open days on the grid instead of
-       crowding the list of holidays under it. Mon Dec 1, 7 and 14 stay shut
-       by the weekly pattern. */
-    "2026-12-02": { open: true },
+       month (revised 25 Nov 2026). The Thursday-to-Sunday pattern holds; the
+       holidays are named, because "are you open on Christmas?" is the
+       question the whole month is asked. Wed Dec 23 is the one extra open
+       weekday and carries no reason, so it shows as an ordinary open day
+       instead of joining the holiday list under the grid. */
     "2026-12-08": { open: true, reason: "Feast of the Immaculate Conception" },
-    "2026-12-09": { open: true },
-    "2026-12-15": { open: true },
-    "2026-12-16": { open: true },
-    "2026-12-21": { open: true },
-    "2026-12-22": { open: true },
-    "2026-12-23": { open: true },
-    "2026-12-28": { open: true },
-    "2026-12-29": { open: true },
     "2026-12-11": { open: true, reason: "Pampanga Day" },
+    "2026-12-23": { open: true },
     "2026-12-24": { open: true, reason: "Christmas Eve" },
     "2026-12-25": { open: true, reason: "Christmas Day" },
     "2026-12-30": { open: true, reason: "Rizal Day" },
@@ -2388,6 +2610,164 @@ function NoticeDialog({ notice }) {
    the same orange script, the tree, the snow and the waves — but the copy is
    live, so the dates it promises are read from the schedule and can never
    drift from the calendar further down the page. */
+/* The park AVP, in its own band under the hero.
+ *
+ * Two cuts of the same 30-second edit: landscape for wide screens, portrait
+ * for a phone held upright. The choice follows the screen's shape, not the
+ * device, so a phone turned sideways gets the landscape cut and a tablet held
+ * upright gets the portrait one. The cuts are frame-for-frame the same edit,
+ * so on a turn the new one picks up at the same second.
+ *
+ * Bandwidth is the cost here, so nothing loads until the band is within a
+ * screen of view, each guest downloads only the one cut their screen needs,
+ * and Data Saver gets the still frame alone. Guests who ask for reduced motion
+ * get the still frame and a play button rather than autoplay.
+ *
+ * The video carries its own words and logo, which is why nothing is laid
+ * over it. */
+const AVP = {
+  landscape: { src: "/video/avp-landscape.mp4", poster: "/video/avp-landscape-poster.webp" },
+  portrait: { src: "/video/avp-portrait.mp4", poster: "/video/avp-portrait-poster.webp" },
+};
+
+function AvpBand() {
+  const ref = useRef(null);
+  const videoRef = useRef(null);
+  const resumeAt = useRef(0);
+  const [cut, setCut] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(orientation: portrait)").matches ? "portrait" : "landscape"
+  );
+  const [near, setNear] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const saveData = typeof navigator !== "undefined" && navigator.connection && navigator.connection.saveData;
+  const [calm] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [userWants, setUserWants] = useState(null); // null = follow autoplay rules; true/false = the guest pressed the button
+
+  // Follow the screen's shape. Remember where the old cut was, so the new one
+  // carries on from the same moment.
+  useEffect(() => {
+    const mq = window.matchMedia("(orientation: portrait)");
+    const onChange = () => {
+      if (videoRef.current) resumeAt.current = videoRef.current.currentTime || 0;
+      setCut(mq.matches ? "portrait" : "landscape");
+    };
+    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange));
+  }, []);
+
+  const visible = useRef(false);
+  const wantPlay = useRef(false);
+
+  /* Play or pause to match where things stand. Called after every render and
+     on every visibility change, rather than trusting one observer's first
+     report: that report can arrive mid-scroll, say "not in view", and never
+     be corrected if the next threshold crossing came before it was wired. */
+  const sync = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (visible.current && wantPlay.current && v.getAttribute("src")) {
+      if (!v.paused) return;
+      v.play().catch(() => setPlaying(false));
+    } else if (!v.paused) {
+      v.pause();
+    }
+  };
+
+  // Two watchers on the band: one a screen ahead, to start the download in
+  // time; one on the band itself, to play only while it can be seen.
+  useEffect(() => {
+    if (!ref.current || !("IntersectionObserver" in window)) {
+      visible.current = true;
+      setNear(true);
+      return undefined;
+    }
+    const ahead = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && setNear(true)),
+      { rootMargin: "100% 0px" }
+    );
+    const inView = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        visible.current = e.intersectionRatio >= 0.25;
+        sync();
+      }),
+      { threshold: [0, 0.25, 0.5, 1] }
+    );
+    ahead.observe(ref.current);
+    inView.observe(ref.current);
+    return () => {
+      ahead.disconnect();
+      inView.disconnect();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // React sets `muted` as a property only, and browsers decide whether a
+  // video may autoplay by the attribute; without it, play() is refused and the
+  // band sits on its still frame. Set both on every new element.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute("muted", "");
+  }, [cut]);
+
+  // Out of view, paused, so a phone is not decoding video nobody can see.
+  wantPlay.current = userWants !== null ? userWants : !calm && !saveData;
+  useEffect(sync); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const load = near && !(saveData && userWants === null);
+  const { src, poster } = AVP[cut];
+
+  return (
+    <section id="avp" ref={ref} className={`avp-band avp-${cut}`} aria-label="Pradera Islands Waterpark video">
+      <div className="avp-frame">
+        <video
+          key={cut}
+          ref={videoRef}
+          className="avp-video"
+          src={load ? src : undefined}
+          poster={poster}
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden="true"
+          onLoadedMetadata={(e) => {
+            if (resumeAt.current) e.currentTarget.currentTime = resumeAt.current;
+          }}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+        />
+        <button
+          type="button"
+          className="avp-toggle"
+          aria-label={playing ? "Pause video" : "Play video"}
+          onClick={() => {
+            const v = videoRef.current;
+            if (playing) {
+              setUserWants(false);
+              if (v) v.pause();
+            } else {
+              // A press is a press: play even if the band is only partly in
+              // view. The src may only now be set; the render that follows
+              // attaches it and the effect after it plays.
+              setUserWants(true);
+              setNear(true);
+              visible.current = true;
+            }
+          }}
+        >
+          {playing ? (
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor" /><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor" /></svg>
+          )}
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function HolidayBand({ schedule, onSeeDays }) {
   const now = new Date();
   const todayKey = isoDate(now.getFullYear(), now.getMonth(), now.getDate());

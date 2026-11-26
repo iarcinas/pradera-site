@@ -1048,6 +1048,445 @@ el("s-save").addEventListener("click", async () => {
   }
 });
 
+/* ---- rates and promos ---- */
+
+/* Held here while the editor is open and written whole on Save, like the
+   schedule. Every field writes straight into this object; the lists are only
+   redrawn when a row is added, removed or moved, so typing never loses focus. */
+let pricing = null;
+let savedPricing = null;
+let previewSeason = "offpeak";
+
+/* What the site ships with (DEFAULT_PRICING in src/App.js). */
+const FALLBACK_PRICING = {
+  season: { peakFrom: "04-01", peakTo: "08-15" },
+  rates: [
+    { name: "Adult Day Pass", note: "4 ft / 48\" and beyond, regardless of age", kind: "price", weekday: 1080, weekend: 1180, peakWeekday: 1280, peakWeekend: 1380 },
+    { name: "Junior Day Pass", note: "Above 3 ft / 36\" and below 4 ft / 48\"", kind: "price", weekday: 880, weekend: 980, peakWeekday: 1080, peakWeekend: 1180 },
+    { name: "Infant", note: "3 ft / 36\" and below", kind: "free" },
+    { name: "PWD & Senior Citizen", note: "Valid OSCA / PWD ID; includes the 20% discount by law", kind: "discount", percent: 20 },
+  ],
+  promos: [
+    {
+      enabled: true,
+      title: "10 for 10 — ten tickets, ten percent off",
+      text: "Planning a corporate outing, school field trip, or tour group? [Get in touch] with your date and group size and we will send a quote.",
+      badge: "10%",
+      badgeSub: "off",
+      startsOn: null,
+      endsOn: null,
+      deal: { qty: 10, percent: 10 },
+    },
+  ],
+};
+
+const MAX_RATES = 8;
+const MAX_PROMOS = 4;
+const COUNT_WORDS = { 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve" };
+const pctOff = (amount, percent) => Math.round((amount * (100 - percent)) / 100);
+const peso = (n) => (Number.isFinite(n) ? `₱${n.toLocaleString("en-PH")}` : "₱—");
+const clone = (v) => JSON.parse(JSON.stringify(v));
+const num = (v) => (v === "" || v === null || v === undefined ? NaN : Number(v));
+const manilaToday = () => new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+
+const base = () => (pricing.rates[0] && pricing.rates[0].kind === "price" ? pricing.rates[0] : null);
+
+/* Seasons, the same arithmetic as the website (src/App.js). */
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DAYS_IN = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const mdLabel = (md) => `${MONTHS[Number(md.slice(0, 2)) - 1]} ${Number(md.slice(3))}`;
+const mdShift = (md, by) => {
+  const d = new Date(Date.UTC(2025, Number(md.slice(0, 2)) - 1, Number(md.slice(3)) + by));
+  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+};
+function seasonOn(date, season) {
+  const md = date.slice(5);
+  const { peakFrom, peakTo } = season;
+  const inPeak = peakFrom <= peakTo ? md >= peakFrom && md <= peakTo : md >= peakFrom || md <= peakTo;
+  return inPeak ? "peak" : "offpeak";
+}
+const seasonPrices = (r, which) =>
+  which === "peak" ? { weekday: num(r.peakWeekday), weekend: num(r.peakWeekend) } : { weekday: num(r.weekday), weekend: num(r.weekend) };
+/* A row's prices in one season, discount rows worked out from the base. */
+function pricesFor(r, which) {
+  if (r.kind === "discount") {
+    const b = base();
+    if (!b) return { weekday: NaN, weekend: NaN };
+    const bp = seasonPrices(b, which);
+    return { weekday: pctOff(bp.weekday, num(r.percent)), weekend: pctOff(bp.weekend, num(r.percent)) };
+  }
+  return seasonPrices(r, which);
+}
+
+const pad2 = (n) => String(n).padStart(2, "0");
+function renderSeason() {
+  const s = pricing.season;
+  const opts = (sel) => MONTHS.map((m, i) => `<option value="${pad2(i + 1)}"${pad2(i + 1) === sel ? " selected" : ""}>${m}</option>`).join("");
+  ["From", "To"].forEach((edge) => {
+    const md = s[`peak${edge}`];
+    el(`p-peak${edge}-m`).innerHTML = opts(md.slice(0, 2));
+    el(`p-peak${edge}-d`).value = String(Number(md.slice(3)));
+  });
+  renderSeasonLine();
+}
+function renderSeasonLine() {
+  const s = pricing.season;
+  const ok = /^\d\d-\d\d$/.test(s.peakFrom) && /^\d\d-\d\d$/.test(s.peakTo) && s.peakFrom !== s.peakTo;
+  el("p-season-line").innerHTML = ok
+    ? `<b>Peak</b> ${esc(mdLabel(s.peakFrom))} – ${esc(mdLabel(s.peakTo))} · <b>Off-Peak</b> ${esc(mdLabel(mdShift(s.peakTo, 1)))} – ${esc(mdLabel(mdShift(s.peakFrom, -1)))} · today is <b>${seasonOn(manilaToday(), s) === "peak" ? "Peak" : "Off-Peak"}</b>`
+    : "Pick a real start and end for the Peak season.";
+}
+["From", "To"].forEach((edge) => {
+  const update = () => {
+    const m = el(`p-peak${edge}-m`).value;
+    let d = Math.round(num(el(`p-peak${edge}-d`).value));
+    if (!Number.isFinite(d)) return;
+    d = Math.min(Math.max(d, 1), DAYS_IN[Number(m) - 1]);
+    pricing.season[`peak${edge}`] = `${m}-${pad2(d)}`;
+    renderSeasonLine();
+    pricingChanged();
+  };
+  el(`p-peak${edge}-m`).addEventListener("change", update);
+  el(`p-peak${edge}-d`).addEventListener("input", update);
+});
+
+function promoStatus(x) {
+  const today = manilaToday();
+  if (!x.enabled) return { cls: "", text: "Off" };
+  if (x.startsOn && x.startsOn > today) return { cls: "later", text: `Starts ${x.startsOn}` };
+  if (x.endsOn && x.endsOn < today) return { cls: "", text: "Ended" };
+  return { cls: "live", text: x.endsOn ? `Live until ${x.endsOn}` : "Live" };
+}
+
+function rateCalc(r) {
+  const b = base();
+  if (r.kind !== "discount") return "";
+  if (!b) return "Needs a priced first rate to work from.";
+  const p = num(r.percent);
+  if (!Number.isFinite(p)) return "";
+  const o = pricesFor(r, "offpeak");
+  const k = pricesFor(r, "peak");
+  return `${p}% off ${esc(b.name || "the first rate")}:<br>Off-Peak <b>${peso(o.weekday)}</b> / <b>${peso(o.weekend)}</b> · Peak <b>${peso(k.weekday)}</b> / <b>${peso(k.weekend)}</b>`;
+}
+
+function renderRates() {
+  const list = el("p-rates");
+  list.innerHTML = pricing.rates
+    .map((r, i) => {
+      const kinds = [["price", "Priced"], ["discount", "% off"], ["free", "Free"]]
+        .map(([k, label]) => {
+          const locked = i === 0 && k !== "price";
+          return `<button type="button" data-kind="${k}" aria-pressed="${r.kind === k}"${locked ? " disabled" : ""}>${label}</button>`;
+        })
+        .join("");
+      const fields =
+        r.kind === "price"
+          ? [["", "Off-Peak"], ["peak", "Peak"]]
+              .map(([pre, label]) => {
+                const wd = pre ? "peakWeekday" : "weekday";
+                const we = pre ? "peakWeekend" : "weekend";
+                const v = (f) => esc(Number.isFinite(num(r[f])) ? String(r[f]) : "");
+                return `<div class="season-label">${label}</div>
+                  <div class="rate-fields tight">
+                    <div><label>Weekday</label><div class="peso"><input type="number" inputmode="numeric" min="1" step="1" data-f="${wd}" value="${v(wd)}" aria-label="${label} weekday" /></div></div>
+                    <div><label>Weekend / holiday</label><div class="peso"><input type="number" inputmode="numeric" min="1" step="1" data-f="${we}" value="${v(we)}" aria-label="${label} weekend and holiday" /></div></div>
+                  </div>`;
+              })
+              .join("")
+          : r.kind === "discount"
+          ? `<div class="rate-fields">
+               <div><label>Discount</label><div class="pct"><input type="number" inputmode="numeric" min="1" max="90" step="1" data-f="percent" value="${esc(String(r.percent ?? ""))}" /></div></div>
+               <div></div>
+             </div>
+             <p class="rate-calc" data-calc>${rateCalc(r)}</p>`
+          : `<p class="rate-calc">Shown as <b>Free</b>, all days.</p>`;
+      return `<div class="rate-row" data-i="${i}">
+          <div class="rate-row-head">
+            <input type="text" maxlength="40" data-f="name" value="${esc(r.name || "")}" aria-label="Rate name" placeholder="Rate name" />
+            ${i === 0 ? '<span class="base-tag">Base</span>' : ""}
+            <button type="button" class="icon-btn" data-move="-1" aria-label="Move up"${i === 0 ? " disabled" : ""}>↑</button>
+            <button type="button" class="icon-btn" data-move="1" aria-label="Move down"${i === pricing.rates.length - 1 ? " disabled" : ""}>↓</button>
+            <button type="button" class="icon-btn danger" data-remove aria-label="Remove this rate"${pricing.rates.length === 1 ? " disabled" : ""}>✕</button>
+          </div>
+          <label>Note under the name <span style="color:var(--muted);font-weight:400">— optional</span></label>
+          <input type="text" maxlength="80" data-f="note" value="${esc(r.note || "")}" placeholder="Optional" />
+          <div class="seg" role="group" aria-label="How this rate is priced" style="margin-top:10px">${kinds}</div>
+          ${fields}
+        </div>`;
+    })
+    .join("");
+  el("p-add-rate").disabled = pricing.rates.length >= MAX_RATES;
+
+  list.querySelectorAll(".rate-row").forEach((row) => {
+    const i = Number(row.dataset.i);
+    row.querySelectorAll("[data-f]").forEach((inp) => {
+      inp.addEventListener("input", () => {
+        const f = inp.dataset.f;
+        pricing.rates[i][f] = inp.type === "number" ? num(inp.value) : inp.value;
+        // A change to the base moves every discount row with it.
+        list.querySelectorAll("[data-calc]").forEach((p) => {
+          p.innerHTML = rateCalc(pricing.rates[Number(p.closest(".rate-row").dataset.i)]);
+        });
+        pricingChanged();
+      });
+    });
+    row.querySelectorAll("[data-kind]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const r = pricing.rates[i];
+        r.kind = b.dataset.kind;
+        if (r.kind === "price" && !Number.isFinite(num(r.weekday))) Object.assign(r, { weekday: NaN, weekend: NaN, peakWeekday: NaN, peakWeekend: NaN });
+        if (r.kind === "discount" && !Number.isFinite(num(r.percent))) r.percent = 20;
+        renderRates();
+        pricingChanged();
+      });
+    });
+    row.querySelector("[data-remove]").addEventListener("click", () => {
+      pricing.rates.splice(i, 1);
+      // Whatever is now first has to be the priced base.
+      if (pricing.rates[0] && pricing.rates[0].kind !== "price") {
+        say("p-msg", `${pricing.rates[0].name || "The first rate"} is now the base — give it its own prices.`);
+        pricing.rates[0].kind = "price";
+      }
+      renderRates();
+      pricingChanged();
+    });
+    row.querySelectorAll("[data-move]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const j = i + Number(b.dataset.move);
+        if (j < 0 || j >= pricing.rates.length) return;
+        if (j === 0 && pricing.rates[i].kind !== "price") {
+          return say("p-msg", "Only a priced rate can go first — it is the base the others are worked out from.");
+        }
+        [pricing.rates[i], pricing.rates[j]] = [pricing.rates[j], pricing.rates[i]];
+        renderRates();
+        pricingChanged();
+      });
+    });
+  });
+}
+
+function renderPromos() {
+  const list = el("p-promos");
+  list.innerHTML = pricing.promos.length
+    ? pricing.promos
+        .map((x, i) => {
+          const st = promoStatus(x);
+          return `<div class="promo-card${x.enabled ? "" : " off"}" data-i="${i}">
+          <div class="promo-head">
+            <span class="promo-name">${esc(x.title || "Untitled promo")}</span>
+            <span class="status-pill ${st.cls}" data-status>${esc(st.text)}</span>
+            <button type="button" class="icon-btn danger" data-remove aria-label="Delete this promo">✕</button>
+          </div>
+          <label class="check"><input type="checkbox" data-f="enabled"${x.enabled ? " checked" : ""} /> Show on the website</label>
+          <div class="promo-fields">
+            <label>Title</label>
+            <input type="text" maxlength="80" data-f="title" value="${esc(x.title || "")}" placeholder="10 for 10 — ten tickets, ten percent off" />
+            <div class="rate-fields">
+              <div><label>Badge</label><input type="text" maxlength="8" data-f="badge" value="${esc(x.badge || "")}" placeholder="10%" /></div>
+              <div><label>Under the badge</label><input type="text" maxlength="12" data-f="badgeSub" value="${esc(x.badgeSub || "")}" placeholder="off" /></div>
+            </div>
+            <label>Text</label>
+            <textarea rows="3" maxlength="400" data-f="text" placeholder="Planning a group outing? [Get in touch] and we will send a quote.">${esc(x.text || "")}</textarea>
+            <div class="rate-fields">
+              <div><label>Starts</label><input type="date" data-f="startsOn" value="${esc(x.startsOn || "")}" /></div>
+              <div><label>Ends</label><input type="date" data-f="endsOn" value="${esc(x.endsOn || "")}" /></div>
+            </div>
+            <div class="deal-box">
+              <label class="check" style="margin-top:0"><input type="checkbox" data-deal-toggle${x.deal ? " checked" : ""} /> Work out a group price</label>
+              ${
+                x.deal
+                  ? `<div class="rate-fields">
+                      <div><label>Tickets</label><input type="number" inputmode="numeric" min="2" max="100" step="1" data-d="qty" value="${esc(String(x.deal.qty ?? ""))}" /></div>
+                      <div><label>Discount</label><div class="pct"><input type="number" inputmode="numeric" min="1" max="90" step="1" data-d="percent" value="${esc(String(x.deal.percent ?? ""))}" /></div></div>
+                    </div>
+                    <p class="hint">Adds the worked-out group price in front of the text, from the base weekday rate — see the preview.</p>`
+                  : ""
+              }
+            </div>
+          </div>
+        </div>`;
+        })
+        .join("")
+    : '<p class="empty">No promos. The Rates section shows just the rates.</p>';
+  el("p-add-promo").disabled = pricing.promos.length >= MAX_PROMOS;
+
+  list.querySelectorAll(".promo-card").forEach((card) => {
+    const i = Number(card.dataset.i);
+    const x = pricing.promos[i];
+    const refreshHead = () => {
+      const st = promoStatus(x);
+      const pill = card.querySelector("[data-status]");
+      pill.textContent = st.text;
+      pill.className = `status-pill ${st.cls}`;
+      card.querySelector(".promo-name").textContent = x.title || "Untitled promo";
+      card.classList.toggle("off", !x.enabled);
+    };
+    card.querySelectorAll("[data-f]").forEach((inp) => {
+      inp.addEventListener(inp.type === "checkbox" ? "change" : "input", () => {
+        x[inp.dataset.f] = inp.type === "checkbox" ? inp.checked : inp.value;
+        refreshHead();
+        pricingChanged();
+      });
+    });
+    card.querySelectorAll("[data-d]").forEach((inp) => {
+      inp.addEventListener("input", () => {
+        x.deal[inp.dataset.d] = num(inp.value);
+        pricingChanged();
+      });
+    });
+    card.querySelector("[data-deal-toggle]").addEventListener("change", (e) => {
+      x.deal = e.target.checked ? { qty: 10, percent: 10 } : null;
+      renderPromos();
+      pricingChanged();
+    });
+    card.querySelector("[data-remove]").addEventListener("click", () => {
+      pricing.promos.splice(i, 1);
+      renderPromos();
+      pricingChanged();
+      say("p-msg", "Promo removed here only — press Save to publish, or Undo changes.", true);
+    });
+  });
+}
+
+/* The website's own Rates block in miniature, drawn from what is in the
+   editor right now — including a promo that is off or out of its dates, so
+   it can be checked before it goes live. Those are labelled as such. */
+function renderPricingPreview() {
+  const b = base();
+  const which = previewSeason;
+  const tickets = pricing.rates
+    .map((r) => {
+      let prices;
+      if (r.kind === "free") prices = `<div><span class="sp-when">All days</span><span class="sp-price free">Free</span></div>`;
+      else {
+        const p = pricesFor(r, which);
+        prices = `<div><span class="sp-when">Weekday</span><span class="sp-price">${peso(p.weekday)}</span></div>
+                  <div><span class="sp-when">Weekend</span><span class="sp-price alt">${peso(p.weekend)}</span></div>`;
+      }
+      return `<div class="sp-ticket"><div class="sp-name">${esc(r.name || "—")}</div>${r.note ? `<div class="sp-note">${esc(r.note)}</div>` : ""}<div class="sp-prices">${prices}</div></div>`;
+    })
+    .join("");
+  const today = seasonOn(manilaToday(), pricing.season);
+  const switcher = `<div class="sp-switch">${[["offpeak", "Off-Peak"], ["peak", "Peak"]]
+    .map(([k, l]) => `<button type="button" data-season="${k}" aria-pressed="${which === k}">${l}${k === today ? " · now" : ""}</button>`)
+    .join("")}</div>`;
+
+  const promos = pricing.promos
+    .map((x) => {
+      const st = promoStatus(x);
+      let lead = "";
+      if (x.deal && b && Number.isFinite(num(x.deal.qty)) && Number.isFinite(num(x.deal.percent))) {
+        const was = seasonPrices(b, which).weekday;
+        const each = pctOff(was, num(x.deal.percent));
+        const qty = num(x.deal.qty);
+        lead = `Book ${COUNT_WORDS[qty] || qty} admissions together for <strong>${peso(each * qty)}</strong> — that's ${peso(each)} each instead of ${peso(was)}. `;
+      }
+      const text = esc(x.text || "").replace(/\[([^\]]{1,40})\]/g, "<u>$1</u>");
+      const flag = st.cls === "live" ? "" : `<div class="sp-note" style="color:#ffcf6b">Not showing now — ${esc(st.text.toLowerCase())}</div>`;
+      return `<div class="sp-promo"${st.cls === "live" ? "" : ' style="opacity:.55"'}>
+        <div class="sp-badge">${esc(x.badge || "")}${x.badgeSub ? `<small>${esc(x.badgeSub)}</small>` : ""}</div>
+        <div><div class="sp-ptitle">${esc(x.title || "")}</div>${flag}<p class="sp-ptext">${lead}${text}</p></div>
+      </div>`;
+    })
+    .join("");
+
+  el("p-preview").innerHTML = `<span>On the website</span>${switcher}<div class="sp-grid">${tickets}</div>${promos || '<p class="sp-empty">No promo strip.</p>'}`;
+  el("p-preview").querySelectorAll("[data-season]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      previewSeason = btn.dataset.season;
+      renderPricingPreview();
+    });
+  });
+}
+
+function pricingChanged() {
+  renderPricingPreview();
+  const dirty = JSON.stringify(pricing) !== JSON.stringify(savedPricing);
+  el("p-revert").hidden = !dirty;
+  if (dirty && !el("p-msg").textContent) say("p-msg", "Changed here only — press Save to publish it.", true);
+  if (!dirty) say("p-msg", "");
+}
+
+function fillPricing(p) {
+  // Stored before seasons existed: start from the default season and let the
+  // peak prices read as empty, so staff fill them in rather than guess.
+  pricing = clone({ season: FALLBACK_PRICING.season, ...p });
+  savedPricing = clone(pricing);
+  previewSeason = seasonOn(manilaToday(), pricing.season);
+  renderSeason();
+  renderRates();
+  renderPromos();
+  renderPricingPreview();
+  el("p-revert").hidden = true;
+}
+
+el("p-add-rate").addEventListener("click", () => {
+  if (pricing.rates.length >= MAX_RATES) return;
+  pricing.rates.push({ name: "", note: null, kind: "price", weekday: NaN, weekend: NaN, peakWeekday: NaN, peakWeekend: NaN });
+  renderRates();
+  pricingChanged();
+  const rows = el("p-rates").querySelectorAll(".rate-row");
+  rows[rows.length - 1].querySelector('[data-f="name"]').focus();
+});
+
+el("p-add-promo").addEventListener("click", () => {
+  if (pricing.promos.length >= MAX_PROMOS) return;
+  pricing.promos.push({ enabled: false, title: "", text: "", badge: "", badgeSub: "", startsOn: null, endsOn: null, deal: null });
+  renderPromos();
+  pricingChanged();
+  const cards = el("p-promos").querySelectorAll(".promo-card");
+  cards[cards.length - 1].querySelector('[data-f="title"]').focus();
+});
+
+el("p-revert").addEventListener("click", () => {
+  fillPricing(savedPricing);
+  say("p-msg", "Back to what is published.", true);
+});
+
+/* Checked here first, in plain words, so staff are not sent to the server to
+   learn that a box is empty. The server checks again either way. */
+function pricingProblem() {
+  if (pricing.season.peakFrom === pricing.season.peakTo) return "The Peak season has to be longer than one day.";
+  for (const [i, r] of pricing.rates.entries()) {
+    const label = (r.name || "").trim() || `Rate ${i + 1}`;
+    if (!(r.name || "").trim()) return `Rate ${i + 1} needs a name.`;
+    if (r.kind === "price") {
+      for (const [f, what] of [["weekday", "Off-Peak weekday"], ["weekend", "Off-Peak weekend"], ["peakWeekday", "Peak weekday"], ["peakWeekend", "Peak weekend"]]) {
+        const v = num(r[f]);
+        if (!Number.isInteger(v) || v < 1) return `${label}: the ${what} price must be a whole number of pesos.`;
+      }
+    }
+    if (r.kind === "discount" && !(Number.isInteger(num(r.percent)) && r.percent >= 1 && r.percent <= 90)) {
+      return `${label}: the discount must be 1 to 90 percent.`;
+    }
+  }
+  for (const [i, x] of pricing.promos.entries()) {
+    const label = (x.title || "").trim() || `Promo ${i + 1}`;
+    if (!(x.title || "").trim()) return `Promo ${i + 1} needs a title.`;
+    if (!(x.badge || "").trim()) return `${label} needs a badge, like 10%.`;
+    if (x.startsOn && x.endsOn && x.endsOn < x.startsOn) return `${label} ends before it starts.`;
+    if (x.deal && !(Number.isInteger(num(x.deal.qty)) && x.deal.qty >= 2)) return `${label}: the group size must be 2 or more tickets.`;
+    if (x.deal && !(Number.isInteger(num(x.deal.percent)) && x.deal.percent >= 1 && x.deal.percent <= 90)) {
+      return `${label}: the group discount must be 1 to 90 percent.`;
+    }
+  }
+  return null;
+}
+
+el("p-save").addEventListener("click", async () => {
+  const problem = pricingProblem();
+  if (problem) return say("p-msg", problem);
+  say("p-msg", "Saving…");
+  try {
+    const res = await cfg({ op: "pricing", pricing });
+    fillPricing(res.pricing);
+    say("p-msg", res.note || "Saved. The website shows the new rates within a minute.", true);
+  } catch (err) {
+    if (err.status === 401) return handleAuthLoss();
+    say("p-msg", err.message);
+  }
+});
+
 /* What the site ships with, so the editors open on the real schedule rather
    than on empty fields the first time, before anything has been stored. */
 const FALLBACK_SCHEDULE = {
@@ -1064,7 +1503,7 @@ const FALLBACK_SCHEDULE = {
 
 async function loadConfig() {
   try {
-    const { notice, schedule } = await cfg({ op: "read" });
+    const { notice, schedule, pricing: storedPricing } = await cfg({ op: "read" });
     renderCurrentNotice(notice);
     if (notice) {
       el("n-message").value = notice.message;
@@ -1073,11 +1512,14 @@ async function loadConfig() {
       el("n-expires").value = isoToLocal(notice.expiresAt);
     }
     fillSchedule(schedule || FALLBACK_SCHEDULE);
+    fillPricing(storedPricing || FALLBACK_PRICING);
   } catch (err) {
     if (err.status === 401) return handleAuthLoss();
     say("n-msg", err.message);
     say("s-msg", err.message);
+    say("p-msg", err.message);
     fillSchedule(FALLBACK_SCHEDULE);
+    fillPricing(FALLBACK_PRICING);
   }
 }
 

@@ -208,7 +208,7 @@
       /* input[type="text"] belongs here too. Left out, it falls back to the
          browser's own box — narrow, hard-bordered, and nothing like the
          fields above and below it. */
-      textarea, select, input[type="text"], input[type="time"], input[type="datetime-local"] {
+      textarea, select, input[type="text"], input[type="number"], input[type="date"], input[type="time"], input[type="datetime-local"] {
         width: 100%; padding: 11px 13px; border: 1px solid var(--line);
         border-radius: 9px; font: inherit; color: var(--ink); background: #fff;
       }
@@ -225,6 +225,78 @@
         border: 1px solid #f0c9c6; font-size: 14px;
       }
       .msg.ok { color: #16713a; }
+
+      /* ---- Rates & promos ---- */
+      .rate-list, .promo-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 12px; }
+      .rate-row, .promo-card {
+        border: 1px solid var(--line); border-radius: 12px; background: #fff; padding: 14px 16px;
+      }
+      .rate-row-head, .promo-head { display: flex; align-items: center; gap: 8px; }
+      .rate-row-head input[type="text"] { flex: 1 1 auto; font-weight: 600; }
+      .rate-row .two, .promo-card .two { margin-top: 10px; }
+      .rate-row label, .promo-card label { margin-top: 10px; font-size: 12.5px; }
+      .rate-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; align-items: end; }
+      .rate-fields input { min-width: 0; }
+      .rate-fields label { margin-top: 0; }
+      .rate-calc { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+      .rate-calc b { color: var(--ink); font-variant-numeric: tabular-nums; }
+      .peso { position: relative; }
+      .peso::before { content: "\20B1"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+      .peso input { padding-left: 28px; }
+      .pct { position: relative; }
+      .pct::after { content: "%"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+      .icon-btn {
+        flex: 0 0 auto; width: 34px; height: 34px; padding: 0; border-radius: 8px;
+        border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1;
+      }
+      .icon-btn:hover:not(:disabled) { color: var(--ink); border-color: #c9cfdd; }
+      .icon-btn:disabled { opacity: 0.35; cursor: default; }
+      .icon-btn.danger:hover:not(:disabled) { color: #b3261e; border-color: #f0c9c6; }
+      .base-tag { flex: 0 0 auto; font-size: 10.5px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--hiraya); font-weight: 700; }
+      .btn-add { margin-top: 10px; padding: 10px 16px; font-size: 13px; background: #fff; border: 1px dashed #c3cadb; color: var(--ink); }
+      .btn-add:disabled { opacity: 0.4; }
+      .promo-card.off { background: #f8f9fd; }
+      .promo-card.off .promo-fields { opacity: 0.55; }
+      .promo-head .promo-name { flex: 1 1 auto; min-width: 0; font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .status-pill { flex: 0 0 auto; font-size: 11px; padding: 3px 9px; border-radius: 999px; background: #eef1f8; color: var(--muted); }
+      .status-pill.live { background: #e3f4ea; color: #0f7a3d; }
+      .status-pill.later { background: #fff4dc; color: #8a5a00; }
+      .check { display: flex !important; align-items: center; gap: 8px; font-size: 13px !important; cursor: pointer; }
+      .check input { width: 16px; height: 16px; margin: 0; }
+      .season-label { margin-top: 12px; font-family: 'Kanit', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--hiraya); }
+      .rate-fields.tight { margin-top: 4px; }
+      .season-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+      .season-edit label { margin-top: 0; font-size: 12.5px; }
+      .md { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 8px; }
+      .sp-switch { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 10px; border-radius: 999px; background: rgba(255,255,255,0.08); }
+      .sp-switch button { border: 0; border-radius: 999px; padding: 5px 11px; background: transparent; color: rgba(255,255,255,0.65); font: inherit; font-size: 11px; cursor: pointer; }
+      .sp-switch button[aria-pressed="true"] { background: var(--orange); color: #fff; }
+      .sp-price.alt { color: #fff; }
+      .sp-price.free { color: #3fd0c9; }
+      .deal-box { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: #f8f9fd; border: 1px solid var(--line); }
+      .deal-box .rate-fields { margin-top: 8px; }
+
+      /* The preview is the website's own rates block, small: the dark ground,
+         the orange prices, the promo strip. Staff judge a price by how it
+         reads to a guest, not by the number in a box. */
+      .site-preview { border-radius: 12px; background: #071228; padding: 16px; color: #fff; }
+      .site-preview > span { display: block; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+      .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .sp-ticket { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 9px; padding: 10px; }
+      .sp-name { font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 13px; }
+      .sp-note { font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 2px; line-height: 1.4; }
+      .sp-prices { display: flex; gap: 10px; margin-top: 8px; }
+      .sp-prices div { display: flex; flex-direction: column; }
+      .sp-when { font-size: 9.5px; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+      .sp-price { font-family: 'Kanit', sans-serif; font-weight: 800; font-size: 16px; color: var(--orange); font-variant-numeric: tabular-nums; }
+      .sp-promo { display: flex; gap: 12px; align-items: center; margin-top: 10px; padding: 12px; border-radius: 9px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+      .sp-badge { flex: 0 0 auto; text-align: center; font-family: 'Kanit', sans-serif; font-weight: 900; font-size: 20px; line-height: 0.95; color: var(--orange); }
+      .sp-badge small { display: block; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; }
+      .sp-ptitle { font-family: 'Kanit', sans-serif; font-weight: 700; font-size: 13px; }
+      .sp-ptext { margin: 3px 0 0; font-size: 11.5px; line-height: 1.55; color: rgba(255,255,255,0.68); }
+      .sp-ptext strong { color: #fff; }
+      .sp-ptext u { color: var(--orange); font-weight: 700; }
+      .sp-empty { margin-top: 10px; font-size: 11.5px; color: rgba(255,255,255,0.5); }
 
       /* The published notice, shown as the guest sees it coloured. */
       .current {
@@ -324,11 +396,11 @@
         /* The form panels were capped at 620px and left-aligned inside a
            1040px page, which stranded them against the left edge with 400px of
            nothing beside them — the thing that read as broken on a desktop. */
-        #panel-notice .form, #panel-schedule .form { max-width: none; }
+        #panel-notice .form, #panel-schedule .form, #panel-pricing .form { max-width: none; }
         /* The card may fill the page; a paragraph may not. At 1000px wide the
            lede runs past 130 characters a line, which is past the point where
            the eye loses its place returning to the left margin. */
-        #panel-notice .lede, #panel-schedule .lede { max-width: 72ch; }
+        #panel-notice .lede, #panel-schedule .lede, #panel-pricing .lede { max-width: 72ch; }
         .panel-cols {
           display: grid;
           grid-template-columns: minmax(0, 1fr) 340px;
@@ -358,6 +430,9 @@
         .range div { min-width: 0; flex: 1 1 0; }
         .two { grid-template-columns: 1fr; }
         .tabbar .spacer { display: none; }
+        .rate-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+        .season-edit { grid-template-columns: 1fr; }
+        .sp-grid { grid-template-columns: 1fr; }
         .filters .spacer { display: none; }
       }
     </style>
@@ -397,6 +472,7 @@
             <button type="button" class="preset tab" data-panel="analytics" aria-pressed="true">Visitors</button>
             <button type="button" class="preset tab" data-panel="notice" aria-pressed="false">Announcement</button>
             <button type="button" class="preset tab" data-panel="schedule" aria-pressed="false">Open days</button>
+            <button type="button" class="preset tab" data-panel="pricing" aria-pressed="false">Rates &amp; promos</button>
           </div>
           <div class="spacer"></div>
           <button type="button" class="btn-quiet" id="signout">Sign out</button>
@@ -618,6 +694,66 @@
                 <button type="button" class="btn-quiet" id="s-followup-no">No need</button>
               </div>
             </div>
+          </div>
+        </section>
+        <!-- ========================= Rates & promos ========================= -->
+        <section id="panel-pricing" hidden>
+          <div class="card form">
+            <h2>Rates and promos</h2>
+            <p class="lede">
+              The admission rates and the promo strip in the Rates section of the website. This
+              changes the website only — Klook and Semnox keep their own prices, so update them
+              separately. Saving also asks Netlify to rebuild, which carries the price range into
+              what Google shows.
+            </p>
+
+            <div class="panel-cols">
+            <div class="panel-main">
+
+            <label>Seasons</label>
+            <p class="hint">Peak runs between these two dates, both included. Every other day is Off-Peak.</p>
+            <div class="season-edit">
+              <div>
+                <label for="p-peakFrom-m">Peak starts</label>
+                <div class="md"><select id="p-peakFrom-m" aria-label="Peak starts, month"></select><input type="number" id="p-peakFrom-d" min="1" max="31" step="1" aria-label="Peak starts, day" /></div>
+              </div>
+              <div>
+                <label for="p-peakTo-m">Peak ends</label>
+                <div class="md"><select id="p-peakTo-m" aria-label="Peak ends, month"></select><input type="number" id="p-peakTo-d" min="1" max="31" step="1" aria-label="Peak ends, day" /></div>
+              </div>
+            </div>
+            <p class="rate-calc" id="p-season-line"></p>
+
+            <label style="margin-top: 24px">Admission rates</label>
+            <p class="hint">
+              The first rate is the base: a discount is worked out from it, and so is a promo's
+              group price. PWD &amp; Senior Citizen is set as 20% off, so it follows the Adult
+              Day Pass by itself.
+            </p>
+            <div class="rate-list" id="p-rates"></div>
+            <button type="button" class="btn-add" id="p-add-rate">+ Add a rate</button>
+
+            <label style="margin-top: 28px">Promos</label>
+            <p class="hint">
+              Shown under the rates while switched on and inside its dates. Leave the dates empty
+              to run it until it is switched off. In the text, put the words that should link to
+              the enquiry form in square brackets — <b>[Get in touch]</b>.
+            </p>
+            <div class="promo-list" id="p-promos"></div>
+            <button type="button" class="btn-add" id="p-add-promo">+ Add a promo</button>
+
+            </div><!-- /panel-main -->
+
+            <aside class="panel-side">
+              <div class="site-preview" id="p-preview" aria-live="polite"></div>
+            </aside>
+            </div><!-- /panel-cols -->
+
+            <div class="actions">
+              <button type="button" class="btn-primary inline" id="p-save">Save rates &amp; promos</button>
+              <button type="button" class="btn-quiet" id="p-revert">Undo changes</button>
+            </div>
+            <p class="msg" id="p-msg" role="status" aria-live="polite"></p>
           </div>
         </section>
       </main>

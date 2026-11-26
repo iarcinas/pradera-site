@@ -205,6 +205,59 @@ console.log(`og-absolute: sitemap.xml written and pointed at from robots.txt`);
    Its own failures are already handled inside; this catch is only for the
    unexpected, and it must not fail the deploy — a build that dies here would
    take the whole site down over a schedule refresh. */
-applySchedule().catch((err) => {
-  console.log(`og-absolute: opening-hours refresh skipped (${err.message}).`);
-});
+applySchedule()
+  .catch((err) => {
+    console.log(`og-absolute: opening-hours refresh skipped (${err.message}).`);
+  })
+  .then(() => applyPriceRange())
+  .catch((err) => {
+    console.log(`og-absolute: price-range refresh skipped (${err.message}).`);
+  });
+
+/* The price band Google shows ("₱864–₱1,180"), from the rates staff save in
+   /admin/. Same rules as the hours: read from the live site, and on any
+   failure leave what is committed. Discount rows are worked out from the
+   first rate the way the page does it; free rows do not count. */
+async function applyPriceRange() {
+  let pricing;
+  try {
+    const res = await fetch(`${origin}/.netlify/functions/config`);
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    ({ pricing } = await res.json());
+  } catch (err) {
+    console.log(`og-absolute: could not read the stored rates (${err.message}) — leaving the price range as committed.`);
+    return;
+  }
+  if (!pricing || !Array.isArray(pricing.rates) || !pricing.rates.length) {
+    console.log("og-absolute: no rates stored yet — leaving the price range as committed.");
+    return;
+  }
+  const first = pricing.rates[0];
+  const off = (n, pct) => Math.round((n * (100 - pct)) / 100);
+  const prices = [];
+  pricing.rates.forEach((r) => {
+    // Both seasons: the band Google shows has to cover the dearest day too.
+    if (r.kind === "price") prices.push(r.weekday, r.weekend, r.peakWeekday, r.peakWeekend);
+    if (r.kind === "discount" && first.kind === "price") {
+      [first.weekday, first.weekend, first.peakWeekday, first.peakWeekend]
+        .filter((n) => Number.isFinite(n))
+        .forEach((n) => prices.push(off(n, r.percent)));
+    }
+  });
+  const good = prices.filter((n) => Number.isFinite(n) && n > 0);
+  if (!good.length) return;
+  const fmt = (n) => `₱${n.toLocaleString("en-US")}`;
+  const lo = Math.min(...good);
+  const hi = Math.max(...good);
+  const band = lo === hi ? fmt(lo) : `${fmt(lo)}–${fmt(hi)}`;
+
+  let out = fs.readFileSync(file, "utf8");
+  const next = out.replace(/"priceRange":\s*"[^"]*"/, `"priceRange": "${band}"`);
+  if (next === out) {
+    console.log(`og-absolute: price range already ${band}.`);
+    return;
+  }
+  JSON.parse(next.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+  fs.writeFileSync(file, next);
+  console.log(`og-absolute: price range set to ${band} from the stored rates.`);
+}
